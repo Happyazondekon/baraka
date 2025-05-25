@@ -2,6 +2,11 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,5 +32,44 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+// Routes publiques
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/a-propos', [HomeController::class, 'about'])->name('about');
+Route::get('/tarifs', [HomeController::class, 'pricing'])->name('pricing');
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::post('/contact', [HomeController::class, 'sendContact'])->name('contact.send');
+
+// Routes protégées par authentification
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profil', [HomeController::class, 'profile'])->name('profile');
+    Route::put('/profil', [HomeController::class, 'updateProfile'])->name('profile.update');
+
+    // Routes des modules et cours
+    Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');
+    Route::get('/cours/{module}', [ModuleController::class, 'show'])->name('modules.show');
+    Route::get('/cours/{module}/{course}', [CourseController::class, 'show'])->name('courses.show');
+
+    // Routes des quiz
+    Route::get('/quiz/{module}', [QuizController::class, 'show'])->name('quiz.show');
+    Route::post('/quiz/{module}/submit', [QuizController::class, 'submit'])->name('quiz.submit');
+
+    // Routes de paiement
+    Route::get('/paiement', [HomeController::class, 'payment'])->name('payment');
+    Route::post('/paiement/process', [HomeController::class, 'processPayment'])->name('payment.process');
+});
+
+// Routes admin
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::resource('modules', ModuleController::class)->except('show');
+    Route::resource('courses', CourseController::class)->except('show');
+    Route::resource('quizzes', QuizController::class)->except('show');
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::get('/questions', [AdminController::class, 'payments'])->name('admin.payments');
+});
+
 
 require __DIR__.'/auth.php';
