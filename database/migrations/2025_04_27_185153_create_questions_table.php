@@ -1,95 +1,25 @@
-@extends('admin.layouts.app')
+<?php
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-@section('title', 'Créer un quiz')
+return new class extends Migration
+{
+    public function up()
+    {
+        Schema::create('questions', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('quiz_id')->constrained()->onDelete('cascade');
+            $table->text('question_text');
+            $table->string('image')->nullable();
+            $table->enum('type', ['multiple_choice', 'true_false'])->default('multiple_choice');
+            $table->integer('order')->default(0);
+            $table->timestamps();
+        });
+    }
 
-@section('content')
-<div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b border-gray-200">
-            <h3 class="text-lg font-semibold">Créer un nouveau quiz</h3>
-        </div>
-        
-        <form method="POST" action="{{ route('admin.quizzes.store') }}" class="p-6">
-            @csrf
-            
-            <div class="space-y-6">
-                <div>
-                    <label for="module_id" class="block text-sm font-medium text-gray-700">Module *</label>
-                    <select name="module_id" id="module_id" required
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">Sélectionner un module</option>
-                        @foreach(App\Models\Module::orderBy('order')->get() as $module)
-                            <option value="{{ $module->id }}" {{ old('module_id') == $module->id ? 'selected' : '' }}>
-                                {{ $module->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('module_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700">Titre *</label>
-                    <input type="text" name="title" id="title" required
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        value="{{ old('title') }}">
-                    @error('title')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea name="description" id="description" rows="3"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">{{ old('description') }}</textarea>
-                    @error('description')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <label for="time_limit" class="block text-sm font-medium text-gray-700">Durée limite (minutes)</label>
-                        <input type="number" name="time_limit" id="time_limit" min="1"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            value="{{ old('time_limit') }}" placeholder="Laisser vide pour illimité">
-                        @error('time_limit')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="passing_score" class="block text-sm font-medium text-gray-700">Score de réussite (%) *</label>
-                        <input type="number" name="passing_score" id="passing_score" required min="0" max="100"
-                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            value="{{ old('passing_score', 70) }}">
-                        @error('passing_score')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="flex items-center">
-                    <input type="checkbox" name="is_active" id="is_active" value="1" checked
-                        class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        {{ old('is_active', true) ? 'checked' : '' }}>
-                    <label for="is_active" class="ml-2 block text-sm text-gray-700">
-                        Quiz actif
-                    </label>
-                </div>
-            </div>
-
-            <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('admin.quizzes.index') }}" 
-                    class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
-                    Annuler
-                </a>
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Créer le quiz
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-@endsection
+    public function down()
+    {
+        Schema::dropIfExists('questions');
+    }
+};
