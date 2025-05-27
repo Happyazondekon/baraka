@@ -76,7 +76,7 @@ class QuizController extends Controller
     public function create()
     {
         $modules = Module::where('is_active', true)->orderBy('order')->get();
-        return view('quizzes.create', compact('modules'));
+        return view('admin.quizzes.create', compact('modules'));
     }
 
     public function store(Request $request)
