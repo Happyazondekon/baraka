@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AdminController;
 
 /*
@@ -67,8 +68,22 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('modules', ModuleController::class)->except('show');
     Route::resource('courses', CourseController::class)->except('show');
     Route::resource('quizzes', QuizController::class)->except('show');
+
+    // Route pour quitter question pour quizzes.show
+    Route::resource('questions', QuestionController::class);
+
+
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::get('/questions', [AdminController::class, 'payments'])->name('admin.payments');
+
+    // Routes pour les ajoutes de questions
+    Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
+    Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
+    Route::post('/quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('questions.store');
+
+    // Annuller question
+    Route::get('/annule/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('quizzes.show');
+
 });
 
 

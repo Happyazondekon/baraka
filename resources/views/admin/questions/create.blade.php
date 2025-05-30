@@ -10,9 +10,9 @@
             <p class="text-gray-600 mt-1">Module : {{ $quiz->module->title }}</p>
         </div>
         
-        <form method="POST" action="{{ route('admin.questions.store', $quiz) }}" class="p-6">
+        <form method="POST" action="{{ route('questions.store', $quiz) }}" class="p-6">
             @csrf
-            
+            <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
             <div class="space-y-6">
                 <div>
                     <label for="question" class="block text-sm font-medium text-gray-700">Question *</label>
@@ -87,7 +87,7 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('admin.quizzes.show', $quiz) }}" 
+                <a href="{{ route('quizzes.index', $quiz) }}" 
                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </a>

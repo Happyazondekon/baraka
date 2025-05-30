@@ -25,11 +25,11 @@
                     </div>
                 </div>
                 <div class="flex space-x-2">
-                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" 
+                    <a href="{{ route('quizzes.edit', $quiz) }}" 
                         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         <i class="fas fa-edit mr-2"></i>Modifier
                     </a>
-                    <a href="{{ route('admin.questions.create', $quiz) }}" 
+                    <a href="{{ route('questions.create', ['quiz_id' => $quiz->id]) }}" 
                         class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         <i class="fas fa-plus mr-2"></i>Ajouter une question
                     </a>
@@ -55,25 +55,26 @@
                                 </span>
                                 <span class="text-xs text-gray-500">{{ $question->points }} points</span>
                             </div>
-                            <h5 class="font-medium text-gray-900 mb-3">{{ $question->question }}</h5>
+                            <h5 class="font-medium text-gray-900 mb-3">{{ $question->question_text}}</h5>
                             
                             <!-- Options de réponse -->
                             <div class="space-y-2">
-                                @foreach($question->options as $optionIndex => $option)
-                                    <div class="flex items-center space-x-2">
-                                        <span class="w-6 h-6 rounded-full border-2 {{ $option['is_correct'] ? 'bg-green-100 border-green-500 text-green-700' : 'border-gray-300' }} flex items-center justify-center text-sm font-medium">
-                                            {{ chr(65 + $optionIndex) }}
-                                        </span>
-                                        <span class="{{ $option['is_correct'] ? 'text-green-700 font-medium' : 'text-gray-700' }}">
-                                            {{ $option['text'] }}
-                                        </span>
-                                        @if($option['is_correct'])
-                                            <i class="fas fa-check text-green-500 text-sm"></i>
-                                        @endif
-                                    </div>
-                                @endforeach
+                                @if(is_array($question->options))
+                                    @foreach($question->options as $optionIndex => $option)
+                                        <div class="flex items-center space-x-2">
+                                            <span class="w-6 h-6 rounded-full border-2 {{ $option['is_correct'] ? 'bg-green-100 border-green-500 text-green-700' : 'border-gray-300' }} flex items-center justify-center text-sm font-medium">
+                                                {{ chr(65 + $optionIndex) }}
+                                            </span>
+                                            <span class="{{ $option['is_correct'] ? 'text-green-700 font-medium' : 'text-gray-700' }}">
+                                                {{ $option['text'] }}
+                                            </span>
+                                            @if($option['is_correct'])
+                                                <i class="fas fa-check text-green-500 text-sm"></i>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                @endif
                             </div>
-
                             @if($question->explanation)
                                 <div class="mt-3 p-3 bg-blue-50 rounded">
                                     <p class="text-sm text-blue-800"><strong>Explication :</strong> {{ $question->explanation }}</p>
@@ -82,11 +83,11 @@
                         </div>
                         
                         <div class="flex space-x-2 ml-4">
-                            <a href="{{ route('admin.questions.edit', $question) }}" 
+                            <a href="{{ route('questions.edit', $question) }}" 
                                 class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form method="POST" action="{{ route('admin.questions.destroy', $question) }}" class="inline">
+                            <form method="POST" action="{{ route('questions.destroy', $question) }}" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" 
@@ -101,7 +102,7 @@
                 <div class="p-6 text-center">
                     <i class="fas fa-question-circle text-gray-400 text-4xl mb-4"></i>
                     <p class="text-gray-600">Aucune question ajoutée pour ce quiz.</p>
-                    <a href="{{ route('admin.questions.create', $quiz) }}" 
+                    <a href="{{ route('questions.create', $quiz) }}"
                         class="inline-block mt-3 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                         Ajouter la première question
                     </a>

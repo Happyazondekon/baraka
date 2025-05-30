@@ -15,6 +15,10 @@ class Question extends Model
         'type',
         'order'
     ];
+    
+    protected $casts = [
+    'options' => 'array',
+    ];
 
     public function quiz()
     {
@@ -22,9 +26,9 @@ class Question extends Model
     }
 
     public function answers()
-{
-    return $this->hasMany(Answer::class)->orderBy('order');
-}
+    {
+        return $this->hasMany(Answer::class)->orderBy('order');
+    }
 
     public function correctAnswer()
     {

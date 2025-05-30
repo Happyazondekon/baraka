@@ -22,7 +22,7 @@ class QuizController extends Controller
         $user = auth()->user();
         $lastResult = $quiz->userResults()->where('user_id', $user->id)->latest()->first();
 
-        return view('quiz.show', compact('module', 'quiz', 'lastResult'));
+        return view('admin.quiz.show', compact('module', 'quiz', 'lastResult'));
     }
 
     public function submit(Request $request, Module $module)
@@ -76,8 +76,15 @@ class QuizController extends Controller
     public function create()
     {
         $modules = Module::where('is_active', true)->orderBy('order')->get();
-        return view('quizzes.create', compact('modules'));
+        return view('admin.quizzes.create', compact('modules'));
     }
+
+    public function adminShow(Quiz $quiz)
+    {
+        $quiz->load(['questions.answers', 'module']);
+        return view('admin.quizzes.show', compact('quiz'));
+    }
+
 
     public function store(Request $request)
     {

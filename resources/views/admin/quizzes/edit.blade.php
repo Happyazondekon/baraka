@@ -98,10 +98,10 @@
                     <div class="flex justify-between items-center mb-2">
                         <h5 class="font-medium">{{ $question->question_text }}</h5>
                         <div class="flex space-x-2">
-                            <a href="#" class="text-blue-600 hover:text-blue-900">
+                            <a href="{{ route('questions.edit', $question) }}" class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form method="POST" action="#" class="inline">
+                            <form method="POST" action="{{ route('questions.destroy', $question) }}" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" 
@@ -128,9 +128,15 @@
                 </div>
             @endforeach
 
-            <button type="button" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            <!-- Supposons que tu as l'objet $quiz dans ta vue -->
+            <a href="{{ route('questions.create', ['quiz_id' => $quiz->id]) }}" 
+            class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            <i class="fas fa-plus mr-2"></i>
+                Ajouter une question
+            </a>
+            <!-- <button type="button" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
                 <i class="fas fa-plus mr-2"></i>Ajouter une question
-            </button>
+            </button> -->
         </div>
     </div>
 </div>
