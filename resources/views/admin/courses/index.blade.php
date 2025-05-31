@@ -36,15 +36,17 @@
                             <span class="text-red-600 font-semibold">Non</span>
                         @endif
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                        <a href="{{ route('courses.edit', $course) }}" 
-                           class="text-blue-600 hover:text-blue-900">Modifier</a>
-
-                        <form action="{{ route('courses.destroy', $course) }}" method="POST" class="inline"
-                            onsubmit="return confirm('Voulez-vous vraiment supprimer ce cours ?');">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <a href="{{ route('courses.edit', $course) }}" class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form method="POST" action="{{ route('courses.destroy', $course) }}" class="inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900">Supprimer</button>
+                            <button type="submit" class="text-red-600 hover:text-red-900" 
+                                onclick="return confirm('Êtes-vous sûr ?')">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </form>
                     </td>
                 </tr>

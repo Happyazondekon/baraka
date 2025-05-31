@@ -111,11 +111,27 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- Image actuelle et modification  -->
+                    <div class="mt-6">
+                        <!-- <label class="block text-sm font-medium text-gray-700 mb-2">Image</label> -->
+                        
+                        <div class="mb-4">
+                            @if($question->image)
+                                <img id="preview-image" src="{{ asset('storage/' . $question->image) }}" alt="image"
+                                    class="w-48 h-auto rounded shadow">
+                            @endif
+                        </div>
+
+                        @error('image')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                     
                     <div class="ml-4 space-y-2">
                         @foreach($question->answers as $answer)
                             <div class="flex items-center">
-                                <input type="{{ $question->type == 'multiple_choice' ? 'radio' : 'checkbox' }}" 
+                                <input type="{{ $question->type == 'multiple_choice' ? 'checkbox' : 'radio' }}" 
                                     name="answer_{{ $question->id }}" 
                                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                     {{ $answer->is_correct ? 'checked' : '' }} disabled>

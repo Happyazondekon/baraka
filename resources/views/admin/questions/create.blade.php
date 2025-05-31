@@ -10,7 +10,7 @@
             <p class="text-gray-600 mt-1">Module : {{ $quiz->module->title }}</p>
         </div>
         
-        <form method="POST" action="{{ route('questions.store', $quiz) }}" class="p-6">
+        <form method="POST" action="{{ route('questions.store', $quiz) }}" class="p-6" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
             <div class="space-y-6">
@@ -22,6 +22,28 @@
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
+                <div class="mt-6">
+                <!-- Aperçu de l'image -->
+                    <div id="image-preview-container" class="mb-3">
+                        <img id="image-preview" src="#" class="hidden w-48 rounded shadow" />
+                    </div>
+
+                    <!-- Boutons image -->
+                    <div class="flex space-x-4 items-center">
+                        <input type="file" name="image" id="image-input" accept="image/*"
+                            class="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+
+                        <button type="button" id="remove-image-btn"
+                                class="hidden bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                            Supprimer l'image
+                        </button>
+                    </div>
+
+                @error('image')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
 
                 <!-- Options de réponse -->
                 <div>
@@ -37,9 +59,9 @@
                                     placeholder="Texte de l'option {{ chr(65 + $i) }}" 
                                     value="{{ old("options.{$i}.text") }}" required>
                                 <label class="flex items-center">
-                                    <input type="radio" name="correct_option" value="{{ $i }}" 
+                                    <input type="checkbox" name="correct_option[]" value="{{ $i }}" 
                                         class="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                                        {{ old('correct_option') == $i ? 'checked' : '' }} required>
+                                        {{ old('correct_option') == $i ? 'checked' : '' }}>
                                     <span class="ml-2 text-sm text-gray-700">Correcte</span>
                                 </label>
                             </div>
@@ -103,32 +125,65 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Validation côté client
+document.addEventListener('DOMContentLoaded', function () {
     const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        const options = document.querySelectorAll('input[name*="[text]"]');
-        const correctOption = document.querySelector('input[name="correct_option"]:checked');
-        
+
+    // Vérification du formulaire avant soumission
+    form.addEventListener('submit', function (e) {
+        const optionInputs = document.querySelectorAll('input[name*="[text]"]');
+        const correctCheckboxes = document.querySelectorAll('input[name*="[is_correct]"]:checked');
+
         let hasEmptyOption = false;
-        options.forEach(option => {
-            if (!option.value.trim()) {
+
+        optionInputs.forEach(input => {
+            if (input.value.trim() === '') {
                 hasEmptyOption = true;
             }
         });
-        
+
         if (hasEmptyOption) {
             e.preventDefault();
-            alert('Veuillez remplir toutes les options de réponse.');
-            return false;
+            alert("❌ Veuillez remplir **toutes** les options de réponse.");
+            return;
         }
-        
-        if (!correctOption) {
+
+        if (correctCheckboxes.length === 0) {
             e.preventDefault();
-            alert('Veuillez sélectionner la bonne réponse.');
-            return false;
+            alert("❌ Veuillez sélectionner **au moins une bonne réponse**.");
+            return;
         }
+    });
+
+    // Gestion de l'affichage d'image et du bouton supprimer
+    const input = document.getElementById('image-input');
+    const preview = document.getElementById('image-preview');
+    const removeBtn = document.getElementById('remove-image-btn');
+
+    input.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                preview.src = event.target.result;
+                preview.classList.remove('hidden');
+                removeBtn.classList.remove('hidden');
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+    removeBtn.addEventListener('click', function () {
+        input.value = '';
+        preview.src = '#';
+        preview.classList.add('hidden');
+        removeBtn.classList.add('hidden');
+        alert("🗑️ Image supprimée !");
     });
 });
 </script>
+
+
 @endsection

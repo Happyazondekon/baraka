@@ -18,7 +18,7 @@
     <header class="bg-white shadow-sm">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
             <!-- Logo -->
-            <a href="{{ route('home') }}" class="text-2xl font-bold flex items-center space-x-1">
+            <a href="{{ route('admin.dashboard') }}" class="text-2xl font-bold flex items-center space-x-1">
                 <span class="text-green-500">B</span>
                 <span>araka</span>
                 <span class="text-green-500">🚗</span>
