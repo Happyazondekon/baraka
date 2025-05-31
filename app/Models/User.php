@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'is_admin',
+        'role',
     ];
 
     /**
@@ -41,5 +44,71 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_admin' => 'boolean',
     ];
+
+    /**
+     * Relation avec les résultats de quiz
+     */
+    public function quizResults()
+    {
+        return $this->hasMany(QuizResult::class);
+    }
+
+    /**
+     * Relation avec les paiements
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Vérifier si l'utilisateur est admin
+     */
+    public function isAdmin()
+    {
+        return $this->is_admin || $this->role === 'admin';
+    }
+
+    /**
+     * Vérifier si l'utilisateur est modérateur
+     */
+    public function isModerator()
+    {
+        return $this->role === 'moderator';
+    }
+
+    /**
+     * Obtenir le pourcentage de progression de l'utilisateur
+     */
+    public function getProgressPercentage()
+    {
+        $totalModules = Module::where('is_active', true)->count();
+        if ($totalModules === 0) {
+            return 0;
+        }
+
+        $completedModules = $this->quizResults()
+            ->where('passed', true)
+            ->distinct('quiz_id')
+            ->join('quizzes', 'quiz_results.quiz_id', '=', 'quizzes.id')
+            ->distinct('quizzes.module_id')
+            ->count();
+
+        return round(($completedModules / $totalModules) * 100);
+    }
+
+    /**
+     * Obtenir le nombre de modules complétés
+     */
+    public function getCompletedModulesCount()
+    {
+        return $this->quizResults()
+            ->where('passed', true)
+            ->distinct('quiz_id')
+            ->join('quizzes', 'quiz_results.quiz_id', '=', 'quizzes.id')
+            ->distinct('quizzes.module_id')
+            ->count();
+    }
 }

@@ -71,7 +71,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('questions', QuestionController::class);
 
 
+    // Routes pour la gestion des utilisateurs
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('admin.users.verify');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+    Route::post('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle-status');
+    Route::get('/users/{user}/details', [AdminController::class, 'getUserDetails'])->name('admin.users.details');
+
     Route::get('/questions', [AdminController::class, 'payments'])->name('admin.payments');
 
     // Routes pour les ajoutes de questions
