@@ -61,6 +61,7 @@
                             </svg>
                         </a>
                     </div>
+                    
                 </div>
                 @endforeach
             </div>
