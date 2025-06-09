@@ -33,19 +33,35 @@
                     @enderror
                 </div>
 
-                @if($module->image)
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Image actuelle</label>
-                        <img src="{{ Storage::url($module->image) }}" alt="{{ $module->title }}" class="mt-1 h-32 w-32 object-cover rounded">
-                    </div>
-                @endif
+                 <!-- Image actuelle et modification -->
+                <div class="mt-6">
 
-                <div>
-                    <label for="image" class="block text-sm font-medium text-gray-700">
-                        {{ $module->image ? 'Changer l\'image' : 'Image' }}
-                    </label>
-                    <input type="file" name="image" id="image" accept="image/*"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <!-- 1. Div image seule -->
+                    <div class="mb-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Image actuelle</label>
+
+                        @if($module->image)
+                            <img id="preview-image" src="{{ asset('storage/' . $module->image) }}" alt="Image actuelle"
+                                class="w-48 h-auto rounded shadow">
+                        @else
+                            <p class="text-gray-500 italic" id="no-image-text">Aucune image</p>
+                        @endif
+                    </div>
+
+                    <!-- 2. Div boutons (horizontaux entre eux) -->
+                    <div class="flex space-x-4 items-center">
+                        <!-- Bouton 1 : Input file -->
+                        <input type="file" name="image" id="image-input"
+                            accept="image/*"
+                            class="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+
+                        <!-- Bouton 2 : Supprimer image -->
+                        <label class="inline-flex items-center" id="del_image" style="{{ $module->image ? '' : 'display:none' }}">
+                            <input type="checkbox" name="remove_image" value="1" class="form-checkbox text-red-600">
+                            <span class="ml-2 text-sm text-red-700">Supprimer l'image actuelle</span>
+                        </label>
+                    </div>
+
                     @error('image')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -95,3 +111,42 @@
     </div>
 </div>
 @endsection
+<!-- {{-- Script pour prévisualiser la nouvelle image --}} -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const input = document.getElementById('image-input');
+        const noImageText = document.getElementById('no-image-text');
+        const del = document.getElementById('del_image');
+
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const imageUrl = e.target.result;
+
+                    let preview = document.getElementById('preview-image');
+                    if (preview) {
+                        preview.src = imageUrl;
+                    } else {
+                        preview = document.createElement('img');
+                        preview.id = 'preview-image';
+                        preview.className = 'w-48 h-auto rounded shadow mt-2';
+                        preview.src = imageUrl;
+                        input.parentElement.insertBefore(preview, input);
+                    }
+
+                    // Masquer le texte "Aucune image"
+                    if (noImageText) {
+                        noImageText.style.display = 'none';
+                    }
+
+                    // Afficher la checkbox de suppression d’image
+                        del.style.display = 'inline-flex';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+</script>

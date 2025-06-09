@@ -32,10 +32,24 @@
                     @enderror
                 </div>
 
-                <div>
+                <div class="mt-6">
+                <!-- Aperçu de l'image -->
                     <label for="image" class="block text-sm font-medium text-gray-700">Image</label>
-                    <input type="file" name="image" id="image" accept="image/*"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <div id="image-preview-container" class="mb-3">
+                        <img id="image-preview" src="#" class="hidden w-48 rounded shadow" />
+                    </div>
+
+                    <!-- Boutons image -->
+                    <div class="flex space-x-4 items-center"> 
+                        <input type="file" name="image" id="image-input" accept="image/*"
+                            class="block text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50">
+
+                        <button type="button" id="remove-image-btn"
+                                class="hidden bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                            Supprimer l'image
+                        </button>
+                    </div>
+
                     @error('image')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -45,7 +59,7 @@
                     <label for="order" class="block text-sm font-medium text-gray-700">Ordre *</label>
                     <input type="number" name="order" id="order" required min="0"
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                        value="{{ old('order', 0) }}">
+                        value="{{ old('order', 0)}}">
                     @error('order')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -85,3 +99,38 @@
     </div>
 </div>
 @endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const inputImage = document.getElementById('image-input');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+
+        inputImage.addEventListener('change', function () {
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    removeImageBtn.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreview.src = "#";
+                imagePreview.classList.add('hidden');
+                removeImageBtn.classList.add('hidden');
+            }
+        });
+
+        removeImageBtn.addEventListener('click', function () {
+            // Réinitialiser l'input
+            inputImage.value = "";
+            // Cacher l'aperçu
+            imagePreview.src = "#";
+            imagePreview.classList.add('hidden');
+            this.classList.add('hidden');
+        });
+    });
+</script>

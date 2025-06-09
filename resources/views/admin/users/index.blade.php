@@ -228,28 +228,28 @@
 </div>
 
 <script>
-function showUserDetails(userId) {
-    document.getElementById('userDetailsModal').classList.remove('hidden');
-    // Ici vous pouvez faire un appel AJAX pour charger les détails de l'utilisateur
-    document.getElementById('userDetailsContent').innerHTML = '<p class="text-center">Chargement...</p>';
-}
-
-function closeUserDetails() {
-    document.getElementById('userDetailsModal').classList.add('hidden');
-}
-
-function toggleUserStatus(userId) {
-    if (confirm('Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?')) {
-        // Ici vous pouvez faire un appel AJAX pour changer le statut
-        console.log('Toggle status for user:', userId);
+    function showUserDetails(userId) {
+        document.getElementById('userDetailsModal').classList.remove('hidden');
+        // Ici vous pouvez faire un appel AJAX pour charger les détails de l'utilisateur
+        document.getElementById('userDetailsContent').innerHTML = '<p class="text-center">Chargement...</p>';
     }
-}
 
-// Fermer le modal en cliquant à l'extérieur
-document.getElementById('userDetailsModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeUserDetails();
+    function closeUserDetails() {
+        document.getElementById('userDetailsModal').classList.add('hidden');
     }
-});
+
+    function toggleUserStatus(userId) {
+        if (confirm('Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?')) {
+            // Ici vous pouvez faire un appel AJAX pour changer le statut
+            console.log('Toggle status for user:', userId);
+        }
+    }
+
+    // Fermer le modal en cliquant à l'extérieur
+    document.getElementById('userDetailsModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeUserDetails();
+        }
+    });
 </script>
 @endsection
