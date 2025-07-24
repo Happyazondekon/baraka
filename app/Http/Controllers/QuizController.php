@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class QuizController extends Controller
 {
+    // This method is for showing a quiz that belongs to a module
     public function show(Module $module)
     {
         $quiz = $module->quiz()->with(['questions.answers'])->first();
@@ -23,6 +24,27 @@ class QuizController extends Controller
         $lastResult = $quiz->userResults()->where('user_id', $user->id)->latest()->first();
 
         return view('admin.quiz.show', compact('module', 'quiz', 'lastResult'));
+    }
+
+    // This method is for showing a quiz directly by its ID
+    public function showByQuiz(Quiz $quiz)
+    {
+        // When accessing directly via /quiz/{quiz}, we don't necessarily have a module context
+        // You might need to adjust what information is passed to the view here.
+        // If the view truly requires a module, you might need to fetch it via $quiz->module
+        $module = $quiz->module; // Fetch the associated module
+
+        if (!$quiz) {
+            // This case should ideally not happen if route model binding works,
+            // but good to have a fallback.
+            return redirect()->route('dashboard')->with('error', 'Quiz introuvable.');
+        }
+
+        $user = auth()->user();
+        $lastResult = $quiz->userResults()->where('user_id', $user->id)->latest()->first();
+
+        // Pass the module if the view (admin.quiz.show) expects it
+        return view('quizzes.show', compact('module', 'quiz', 'lastResult'));
     }
 
     public function submit(Request $request, Module $module)
@@ -99,7 +121,7 @@ class QuizController extends Controller
 
         Quiz::create($validated);
 
-        return redirect()->route('quizzes.index')->with('success', 'Quiz créé avec succès!');
+        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz créé avec succès!');
     }
 
     public function edit(Quiz $quiz)
@@ -122,12 +144,12 @@ class QuizController extends Controller
 
         $quiz->update($validated);
 
-        return redirect()->route('quizzes.index')->with('success', 'Quiz mis à jour avec succès!');
+        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz mis à jour avec succès!');
     }
 
     public function destroy(Quiz $quiz)
     {
         $quiz->delete();
-        return redirect()->route('quizzes.index')->with('success', 'Quiz supprimé avec succès!');
+        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz supprimé avec succès!');
     }
 }

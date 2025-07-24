@@ -155,7 +155,7 @@ class QuestionController extends Controller
         $question->delete();
 
         return redirect()
-            ->route('quizzes.edit', $question->quiz_id)
+            ->route('admin.quizzes.edit', $question->quiz_id)
             ->with('success', 'Question supprimée avec succès !');
     }
 

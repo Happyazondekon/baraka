@@ -40,16 +40,21 @@ Route::middleware(['auth'])->group(function () {
     // Cours (Module)
     Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');
     Route::get('/cours/{module}', [ModuleController::class, 'show'])->name('modules.show');
+    
+    // Quiz lié à un module
+    Route::get('/cours/{module}/quiz', [QuizController::class, 'show'])->name('modules.quiz.show');
+    Route::post('/cours/{module}/quiz/submit', [QuizController::class, 'submit'])->name('modules.quiz.submit');
+
+    // Quiz direct
+    Route::get('/quiz/{quiz}', [QuizController::class, 'showByQuiz'])->name('quizzes.show');
+
 
     // Détail d'un cours
     Route::get('/cours/{module}/{course}', [CourseController::class, 'show'])->name('courses.show');
+    
 
     // Progression utilisateur
     Route::get('/progression', [HomeController::class, 'progression'])->name('progression');
-
-    // Quiz
-    Route::get('/quiz/{module}', [QuizController::class, 'show'])->name('quiz.show');
-    Route::post('/quiz/{module}/submit', [QuizController::class, 'submit'])->name('quiz.submit');
 
     // Paiement
     Route::get('/paiement', [HomeController::class, 'payment'])->name('payment');
@@ -89,7 +94,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::post('/quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
 
     // Voir un quiz en admin
-    Route::get('/annule/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
+    Route::get('/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
 });
 
 

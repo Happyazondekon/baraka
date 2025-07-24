@@ -14,7 +14,7 @@
             @foreach($modules_theoriques as $index => $module)
                 <li class="flex items-center mb-2">
                     <span class="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white mr-2">{{ $index }}</span>
-                    {{ $module->titre }}
+                    {{ $module->title }}
                 </li>
             @endforeach
         </ul>
@@ -28,7 +28,7 @@
             @foreach($modules_pratiques as $index => $module)
                 <li class="flex items-center mb-2">
                     <span class="flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white mr-2">{{ $index + 1 }}</span>
-                    {{ $module->titre }}
+                    {{ $module->title }}
                 </li>
             @endforeach
         </ul>

@@ -54,5 +54,6 @@ class Module extends Model
 
         return round(($completedCourses / $totalCourses) * 100);
     }
+    
 }
 

@@ -24,17 +24,20 @@ class ModuleController extends Controller
 }
 
     public function show(Module $module)
-    {
-        $module->load(['courses' => function($query) {
+{
+    $module->load([
+        'courses' => function($query) {
             $query->where('is_active', true)->orderBy('order');
-        }, 'quiz.modules.answers']);
+        },
+        'quiz.answers'
+    ]);
 
-        $user = auth()->user();
-        $progress = $module->getProgressPercentage($user);
-        $isCompleted = $module->isCompletedBy($user);
+    $user = auth()->user();
+    $progress = $module->getProgressPercentage($user);
+    $isCompleted = $module->isCompletedBy($user);
 
-        return view('admin.modules.show', compact('module', 'progress', 'isCompleted'));
-    }
+    return view('modules.show', compact('module', 'progress', 'isCompleted'));
+}
 
     // Admin methods
     public function create()

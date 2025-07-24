@@ -35,4 +35,9 @@ class Quiz extends Model
     {
         return $this->hasMany(QuizResult::class);
     }
+  public function answers()
+{
+    return $this->hasManyThrough(Answer::class, Question::class);
+}
+
 }

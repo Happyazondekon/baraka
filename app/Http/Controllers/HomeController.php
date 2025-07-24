@@ -77,26 +77,52 @@ class HomeController extends Controller
 {
     $user = auth()->user();
 
-    // Exemple de récupération des modules pour progression
-    $modules_theoriques = \App\Models\Module::where('is_active', true)
-        ->where('is_practical', false)
-        ->orderBy('order')
-        ->get();
+    // Modules actifs séparés par type
+    $modules_theoriques = Module::where('is_active', true)->where('is_practical', false)->get();
+    $modules_pratiques = Module::where('is_active', true)->where('is_practical', true)->get();
 
-    $modules_pratiques = \App\Models\Module::where('is_active', true)
-        ->where('is_practical', true)
-        ->orderBy('order')
-        ->get();
+    // Fonction pour calculer progression d'une collection de modules
+    $calculerProgression = function($modules) use ($user) {
+        $totalModules = $modules->count();
+        if ($totalModules === 0) return 0;
 
-    // Calcule la progression (exemple simple)
-    $progression_theorique = 60; // À remplacer par ta logique réelle
-    $progression_pratique = 40;  // À remplacer par ta logique réelle
+        $progressSum = 0;
+
+        foreach ($modules as $module) {
+            // Progression sur les cours
+            $totalCourses = $module->courses()->count();
+            $completedCourses = $module->userProgress()->where('user_id', $user->id)->where('completed', true)->count();
+
+            $courseProgress = $totalCourses ? ($completedCourses / $totalCourses) : 0;
+
+            // Progression sur quiz (0 ou 1 selon quiz passé et réussi)
+            $quiz = $module->quiz()->first();
+            $quizPassed = false;
+            if ($quiz) {
+                $lastResult = $quiz->userResults()->where('user_id', $user->id)->latest()->first();
+                $quizPassed = $lastResult && $lastResult->passed;
+            }
+
+            $quizProgress = $quiz ? ($quizPassed ? 1 : 0) : 1; // pas de quiz = considéré comme réussi
+
+            // Moyenne cours + quiz
+            $moduleProgress = ($courseProgress + $quizProgress) / 2;
+
+            $progressSum += $moduleProgress;
+        }
+
+        return round(($progressSum / $totalModules) * 100);
+    };
+
+    $progression_theorique = $calculerProgression($modules_theoriques);
+    $progression_pratique = $calculerProgression($modules_pratiques);
 
     return view('progression', compact(
-        'modules_theoriques',
-        'modules_pratiques',
-        'progression_theorique',
+        'modules_theoriques', 
+        'modules_pratiques', 
+        'progression_theorique', 
         'progression_pratique'
     ));
 }
+
 }
