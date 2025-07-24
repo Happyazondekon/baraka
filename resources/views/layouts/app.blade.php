@@ -17,12 +17,18 @@
         </a>
 
         <nav class="hidden md:flex space-x-6">
-            <a href="{{ route('home') }}" class="hover:text-green-500 {{ Route::is('home') ? 'text-green-500' : '' }}">Accueil</a>
-            <a href="{{ route('about') }}" class="hover:text-green-500 {{ Route::is('about') ? 'text-green-500' : '' }}">À propos</a>
-            <a href="{{ route('modules.index') }}" class="hover:text-green-500 {{ Route::is('modules.*') ? 'text-green-500' : '' }}">Cours</a>
-            <a href="{{ route('pricing') }}" class="hover:text-green-500 {{ Route::is('pricing') ? 'text-green-500' : '' }}">Tarifs</a>
-            <a href="{{ route('contact') }}" class="hover:text-green-500 {{ Route::is('contact') ? 'text-green-500' : '' }}">Contact</a>
-        </nav>
+    @auth
+        <a href="{{ route('dashboard') }}" class="hover:text-green-500 {{ Route::is('dashboard') ? 'text-green-500' : '' }}">Accueil</a>
+        <a href="{{ route('modules.index') }}" class="hover:text-green-500 {{ Route::is('modules.*') ? 'text-green-500' : '' }}">Cours</a>
+        <a href="{{ route('progression') }}" class="hover:text-green-500 {{ Route::is('progression') ? 'text-green-500' : '' }}">Ma Progression</a>
+    @else
+        <a href="{{ route('home') }}" class="hover:text-green-500 {{ Route::is('home') ? 'text-green-500' : '' }}">Accueil</a>
+        <a href="{{ route('about') }}" class="hover:text-green-500 {{ Route::is('about') ? 'text-green-500' : '' }}">À propos</a>
+        <a href="{{ route('modules.index') }}" class="hover:text-green-500 {{ Route::is('modules.*') ? 'text-green-500' : '' }}">Cours</a>
+        <a href="{{ route('pricing') }}" class="hover:text-green-500 {{ Route::is('pricing') ? 'text-green-500' : '' }}">Tarifs</a>
+        <a href="{{ route('contact') }}" class="hover:text-green-500 {{ Route::is('contact') ? 'text-green-500' : '' }}">Contact</a>
+    @endauth
+</nav>
 
         <div>
             @auth

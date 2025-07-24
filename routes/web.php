@@ -14,81 +14,83 @@ use App\Http\Controllers\AdminController;
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
+| Ici sont enregistrées les routes web de l'application Baraka.
+| Elles sont chargées par le RouteServiceProvider et attribuées au groupe "web".
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+// Page d'accueil publique
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Pages publiques
+Route::get('/a-propos', [HomeController::class, 'about'])->name('about');
+Route::get('/tarifs', [HomeController::class, 'pricing'])->name('pricing');
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
+Route::post('/contact', [HomeController::class, 'sendContact'])->name('contact.send');
+
+// Groupe routes utilisateur authentifié
+Route::middleware(['auth'])->group(function () {
+    // Accueil utilisateur connecté
+    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+
+    // Profil utilisateur
+    Route::get('/profil', [HomeController::class, 'profile'])->name('profile');
+    Route::put('/profil', [HomeController::class, 'updateProfile'])->name('profile.update');
+
+    // Cours (Module)
+    Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');
+    Route::get('/cours/{module}', [ModuleController::class, 'show'])->name('modules.show');
+
+    // Détail d'un cours
+    Route::get('/cours/{module}/{course}', [CourseController::class, 'show'])->name('courses.show');
+
+    // Progression utilisateur
+    Route::get('/progression', [HomeController::class, 'progression'])->name('progression');
+
+    // Quiz
+    Route::get('/quiz/{module}', [QuizController::class, 'show'])->name('quiz.show');
+    Route::post('/quiz/{module}/submit', [QuizController::class, 'submit'])->name('quiz.submit');
+
+    // Paiement
+    Route::get('/paiement', [HomeController::class, 'payment'])->name('payment');
+    Route::post('/paiement/process', [HomeController::class, 'processPayment'])->name('payment.process');
 });
 
-
-
+// Profil - routes Laravel Breeze ou Jetstream
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-// Routes publiques
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/a-propos', [HomeController::class, 'about'])->name('about');
-Route::get('/tarifs', [HomeController::class, 'pricing'])->name('pricing');
-Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
-Route::post('/contact', [HomeController::class, 'sendContact'])->name('contact.send');
-
-// Routes protégées par authentification
-Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-    Route::get('/profil', [HomeController::class, 'profile'])->name('profile');
-    Route::put('/profil', [HomeController::class, 'updateProfile'])->name('profile.update');
-
-    // Routes des modules et cours
-    Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');
-    Route::get('/cours/{module}', [ModuleController::class, 'show'])->name('modules.show');
-    Route::get('/cours/{module}/{course}', [CourseController::class, 'show'])->name('courses.show');
-
-    // Routes des quiz
-    Route::get('/quiz/{module}', [QuizController::class, 'show'])->name('quiz.show');
-    Route::post('/quiz/{module}/submit', [QuizController::class, 'submit'])->name('quiz.submit');
-
-    // Routes de paiement
-    Route::get('/paiement', [HomeController::class, 'payment'])->name('payment');
-    Route::post('/paiement/process', [HomeController::class, 'processPayment'])->name('payment.process');
-});
-
-// Routes admin
+// Groupe routes Admin (prefixed 'admin', noms de routes préfixés 'admin.')
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::resource('modules', ModuleController::class)->except('show');
-    Route::resource('courses', CourseController::class)->except('show');
-    Route::resource('quizzes', QuizController::class)->except('show');
 
-    // Route pour quitter question pour quizzes.show
-    Route::resource('questions', QuestionController::class);
+    // Modules, Cours, Quiz - routes admin (noms préfixés)
+    Route::resource('modules', ModuleController::class, ['as' => 'admin'])->except('show');
+    Route::resource('courses', CourseController::class, ['as' => 'admin'])->except('show');
+    Route::resource('quizzes', QuizController::class, ['as' => 'admin'])->except('show');
+    Route::resource('questions', QuestionController::class, ['as' => 'admin']);
 
-
-    // Routes pour la gestion des utilisateurs
+    // Gestion utilisateurs
     Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
     Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('admin.users.verify');
     Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
     Route::post('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle-status');
     Route::get('/users/{user}/details', [AdminController::class, 'getUserDetails'])->name('admin.users.details');
 
-    Route::get('/questions', [AdminController::class, 'payments'])->name('admin.payments');
+    // Paiements
+    Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
 
-    // Routes pour les ajoutes de questions
-    Route::get('/questions/create', [QuestionController::class, 'create'])->name('questions.create');
-    Route::post('/questions', [QuestionController::class, 'store'])->name('questions.store');
-    Route::post('/quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('questions.store');
+    // Ajout de questions (admin)
+    Route::get('/questions/create', [QuestionController::class, 'create'])->name('admin.questions.create');
+    Route::post('/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
+    Route::post('/quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
 
-    // Annuller question
-    Route::get('/annule/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('quizzes.show');
-
+    // Voir un quiz en admin
+    Route::get('/annule/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
 });
 
-
+// Auth routes Laravel Breeze ou Jetstream
 require __DIR__.'/auth.php';

@@ -7,15 +7,20 @@ use Illuminate\Http\Request;
 
 class ModuleController extends Controller
 {
-    public function index()
-    {
-        $modules = Module::where('is_active', true)
-            ->orderBy('order')
-            ->with('courses')
-            ->get();
+   public function index()
+{
+    $modules = Module::where('is_active', true)
+        ->orderBy('order')
+        ->with('courses')
+        ->get();
 
+    // On différencie la vue admin et la vue utilisateur
+    if (request()->route()->getName() === 'admin.modules.index') {
         return view('admin.modules.index', compact('modules'));
+    } else {
+        return view('modules.index', compact('modules'));
     }
+}
 
     public function show(Module $module)
     {
@@ -86,4 +91,5 @@ class ModuleController extends Controller
         $module->delete();
         return redirect()->route('modules.index')->with('success', 'Module supprimé avec succès!');
     }
+    
 }

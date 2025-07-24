@@ -73,4 +73,30 @@ class HomeController extends Controller
 
         return back()->with('success', 'Profil mis à jour avec succès !');
     }
+    public function progression()
+{
+    $user = auth()->user();
+
+    // Exemple de récupération des modules pour progression
+    $modules_theoriques = \App\Models\Module::where('is_active', true)
+        ->where('is_practical', false)
+        ->orderBy('order')
+        ->get();
+
+    $modules_pratiques = \App\Models\Module::where('is_active', true)
+        ->where('is_practical', true)
+        ->orderBy('order')
+        ->get();
+
+    // Calcule la progression (exemple simple)
+    $progression_theorique = 60; // À remplacer par ta logique réelle
+    $progression_pratique = 40;  // À remplacer par ta logique réelle
+
+    return view('progression', compact(
+        'modules_theoriques',
+        'modules_pratiques',
+        'progression_theorique',
+        'progression_pratique'
+    ));
+}
 }

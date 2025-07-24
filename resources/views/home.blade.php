@@ -51,7 +51,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @foreach($featuredModules as $module)
                 <div class="bg-white rounded-lg overflow-hidden shadow-md">
-                    <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 object-fill">
+                    <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 cover object-cover">
                     <div class="p-6">
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ $module->title }}</h3>
                         <a href="{{ route('modules.show', $module) }}" class="text-green-500 hover:text-green-700 flex items-center">
