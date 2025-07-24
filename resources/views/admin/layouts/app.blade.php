@@ -29,13 +29,13 @@
                 <a href="{{ route('admin.dashboard') }}" class="{{ Route::is('admin.dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
                     Tableau de bord
                 </a>
-                <a href="{{ route('modules.index') }}" class="{{ Route::is('modules.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.modules.index') }}" class="{{ Route::is('modules.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
                     Modules
                 </a>
-                <a href="{{ route('courses.index') }}" class="{{ Route::is('admin.courses.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.courses.index') }}" class="{{ Route::is('admin.courses.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
                     Cours
                 </a>
-                <a href="{{ route('quizzes.index') }}" class="{{ Route::is('admin.quizzes.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.quizzes.index') }}" class="{{ Route::is('admin.quizzes.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
                     Quiz
                 </a>
                 <a href="{{ route('admin.users') }}" class="{{ Route::is('admin.users') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">

@@ -6,7 +6,7 @@
 <div class="max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold">Liste des cours</h2>
-        <a href="{{ route('courses.create') }}" 
+        <a href="{{ route('admin.courses.create') }}" 
            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
            Créer un cours
         </a>
@@ -37,10 +37,10 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                        <a href="{{ route('courses.edit', $course) }}" class="text-blue-600 hover:text-blue-900">
+                        <a href="{{ route('admin.courses.edit', $course) }}" class="text-blue-600 hover:text-blue-900">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form method="POST" action="{{ route('courses.destroy', $course) }}" class="inline">
+                        <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" class="inline">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-900" 

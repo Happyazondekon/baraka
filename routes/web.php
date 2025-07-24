@@ -92,5 +92,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/annule/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
 });
 
+
 // Auth routes Laravel Breeze ou Jetstream
 require __DIR__.'/auth.php';

@@ -9,7 +9,7 @@
             <h3 class="text-lg font-semibold">Modifier le quiz : {{ $quiz->title }}</h3>
         </div>
         
-        <form method="POST" action="{{ route('quizzes.update', $quiz) }}" class="p-6">
+        <form method="POST" action="{{ route('admin.quizzes.update', $quiz) }}" class="p-6">
             @csrf
             @method('PUT')
             
@@ -79,7 +79,7 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('quizzes.index') }}" 
+                <a href="{{ route('admin.quizzes.index') }}" 
                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </a>
@@ -98,10 +98,10 @@
                     <div class="flex justify-between items-center mb-2">
                         <h5 class="font-medium">{{ $question->question_text }}</h5>
                         <div class="flex space-x-2">
-                            <a href="{{ route('questions.edit', $question) }}" class="text-blue-600 hover:text-blue-900">
+                            <a href="{{ route('admin.questions.edit', $question) }}" class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form method="POST" action="{{ route('questions.destroy', $question) }}" class="inline">
+                            <form method="POST" action="{{ route('admin.questions.destroy', $question) }}" class="inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-red-600 hover:text-red-900" 
@@ -145,7 +145,7 @@
             @endforeach
 
             <!-- Supposons que tu as l'objet $quiz dans ta vue -->
-            <a href="{{ route('questions.create', ['quiz_id' => $quiz->id]) }}" 
+            <a href="{{ route('admin.questions.create', ['quiz_id' => $quiz->id]) }}" 
             class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
             <i class="fas fa-plus mr-2"></i>
                 Ajouter une question

@@ -6,7 +6,7 @@ extends('admin.layouts.app')
 <div class="max-w-4xl mx-auto">
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-xl font-semibold">Liste des cours</h2>
-        <a href="{{ route('courses.create') }}" 
+        <a href="{{ route('admin.courses.create') }}" 
            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
            Créer un cours
         </a>
@@ -40,7 +40,7 @@ extends('admin.layouts.app')
                         <a href="{{ route('courses.edit', $course) }}" 
                            class="text-blue-600 hover:text-blue-900">Modifier</a>
 
-                        <form action="{{ route('courses.destroy', $course) }}" method="POST" class="inline"
+                        <form action="{{ route('admin.courses.destroy', $course) }}" method="POST" class="inline"
                             onsubmit="return confirm('Voulez-vous vraiment supprimer ce cours ?');">
                             @csrf
                             @method('DELETE')

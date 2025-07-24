@@ -10,7 +10,7 @@
             <p class="text-gray-600 mt-1">Module : {{ $quiz->module->title }}</p>
         </div>
         
-        <form method="POST" action="{{ route('questions.store', $quiz) }}" class="p-6" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.questions.store', $quiz) }}" class="p-6" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="quiz_id" value="{{ $quiz->id }}">
             <div class="space-y-6">
@@ -109,7 +109,7 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('quizzes.index', $quiz) }}" 
+                <a href="{{ route('admin.quizzes.index', $quiz) }}" 
                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </a>

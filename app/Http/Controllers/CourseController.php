@@ -92,12 +92,12 @@ class CourseController extends Controller
 
         $course->update($validated);
 
-        return redirect()->route('courses.index')->with('success', 'Cours mis à jour avec succès!');
+        return redirect()->route('admin.courses.index')->with('success', 'Cours mis à jour avec succès!');
     }
 
     public function destroy(Course $course)
     {
         $course->delete();
-        return redirect()->route('courses.index')->with('success', 'Cours supprimé avec succès!');
+        return redirect()->route('admin.courses.index')->with('success', 'Cours supprimé avec succès!');
     }
 }

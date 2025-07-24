@@ -33,7 +33,7 @@ class ModuleController extends Controller
         $progress = $module->getProgressPercentage($user);
         $isCompleted = $module->isCompletedBy($user);
 
-        return view('modules.show', compact('module', 'progress', 'isCompleted'));
+        return view('admin.modules.show', compact('module', 'progress', 'isCompleted'));
     }
 
     // Admin methods
@@ -96,13 +96,13 @@ class ModuleController extends Controller
 
         $module->update($validated);
 
-        return redirect()->route('modules.index')->with('success', 'Module mis à jour avec succès!');
+        return redirect()->route('admin.modules.index')->with('success', 'Module mis à jour avec succès!');
     }
 
     public function destroy(Module $module)
     {
         $module->delete();
-        return redirect()->route('modules.index')->with('success', 'Module supprimé avec succès!');
+        return redirect()->route('admin.modules.index')->with('success', 'Module supprimé avec succès!');
     }
     
 }

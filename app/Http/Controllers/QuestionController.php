@@ -61,7 +61,7 @@ class QuestionController extends Controller
     // Redirection
     if ($request->has('add_another')) {
         return redirect()
-            ->route('questions.create', ['quiz' => $validated['quiz_id']])
+            ->route('admin.questions.create', ['quiz' => $validated['quiz_id']])
             ->with('success', 'Question ajoutée ! Vous pouvez en ajouter une autre.');
     }
 
@@ -140,7 +140,7 @@ class QuestionController extends Controller
         }
 
         return redirect()
-            ->route('quizzes.edit', $question->quiz_id)
+            ->route('admin.quizzes.edit', $question->quiz_id)
             ->with('success', 'Question mise à jour avec succès !');
     }
 

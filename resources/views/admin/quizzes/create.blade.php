@@ -9,7 +9,7 @@
             <h3 class="text-lg font-semibold">Créer un nouveau quiz</h3>
         </div>
         
-        <form method="POST" action="{{ route('quizzes.store') }}" class="p-6">
+        <form method="POST" action="{{ route('admin.quizzes.store') }}" class="p-6">
             @csrf
             
             <div class="space-y-6">
@@ -76,7 +76,7 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('quizzes.index') }}" 
+                <a href="{{ route('admin.quizzes.index') }}" 
                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </a>

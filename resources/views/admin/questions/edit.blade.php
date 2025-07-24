@@ -11,7 +11,7 @@
             <p class="text-gray-600">Module : {{ $question->quiz->module->title }}</p>
         </div>
         
-        <form method="POST" action="{{ route('questions.update', $question) }}" class="p-6" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.questions.update', $question) }}" class="p-6" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -132,7 +132,7 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('quizzes.show', $question->quiz) }}" 
+                <a href="{{ route('admin.quizzes.show', $question->quiz) }}" 
                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </a>

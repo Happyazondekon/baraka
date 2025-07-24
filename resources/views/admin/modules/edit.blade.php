@@ -9,7 +9,7 @@
             <h3 class="text-lg font-semibold">Modifier le module : {{ $module->title }}</h3>
         </div>
         
-        <form method="POST" action="{{ route('modules.update', $module) }}" enctype="multipart/form-data" class="p-6">
+        <form method="POST" action="{{ route('admin.modules.update', $module) }}" enctype="multipart/form-data" class="p-6">
             @csrf
             @method('PUT')
             
@@ -99,7 +99,7 @@
             </div>
 
             <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                <a href="{{ route('modules.index') }}" 
+                <a href="{{ route('admin.modules.index') }}" 
                     class="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400">
                     Annuler
                 </a>

@@ -25,7 +25,7 @@
                     </div>
                 </div>
                 <div class="flex space-x-2">
-                    <a href="{{ route('quizzes.edit', $quiz) }}" 
+                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" 
                         class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                         <i class="fas fa-edit mr-2"></i>Modifier
                     </a>
