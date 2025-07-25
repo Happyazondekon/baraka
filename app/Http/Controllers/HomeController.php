@@ -46,12 +46,18 @@ class HomeController extends Controller
     }
 
     public function dashboard()
-    {
-        $user = auth()->user();
-        $modules = Module::where('is_active', true)->orderBy('order')->get();
+{
+    $user = auth()->user();
+    $modules = Module::where('is_active', true)->orderBy('order')->get();
 
-        return view('dashboard', compact('user', 'modules'));
-    }
+    // Modules non encore complétés par l'utilisateur (suggérés)
+    $suggestedModules = $modules->filter(function ($module) use ($user) {
+        return !$module->isCompletedBy($user);
+    })->take(3); // suggère les 3 premiers non terminés
+
+    return view('dashboard', compact('user', 'modules', 'suggestedModules'));
+}
+
 
     public function profile()
     {
@@ -124,5 +130,56 @@ class HomeController extends Controller
         'progression_pratique'
     ));
 }
+public function payment()
+{
+    return view('payment');
+}
+public function processPayment(Request $request)
+    {
+        // Validate payment data (e.g., amount, token from payment gateway)
+        $request->validate([
+            'amount' => 'required|numeric|min:1',
+            'currency' => 'required|string|in:XOF,USD,EUR', // Example currencies
+            'payment_method_nonce' => 'required|string', // Example for a tokenized payment
+            // Add other validation rules as per your payment gateway requirements
+        ]);
+
+        $user = Auth::user();
+
+        try {
+            // Here you would integrate with your chosen payment gateway (e.g., Stripe, PayPal, Paystack)
+            // This is a placeholder for actual payment processing logic
+            $transactionId = 'TRANS_' . uniqid(); // Replace with actual transaction ID from gateway
+            $status = 'completed'; // Assume success for now, handle failures in real scenario
+
+            // Example: Call a payment gateway API
+            // $gatewayResponse = PaymentGateway::charge($request->amount, $request->payment_method_nonce);
+            // if ($gatewayResponse->successful()) {
+            //     $status = 'completed';
+            //     $transactionId = $gatewayResponse->transactionId;
+            // } else {
+            //     $status = 'failed';
+            //     // Log error, get error message from gateway
+            //     throw new \Exception('Payment failed: ' . $gatewayResponse->errorMessage);
+            // }
+
+            // Save payment record to your database
+            Payment::create([
+                'user_id' => $user->id,
+                'amount' => $request->amount,
+                'currency' => $request->currency,
+                'payment_method' => 'card', // Or dynamically set based on request
+                'transaction_id' => $transactionId,
+                'status' => $status,
+                'payment_data' => json_encode($request->all()), // Store raw payment data if needed
+            ]);
+
+            return redirect()->route('dashboard')->with('success', 'Paiement effectué avec succès!');
+
+        } catch (\Exception $e) {
+            // Handle payment failure
+            return back()->with('error', 'Échec du paiement: ' . $e->getMessage());
+        }
+    }
 
 }

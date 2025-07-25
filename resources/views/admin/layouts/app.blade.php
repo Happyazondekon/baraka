@@ -1,96 +1,95 @@
 <!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{-- Essential for Laravel forms and security --}}
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>{{ config('app.name', 'Baraka') }} - @yield('title', 'Administration')</title>
 
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
+
+    {{-- Font Awesome CDN - This line was removed and needs to be re-added for icons to show --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
 
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="font-sans antialiased bg-gray-100 text-gray-800 min-h-screen flex flex-col">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
-            <!-- Logo -->
-            <a href="{{ route('admin.dashboard') }}" class="text-2xl font-bold flex items-center space-x-1">
-                <span class="text-green-500">B</span>
-                <span>araka</span>
-                <span class="text-green-500">🚗</span>
+    <header class="bg-white shadow-md"> {{-- Using shadow-md for consistency with public site --}}
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"> {{-- Increased space-y for mobile --}}
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center">
+                <img src="{{ asset('images/Baraka.png') }}" alt="Baraka Admin Logo" class="h-10 w-auto"> {{-- Adjust height (h-10) as needed --}}
             </a>
 
-            <!-- Navigation Links -->
-            <nav class="flex space-x-4 text-sm font-medium">
-                <a href="{{ route('admin.dashboard') }}" class="{{ Route::is('admin.dashboard') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+            <nav class="flex flex-wrap justify-center md:flex-nowrap space-x-4 md:space-x-6 text-sm font-medium"> {{-- Added flex-wrap for better mobile layout --}}
+                <a href="{{ route('admin.dashboard') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.dashboard') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Tableau de bord
                 </a>
-                <a href="{{ route('admin.modules.index') }}" class="{{ Route::is('modules.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.modules.index') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.modules.*') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Modules
                 </a>
-                <a href="{{ route('admin.courses.index') }}" class="{{ Route::is('admin.courses.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.courses.index') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.courses.*') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Cours
                 </a>
-                <a href="{{ route('admin.quizzes.index') }}" class="{{ Route::is('admin.quizzes.*') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.quizzes.index') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.quizzes.*') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Quiz
                 </a>
-                <a href="{{ route('admin.users') }}" class="{{ Route::is('admin.users') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.users') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.users') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Utilisateurs
                 </a>
-                <a href="{{ route('admin.payments') }}" class="{{ Route::is('admin.payments') ? 'text-green-600 font-semibold' : 'text-gray-700 hover:text-green-600' }}">
+                <a href="{{ route('admin.payments') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.payments') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Paiements
                 </a>
-                <a href="{{ route('home') }}" target="_blank" class="text-gray-700 hover:text-green-600">
-                    Voir le site
+                <a href="{{ route('home') }}" target="_blank" class="py-2 px-3 rounded-md text-gray-700 hover:bg-gray-50 hover:text-green-600 transition duration-150 ease-in-out flex items-center space-x-1">
+                    <span>Voir le site</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
                 </a>
             </nav>
 
-            <!-- User Info -->
             @auth
-            <div class="flex items-center space-x-4 mt-2 md:mt-0">
+            <div class="flex items-center space-x-4 mt-4 md:mt-0"> {{-- Adjusted margin-top for mobile --}}
                 <div class="flex items-center space-x-2">
                     <span class="text-sm font-medium text-gray-800">
                         {{ auth()->user()->name }}
                     </span>
                     @if(auth()->user()->role === 'admin')
-                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Admin</span>
+                        <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">Admin</span>
                     @elseif(auth()->user()->role === 'moderator')
-                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Modérateur</span>
+                        <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">Modérateur</span>
                     @endif
                 </div>
                 <a href="{{ route('logout') }}"
                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                   class="text-sm text-red-500 hover:underline">Déconnexion</a>
+                   class="text-sm text-red-600 hover:text-red-700 transition duration-150 ease-in-out font-medium">Déconnexion</a>
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">@csrf</form>
             </div>
             @endauth
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1">
-        <!-- Top bar -->
-        <div class="bg-white shadow px-6 py-4 border-b">
-            <div class="flex justify-between items-center">
-                <h1 class="text-xl font-semibold">@yield('title', 'Administration')</h1>
-                <span class="text-gray-500 text-sm">{{ now()->format('d/m/Y H:i') }}</span>
+        <div class="bg-white shadow-sm px-4 py-4 border-b border-gray-200"> {{-- Increased padding, added border-b --}}
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">@yield('title', 'Administration')</h1> {{-- Larger title --}}
+                <span class="text-gray-600 text-sm">{{ now()->format('d/m/Y H:i') }}</span> {{-- Consistent gray color --}}
             </div>
         </div>
 
-        <!-- Page content -->
-        <div class="p-6">
+        <div class="container mx-auto p-6"> {{-- Added container and more padding --}}
             @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4" role="alert"> {{-- Rounded-lg for consistency --}}
                     {{ session('success') }}
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4" role="alert"> {{-- Rounded-lg for consistency --}}
                     {{ session('error') }}
                 </div>
             @endif
@@ -99,10 +98,9 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6">
-        <div class="text-center text-sm">
-            © 2025 Baraka - Tous droits réservés.
+    <footer class="bg-gray-900 text-white py-6"> {{-- Darker gray for consistency --}}
+        <div class="container mx-auto text-center text-sm px-4"> {{-- Added px-4 for padding --}}
+            © {{ date('Y') }} Baraka - Tous droits réservés.
         </div>
     </footer>
 </body>

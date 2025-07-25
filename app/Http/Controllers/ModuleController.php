@@ -36,8 +36,21 @@ class ModuleController extends Controller
     $progress = $module->getProgressPercentage($user);
     $isCompleted = $module->isCompletedBy($user);
 
-    return view('modules.show', compact('module', 'progress', 'isCompleted'));
+    // On récupère les modules précédents/suivants pour la navigation
+    $previousModule = Module::where('is_active', true)
+        ->where('order', '<', $module->order)
+        ->orderByDesc('order')
+        ->first();
+
+    $nextModule = Module::where('is_active', true)
+        ->where('order', '>', $module->order)
+        ->orderBy('order')
+        ->first();
+
+    return view('modules.show', compact('module', 'progress', 'isCompleted', 'previousModule', 'nextModule'));
 }
+
+
 
     // Admin methods
     public function create()
