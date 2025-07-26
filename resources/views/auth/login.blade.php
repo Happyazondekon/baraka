@@ -1,15 +1,15 @@
 @extends('layouts.guest') {{-- Or a custom layout for auth pages, if you create one --}}
 
-@section('title', 'Connexion - Baraka')
+@section('title', 'Connexion - AutoPermis')
 
 @section('content')
 <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-2xl border border-gray-100">
         <div class="text-center">
             {{-- You can put your logo here --}}
-            {{-- <img class="mx-auto h-20 w-auto" src="{{ asset('path/to/your/logo.svg') }}" alt="Baraka Logo"> --}}
+            {{-- <img class="mx-auto h-20 w-auto" src="{{ asset('path/to/your/logo.svg') }}" alt="AutoPermis Logo"> --}}
             <h2 class="mt-6 text-4xl font-extrabold text-gray-900 leading-tight">
-                Connectez-vous à Baraka
+                Connectez-vous à AutoPermis
             </h2>
             <p class="mt-2 text-md text-gray-600">
                 Accédez à votre apprentissage du code de la route.

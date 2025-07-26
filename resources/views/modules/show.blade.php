@@ -14,7 +14,7 @@
         </a>
     </div>
 
-    <!-- Header Section avec style Baraka -->
+    <!-- Header Section avec style AutoPermis -->
     <div class="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl p-8 mb-8 relative overflow-hidden">
         <div class="flex justify-between items-center relative z-10">
             <div class="flex-1">

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'À propos de Baraka - Votre Permis, Simplifié et Efficace')
+@section('title', 'À propos de AutoPermis - Votre Permis, Simplifié et Efficace')
 
 @section('content')
 
@@ -8,10 +8,10 @@
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div>
             <h1 class="text-4xl font-bold text-gray-800 mb-4">
-                <span class="text-green-600">B</span>araka: Votre voie rapide</span> vers le permis de conduire
+                <span class="text-green-600">A</span>utoPermis: Votre voie rapide</span> vers le permis de conduire
             </h1>
             <p class="text-gray-600 mb-8 leading-relaxed">
-                Baraka révolutionne l'apprentissage du code de la route et de la conduite automobile. Notre plateforme digitale complète est conçue pour les candidats qui n’ont pas le temps de se déplacer, offrant une méthode d’apprentissage efficace, encadrée et flexible.
+                AutoPermis révolutionne l'apprentissage du code de la route et de la conduite automobile. Notre plateforme digitale complète est conçue pour les candidats qui n’ont pas le temps de se déplacer, offrant une méthode d’apprentissage efficace, encadrée et flexible.
             </p>
             <a href="{{ route('register') }}" class="inline-flex items-center bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition duration-300 shadow-md">
                 <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
@@ -36,7 +36,7 @@
                 Apprenez sans contraintes, réussissez sans limites !
             </h2>
             <p class="text-gray-600 mb-6 leading-relaxed">
-                Notre mission est d'offrir un espace de formation accessible en ligne, disponible en plusieurs langues (français et anglais), pour les candidats qui n'ont pas le temps de se déplacer dans les centres traditionnels. Baraka vous garantit une méthode d'apprentissage efficace et un accompagnement structuré, s'adaptant à votre emploi du temps.
+                Notre mission est d'offrir un espace de formation accessible en ligne, disponible en plusieurs langues (français et anglais), pour les candidats qui n'ont pas le temps de se déplacer dans les centres traditionnels. AutoPermis vous garantit une méthode d'apprentissage efficace et un accompagnement structuré, s'adaptant à votre emploi du temps.
             </p>
             <p class="text-gray-600 font-semibold leading-relaxed">
                 Découvrez la flexibilité et l'efficacité d'une formation moderne pensée pour vous.
@@ -48,7 +48,7 @@
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">
-            Ce que Baraka vous offre pour une réussite garantie
+            Ce que AutoPermis vous offre pour une réussite garantie
         </h2>
         <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
             Notre plateforme est conçue avec des outils performants et un contenu riche pour optimiser votre apprentissage du code et de la conduite.
@@ -94,7 +94,7 @@
             Pour les promoteurs d'auto-écoles
         </h2>
         <p class="text-gray-600 mb-8 max-w-3xl mx-auto">
-            Baraka offre également une interface dédiée pour gérer et suivre les performances de vos candidats, vous permettant d'optimiser votre encadrement et d'améliorer vos résultats.
+            AutoPermis offre également une interface dédiée pour gérer et suivre les performances de vos candidats, vous permettant d'optimiser votre encadrement et d'améliorer vos résultats.
         </p>
         {{-- You might add a link here for promoters if applicable --}}
         {{-- <a href="#" class="bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition duration-300 shadow-md">En savoir plus pour les professionnels</a> --}}
@@ -107,7 +107,7 @@
             Prêt(e) à prendre la route du succès ?
         </h2>
         <p class="text-xl opacity-90 mb-8 max-w-3xl mx-auto">
-            Rejoignez des centaines de candidats satisfaits et commencez votre formation au code de la route dès aujourd'hui avec Baraka.
+            Rejoignez des centaines de candidats satisfaits et commencez votre formation au code de la route dès aujourd'hui avec AutoPermis.
         </p>
         <a href="{{ route('register') }}" class="inline-flex items-center bg-white text-green-700 px-10 py-5 rounded-lg shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
             <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>

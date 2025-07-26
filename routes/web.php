@@ -14,7 +14,7 @@ use App\Http\Controllers\AdminController;
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Ici sont enregistrées les routes web de l'application Baraka.
+| Ici sont enregistrées les routes web de l'application AutoPermis.
 | Elles sont chargées par le RouteServiceProvider et attribuées au groupe "web".
 |
 */

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'Contactez-nous - Baraka')
+@section('title', 'Contactez-nous - AutoPermis')
 
 @section('content')
 
 <section class="py-16 bg-white">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl font-bold text-gray-800 mb-4">
-            Contactez <span class="text-green-600">B</span>araka
+            Contactez <span class="text-green-600">A</span>utoPermis
         </h1>
         <p class="text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
             Nous sommes là pour répondre à toutes vos questions, vous accompagner dans votre parcours ou recueillir vos suggestions. N'hésitez pas à nous joindre !
@@ -32,7 +32,7 @@
                 </p>
                 <p class="text-gray-700 flex items-center mt-6 text-lg">
                     <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-1 12H4a2 2 0 01-2-2V6a2 2 0 012-2h16a2 2 0 012 2v12a2 2 0 01-2 2z"></path></svg>
-                    <strong>Email :</strong> <a href="mailto:contact@baraka.com" class="text-green-700 hover:underline ml-2">baraka@gmail.com</a> 
+                    <strong>Email :</strong> <a href="mailto:contact@AutoPermis.com" class="text-green-700 hover:underline ml-2">AutoPermis@gmail.com</a> 
                 </p>
             </div>
         </div>

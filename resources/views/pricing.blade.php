@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tarifs - Baraka : Votre Investissement pour le Permis')
+@section('title', 'Tarifs - AutoPermis : Votre Investissement pour le Permis')
 
 @section('content')
 
@@ -10,7 +10,7 @@
             Nos Tarifs : <span class="text-green-600">Investissez dans votre réussite</span>
         </h1>
         <p class="text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-            Chez Baraka, nous vous offrons des formules claires et abordables pour maîtriser le code de la route et la conduite automobile, adaptées à vos besoins et votre rythme.
+            Chez AutoPermis, nous vous offrons des formules claires et abordables pour maîtriser le code de la route et la conduite automobile, adaptées à vos besoins et votre rythme.
         </p>
     </div>
 </section>
