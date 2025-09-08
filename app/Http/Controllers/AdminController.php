@@ -139,4 +139,44 @@ class AdminController extends Controller
             ]
         ]);
     }
+     public function userResults($userId)
+    {
+        $user = User::findOrFail($userId);
+        $results = QuizResult::with(['quiz.module'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('admin.users.results', compact('user', 'results'));
+    }
+
+    /**
+     * Afficher les détails d'un résultat spécifique
+     */
+    public function resultDetails($resultId)
+    {
+        $result = QuizResult::with(['quiz.module', 'user', 'quiz.questions.answers'])
+            ->findOrFail($resultId);
+
+        return view('admin.users.result-details', compact('result'));
+    }
+
+    /**
+     * API pour récupérer les résultats d'un utilisateur (AJAX)
+     */
+    public function getUserQuizResults(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+        
+        $results = QuizResult::with(['quiz.module'])
+            ->where('user_id', $userId)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'user' => $user,
+            'results' => $results
+        ]);
+    }
 }

@@ -95,8 +95,49 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Voir un quiz en admin
     Route::get('/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
+
+    
+});
+// Routes pour la gestion des résultats utilisateur par l'admin
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // ... autres routes existantes ...
+    
+    // Routes pour les résultats utilisateur
+    Route::get('/users/{user}/results', [AdminController::class, 'userResults'])->name('users.results');
+    Route::get('/results/{result}/details', [AdminController::class, 'resultDetails'])->name('users.result-details');
+    Route::get('/api/users/{user}/quiz-results', [AdminController::class, 'getUserQuizResults'])->name('api.user.quiz-results');
 });
 
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // ... autres routes ...
+    Route::get('/users/{user}/results', [AdminController::class, 'userResults'])->name('users.results');
+});
+// Routes pour les quiz
+Route::middleware(['auth'])->group(function () {
+    // Route pour soumettre un quiz d'un module
+    Route::post('/modules/{module}/quiz/submit', [QuizController::class, 'submit'])->name('quiz.submit');
+    
+    // Route pour afficher un quiz d'un module
+    Route::get('/modules/{module}/quiz', [QuizController::class, 'show'])->name('quiz.show');
+    
+    // Route pour afficher un quiz directement
+    Route::get('/quiz/{quiz}', [QuizController::class, 'showByQuiz'])->name('quiz.direct');
+});
+
+// Routes admin pour les quiz
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('quizzes', QuizController::class, [
+        'names' => [
+            'index' => 'quizzes.index',
+            'create' => 'quizzes.create',
+            'store' => 'quizzes.store',
+            'show' => 'quizzes.show',
+            'edit' => 'quizzes.edit',
+            'update' => 'quizzes.update',
+            'destroy' => 'quizzes.destroy'
+        ]
+    ]);
+});
 
 // Auth routes Laravel Breeze ou Jetstream
 require __DIR__.'/auth.php';

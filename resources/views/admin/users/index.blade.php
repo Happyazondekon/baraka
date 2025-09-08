@@ -104,106 +104,107 @@
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-            @forelse($users as $user)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="flex items-center">
-                            <div class="flex-shrink-0 h-10 w-10">
-                                <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                                    <span class="text-sm font-medium text-gray-700">
-                                        {{ strtoupper(substr($user->name, 0, 2)) }}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
-                                <div class="text-sm text-gray-500">ID: {{ $user->id }}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">{{ $user->email }}</div>
-                        @if($user->phone)
-                            <div class="text-sm text-gray-500">{{ $user->phone }}</div>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        @if($user->email_verified_at)
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                <i class="fas fa-check-circle mr-1"></i>
-                                Vérifié
+    @forelse($users as $user)
+        <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-10 w-10">
+                        <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            <span class="text-sm font-medium text-gray-700">
+                                {{ strtoupper(substr($user->name, 0, 2)) }}
                             </span>
-                        @else
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                <i class="fas fa-clock mr-1"></i>
-                                En attente
-                            </span>
-                        @endif
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div>{{ $user->created_at->format('d/m/Y') }}</div>
-                        <div class="text-xs">{{ $user->created_at->diffForHumans() }}</div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        @php
-                            $totalModules = App\Models\Module::where('is_active', true)->count();
-                            $completedModules = method_exists($user, 'getCompletedModulesCount') ? $user->getCompletedModulesCount() : 0;
-                            $progressPercentage = method_exists($user, 'getProgressPercentage') ? $user->getProgressPercentage() : 0;
-                        @endphp
-                        <div class="flex items-center">
-                            <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
-                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $progressPercentage }}%"></div>
-                            </div>
-                            <span class="text-sm text-gray-600">{{ $progressPercentage }}%</span>
                         </div>
-                        <div class="text-xs text-gray-500 mt-1">
-                            {{ $completedModules }}/{{ $totalModules }} modules
-                        </div>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex items-center space-x-2">
-                            <button onclick="showUserDetails({{ $user->id }})" 
-                                class="text-blue-600 hover:text-blue-900" title="Voir détails">
-                                <i class="fas fa-eye"></i>
+                    </div>
+                    <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                        <div class="text-sm text-gray-500">ID: {{ $user->id }}</div>
+                    </div>
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">{{ $user->email }}</div>
+                @if($user->phone)
+                    <div class="text-sm text-gray-500">{{ $user->phone }}</div>
+                @endif
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                @if($user->email_verified_at)
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Vérifié
+                    </span>
+                @else
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        <i class="fas fa-clock mr-1"></i>
+                        En attente
+                    </span>
+                @endif
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <div>{{ $user->created_at->format('d/m/Y') }}</div>
+                <div class="text-xs">{{ $user->created_at->diffForHumans() }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                @php
+                    $totalModules = App\Models\Module::where('is_active', true)->count();
+                    $completedModules = method_exists($user, 'getCompletedModulesCount') ? $user->getCompletedModulesCount() : 0;
+                    $progressPercentage = method_exists($user, 'getProgressPercentage') ? $user->getProgressPercentage() : 0;
+                @endphp
+                <div class="flex items-center">
+                    <div class="w-16 bg-gray-200 rounded-full h-2 mr-2">
+                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $progressPercentage }}%"></div>
+                    </div>
+                    <span class="text-sm text-gray-600">{{ $progressPercentage }}%</span>
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    {{ $completedModules }}/{{ $totalModules }} modules
+                </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex items-center space-x-2">    
+                    <!-- NOUVEAU BOUTON: Voir les résultats -->
+                    <a href="{{ route('admin.users.results', $user->id) }}" 
+                       class="text-purple-600 hover:text-purple-900" title="Voir les résultats">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    
+                    @if(!$user->email_verified_at)
+                        <form method="POST" action="{{ route('admin.users.verify', $user) }}" class="inline">
+                            @csrf
+                            <button type="submit" class="text-green-600 hover:text-green-900" title="Vérifier email">
+                                <i class="fas fa-check"></i>
                             </button>
-                            
-                            @if(!$user->email_verified_at)
-                                <form method="POST" action="{{ route('admin.users.verify', $user) }}" class="inline">
-                                    @csrf
-                                    <button type="submit" class="text-green-600 hover:text-green-900" title="Vérifier email">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                            @endif
-                            
-                            <button onclick="toggleUserStatus({{ $user->id }})" 
-                                class="text-yellow-600 hover:text-yellow-900" title="Suspendre/Activer">
-                                <i class="fas fa-user-slash"></i>
-                            </button>
-                            
-                            <form method="POST" action="{{ route('admin.users.destroy', $user) }}" 
-                                class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                        @if(request('search'))
-                            Aucun utilisateur trouvé pour "{{ request('search') }}"
-                        @else
-                            Aucun utilisateur enregistré
-                        @endif
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
+                        </form>
+                    @endif
+                    
+                    <button onclick="toggleUserStatus({{ $user->id }})" 
+                        class="text-yellow-600 hover:text-yellow-900" title="Suspendre/Activer">
+                        <i class="fas fa-user-slash"></i>
+                    </button>
+                    
+                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" 
+                        class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+    @empty
+        <tr>
+            <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                @if(request('search'))
+                    Aucun utilisateur trouvé pour "{{ request('search') }}"
+                @else
+                    Aucun utilisateur enregistré
+                @endif
+            </td>
+        </tr>
+    @endforelse
+</tbody>
     </table>
 </div>
 
