@@ -115,30 +115,36 @@ Route::post('/email/verification-notification', function (Request $request) {
 // GROUPE ADMIN
 // =======================================================================
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    // Gestion de Contenu
-    Route::resource('modules', ModuleController::class)->except(['show', 'edit', 'update']); // Correction: utilise les noms spécifiques ci-dessous
-    Route::resource('courses', CourseController::class)->except(['show', 'edit', 'update']);
-    Route::resource('questions', QuestionController::class);
-    
-    // Gestion des Quiz (Admin)
-    Route::resource('quizzes', QuizController::class, [
-        'names' => [
-            'index' => 'quizzes.index',
-            'create' => 'quizzes.create',
-            'store' => 'quizzes.store',
-            'show' => 'quizzes.show',
-            'edit' => 'quizzes.edit',
-            'update' => 'quizzes.update',
-            'destroy' => 'quizzes.destroy'
-        ]
-    ]);
-    Route::get('/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('quizzes.show');
-    Route::post('/quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('questions.store');
+    // Modules, Cours, Quiz
+    Route::resource('modules', ModuleController::class, ['as' => 'admin'])->except('show');
+    Route::resource('courses', CourseController::class, ['as' => 'admin'])->except('show');
+    Route::resource('quizzes', QuizController::class, ['as' => 'admin'])->except('show');
+    Route::resource('questions', QuestionController::class, ['as' => 'admin']);
 
+    // Gestion utilisateurs
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('admin.users.verify');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+    Route::post('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle-status');
+    Route::get('/users/{user}/details', [AdminController::class, 'getUserDetails'])->name('admin.users.details');
+    Route::get('/users/{user}/results', [AdminController::class, 'userResults'])->name('admin.users.results');
+    Route::get('/results/{result}/details', [AdminController::class, 'resultDetails'])->name('admin.users.result-details');
+    Route::get('/api/users/{user}/quiz-results', [AdminController::class, 'getUserQuizResults'])->name('admin.api.user.quiz-results');
 
+    // Paiements
+    Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
+
+    // Questions
+    Route::get('/questions/create', [QuestionController::class, 'create'])->name('admin.questions.create');
+    Route::post('/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
+    Route::post('/quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('admin.questions.store');
+
+    // Voir un quiz en admin
+    Route::get('/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
+});
     // Gestion des Utilisateurs
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('users.verify');
@@ -151,7 +157,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     // Gestion des Paiements
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
-});
+
 
 
 // Auth routes Laravel Breeze ou Jetstream
