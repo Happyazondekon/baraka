@@ -4,75 +4,184 @@
 
 @section('content')
     <!-- Hero Section -->
-    <section class="py-16 bg-gray-100">
+    <section class="py-16 bg-gradient-to-br from-green-50 to-green-100">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-                <h1 class="text-4xl font-bold text-gray-800 mb-4">
-                    Apprenez le code de conduite <span class="text-green-500">à votre rythme</span>
+                <h1 class="text-5xl font-bold text-gray-800 mb-4 leading-tight">
+                    Apprenez le code de conduite <span class="text-green-600">à votre rythme</span>
                 </h1>
-                <p class="text-gray-600 mb-8">
+                <p class="text-gray-600 mb-6 text-lg leading-relaxed">
                     Maîtrisez le code et la conduite depuis chez vous grâce à une formation digitale complète et interactive.
                 </p>
-                <a href="{{ route('register') }}" class="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600">S'inscrire</a>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    @guest
+                        <a href="{{ route('register') }}" class="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-all font-semibold text-center shadow-lg transform hover:scale-105">
+                            Commencer gratuitement →
+                        </a>
+                        <a href="{{ route('login') }}" class="bg-white text-green-600 px-8 py-4 rounded-lg hover:bg-gray-50 transition-all font-semibold text-center border-2 border-green-600">
+                            Se connecter
+                        </a>
+                    @else
+                        <a href="{{ route('dashboard') }}" class="bg-green-600 text-white px-8 py-4 rounded-lg hover:bg-green-700 transition-all font-semibold text-center shadow-lg transform hover:scale-105">
+                            Accéder à mon espace →
+                        </a>
+                    @endguest
+                </div>
+                
+                <!-- Stats -->
+                <div class="mt-8 grid grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600">500+</div>
+                        <div class="text-sm text-gray-600">Étudiants</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600">95%</div>
+                        <div class="text-sm text-gray-600">Réussite</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600">24/7</div>
+                        <div class="text-sm text-gray-600">Disponible</div>
+                    </div>
+                </div>
             </div>
             <div class="flex justify-center">
-                <img src="{{ asset('images/hero-car.png') }}" alt="Voiture d'auto-école" class="w-full max-w-md">
+                <img src="{{ asset('images/hero-car.png') }}" alt="Voiture d'auto-école" class="w-full max-w-md drop-shadow-2xl">
             </div>
         </div>
-        
     </section>
 
     <!-- Features Section -->
-    <section class="py-16">
+    <section class="py-16 bg-white">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div class="order-2 md:order-1">
-                <img src="{{ asset('images/learning-car.png') }}" alt="Apprentissage sans contraintes" class="w-full max-w-md mx-auto">
+                <img src="{{ asset('images/learning-car.png') }}" alt="Apprentissage sans contraintes" class="w-full max-w-md mx-auto drop-shadow-xl">
             </div>
             <div class="order-1 md:order-2">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">
-                    Apprenez sans contraintes, réussissez sans limites !
+                <h2 class="text-4xl font-bold text-gray-800 mb-6">
+                    Apprenez sans contraintes, <span class="text-green-600">réussissez sans limites !</span>
                 </h2>
-                <p class="text-gray-600 mb-6">
-                    Notre plateforme révolutionne l'apprentissage du code de la route en proposant une formation digitale complète, accessible partout et à tout moment! Les candidats peuvent apprendre sans contrainte de déplacement, s'adapter ainsi à leur emploi du temps tout en bénéficiant d'un accompagnement structuré. L'apprentissage est conçu pour être aussi efficace qu'une session en présentiel, avec des ressources pédagogiques adaptées et un suivi personnalisé de formation.
+                <p class="text-gray-600 mb-6 text-lg leading-relaxed">
+                    Notre plateforme révolutionne l'apprentissage du code de la route en proposant une formation digitale complète, accessible partout et à tout moment! Les candidats peuvent apprendre sans contrainte de déplacement, s'adapter ainsi à leur emploi du temps tout en bénéficiant d'un accompagnement structuré.
                 </p>
-                <a href="{{ route('pricing') }}" class="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600">Les Tarifs</a>
+                
+                <!-- Avantages -->
+                <div class="space-y-3 mb-6">
+                    <div class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Formation complète théorique et pratique
+                    </div>
+                    <div class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Accès illimité à tous les modules
+                    </div>
+                    <div class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Examens blancs interactifs
+                    </div>
+                    <div class="flex items-center text-gray-700">
+                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Suivi personnalisé de progression
+                    </div>
+                </div>
+                
+                @guest
+                <a href="{{ route('register') }}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all font-semibold shadow-lg">
+                    Découvrir l'offre
+                </a>
+                @endguest
             </div>
         </div>
     </section>
 
-    <!-- Modules Section -->
-    <section class="py-16 bg-gray-100">
+    <!-- Modules Section (Aperçu) -->
+    <section class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">Une formation subdivisée en modules de cours</h2>
-            <p class="text-center text-gray-600 mb-12">
-                Chaque module couvre une thématique spécifique, à travers une vidéo explicative, un cours théorique et des tests. Validez chaque étape avant de passer à la suivante.
-            </p>
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold text-gray-800 mb-4">Une formation structurée en modules</h2>
+                <p class="text-gray-600 text-lg max-w-3xl mx-auto">
+                    Chaque module couvre une thématique spécifique, à travers une vidéo explicative, un cours théorique et des tests. Validez chaque étape avant de passer à la suivante.
+                </p>
+            </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 @foreach($featuredModules as $module)
-                <div class="bg-white rounded-lg overflow-hidden shadow-md">
-                    <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 cover object-cover">
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ $module->title }}</h3>
-                        <a href="{{ route('modules.show', $module) }}" class="text-green-500 hover:text-green-700 flex items-center">
-                            Voir plus
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </a>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                    @if($module->image)
+                    <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 object-cover">
+                    @else
+                    <div class="w-full h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center">
+                        <span class="text-white text-4xl font-bold">{{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}</span>
                     </div>
-                    
+                    @endif
+                    <div class="p-6">
+                        <div class="text-sm text-green-600 font-medium mb-2">Module {{ $module->order }}</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">{{ $module->title }}</h3>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $module->description }}</p>
+                        
+                        @auth
+                            @if(auth()->user()->payments()->where('status', 'completed')->exists())
+                                <a href="{{ route('modules.show', $module) }}" class="text-green-600 hover:text-green-700 flex items-center font-medium">
+                                    Accéder au module
+                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </a>
+                            @else
+                                <a href="{{ route('pricing') }}" class="text-green-600 hover:text-green-700 flex items-center font-medium">
+                                    Débloquer le contenu
+                                    <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </a>
+                            @endif
+                        @else
+                            <a href="{{ route('register') }}" class="text-green-600 hover:text-green-700 flex items-center font-medium">
+                                S'inscrire pour voir plus
+                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        @endauth
+                    </div>
                 </div>
                 @endforeach
             </div>
+
+            @guest
+            <div class="text-center">
+                <p class="text-gray-600 mb-4">Découvrez tous nos modules de formation</p>
+                <a href="{{ route('register') }}" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-all font-semibold shadow-lg">
+                    Créer un compte gratuit
+                </a>
+            </div>
+            @endguest
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-20">
+    <section class="py-20 bg-gradient-to-r from-green-600 to-green-700 text-white">
         <div class="container mx-auto px-4 text-center">
-            <h2 class="text-4xl font-bold text-gray-800 mb-8">Votre permis, votre rythme !</h2>
-            <a href="{{ route('register') }}" class="bg-green-500 text-white px-6 py-3 rounded hover:bg-green-600">Démo →</a>
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Votre permis, votre rythme !</h2>
+            <p class="text-xl mb-8 text-green-50 max-w-2xl mx-auto">
+                Rejoignez plus de 500 étudiants qui ont déjà commencé leur formation au code de la route
+            </p>
+            @guest
+            <a href="{{ route('register') }}" class="inline-block bg-white text-green-600 px-10 py-4 rounded-lg hover:bg-gray-100 transition-all font-bold text-lg shadow-xl transform hover:scale-105">
+                Commencer maintenant →
+            </a>
+            @else
+            <a href="{{ route('pricing') }}" class="inline-block bg-white text-green-600 px-10 py-4 rounded-lg hover:bg-gray-100 transition-all font-bold text-lg shadow-xl transform hover:scale-105">
+                Débloquer tous les cours - 5 000 FCFA →
+            </a>
+            @endguest
         </div>
     </section>
 @endsection

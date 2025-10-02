@@ -9,27 +9,30 @@
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     {{-- Phase Selector and Search Bar --}}
-                    <div class="relative" x-data="{ selectedPhase: 'all', searchTerm: '' }">
+                    {{-- Le x-data est déplacé ici pour englober les deux champs --}}
+                    <div class="flex items-center space-x-4" x-data="{ selectedPhase: 'all', searchTerm: '' }">
                         {{-- Phase Selector --}}
-                        <select x-model="selectedPhase" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <option value="all">Toutes les phases</option>
-                            <option value="theoretical">Phase théorique</option>
-                            <option value="practical">Phase pratique</option>
-                        </select>
-                        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
+                        <div class="relative">
+                            <select x-model="selectedPhase" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="all">Toutes les phases</option>
+                                <option value="theoretical">Phase théorique</option>
+                                <option value="practical">Phase pratique</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
 
-                    {{-- Moved search bar inside the x-data block --}}
-                    <div class="relative" x-data="{ selectedPhase: 'all', searchTerm: '' }">
-                         <input type="text" x-model="searchTerm" placeholder="Rechercher un cours..." class="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
+                        {{-- Search bar --}}
+                        <div class="relative">
+                           <input type="text" x-model="searchTerm" placeholder="Rechercher un cours..." class="w-80 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -39,9 +42,11 @@
         </div>
     </div>
 
+    {{-- Utiliser le même x-data pour les éléments filtrables --}}
     <div class="container mx-auto px-4 py-8" x-data="{ selectedPhase: 'all', searchTerm: '' }">
-        {{-- Merge modules into one section and use x-show for filtering --}}
-        <h2 x-show="selectedPhase === 'all' || selectedPhase === 'theoretical'" class="text-2xl font-bold text-gray-900 mb-6" :class="{'mt-12': selectedPhase === 'all' || selectedPhase === 'theoretical'}">Phase théorique</h2>
+        
+        {{-- Phase théorique --}}
+        <h2 x-show="selectedPhase === 'all' || selectedPhase === 'theoretical'" class="text-2xl font-bold text-gray-900 mb-6">Phase théorique</h2>
         <div class="space-y-6">
             @foreach($modules->where('is_practical', false) as $module)
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
@@ -81,12 +86,25 @@
                                 <p class="text-gray-600 text-sm leading-relaxed">{{ $module->description }}</p>
                             </div>
                             <div class="ml-6">
-                                <a href="{{ route('modules.show', $module->id) }}" class="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 inline-flex items-center">
-                                    Commencer
-                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </a>
+                                {{-- LOGIQUE DE PAIEMENT : Vérifier si l'utilisateur a payé --}}
+                                @if(auth()->check() && auth()->user()->payments()->where('status', 'completed')->exists())
+                                    {{-- CAS 1 : L'utilisateur A PAYÉ --}}
+                                    <a href="{{ route('modules.show', $module->id) }}" class="bg-green-500 hover:bg-green-600 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 inline-flex items-center">
+                                        Commencer
+                                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                @else
+                                    {{-- CAS 2 : L'utilisateur N'A PAS PAYÉ --}}
+                                    {{-- Le lien mène toujours à modules.show, mais le middleware 'payment.required' va bloquer et rediriger vers /tarifs --}}
+                                    <a href="{{ route('modules.show', $module->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 inline-flex items-center">
+                                        Débloquer
+                                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -94,7 +112,8 @@
             @endforeach
         </div>
 
-        <h2 x-show="selectedPhase === 'all' || selectedPhase === 'practical'" class="text-2xl font-bold text-gray-900 mb-6 mt-12" :class="{'mt-12': selectedPhase === 'all' || selectedPhase === 'practical'}">Phase pratique</h2>
+        {{-- Phase pratique --}}
+        <h2 x-show="selectedPhase === 'all' || selectedPhase === 'practical'" class="text-2xl font-bold text-gray-900 mb-6 mt-12">Phase pratique</h2>
         <div class="space-y-6">
             @foreach($modules->where('is_practical', true) as $module)
                 <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
@@ -126,12 +145,24 @@
                                 <p class="text-gray-600 text-sm leading-relaxed">{{ $module->description }}</p>
                             </div>
                             <div class="ml-6">
-                                <a href="{{ route('modules.show', $module->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 inline-flex items-center">
-                                    Commencer
-                                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </a>
+                                {{-- LOGIQUE DE PAIEMENT : Vérifier si l'utilisateur a payé --}}
+                                @if(auth()->check() && auth()->user()->payments()->where('status', 'completed')->exists())
+                                    {{-- CAS 1 : L'utilisateur A PAYÉ --}}
+                                    <a href="{{ route('modules.show', $module->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 inline-flex items-center">
+                                        Commencer
+                                        <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
+                                @else
+                                    {{-- CAS 2 : L'utilisateur N'A PAS PAYÉ --}}
+                                    <a href="{{ route('modules.show', $module->id) }}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200 inline-flex items-center">
+                                        Débloquer
+                                        <svg class="w-4 h-4 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     </div>

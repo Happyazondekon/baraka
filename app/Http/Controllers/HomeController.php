@@ -134,52 +134,20 @@ public function payment()
 {
     return view('payment');
 }
+
 public function processPayment(Request $request)
-    {
-        // Validate payment data (e.g., amount, token from payment gateway)
-        $request->validate([
-            'amount' => 'required|numeric|min:1',
-            'currency' => 'required|string|in:XOF,USD,EUR', // Example currencies
-            'payment_method_nonce' => 'required|string', // Example for a tokenized payment
-            // Add other validation rules as per your payment gateway requirements
-        ]);
+{
+    // ... Logique de vérification FedaPay ...
 
-        $user = Auth::user();
+    if ($paiement_est_valide) {
+        // Marquer l'utilisateur comme ayant payé dans la DB
 
-        try {
-            // Here you would integrate with your chosen payment gateway (e.g., Stripe, PayPal, Paystack)
-            // This is a placeholder for actual payment processing logic
-            $transactionId = 'TRANS_' . uniqid(); // Replace with actual transaction ID from gateway
-            $status = 'completed'; // Assume success for now, handle failures in real scenario
-
-            // Example: Call a payment gateway API
-            // $gatewayResponse = PaymentGateway::charge($request->amount, $request->payment_method_nonce);
-            // if ($gatewayResponse->successful()) {
-            //     $status = 'completed';
-            //     $transactionId = $gatewayResponse->transactionId;
-            // } else {
-            //     $status = 'failed';
-            //     // Log error, get error message from gateway
-            //     throw new \Exception('Payment failed: ' . $gatewayResponse->errorMessage);
-            // }
-
-            // Save payment record to your database
-            Payment::create([
-                'user_id' => $user->id,
-                'amount' => $request->amount,
-                'currency' => $request->currency,
-                'payment_method' => 'card', // Or dynamically set based on request
-                'transaction_id' => $transactionId,
-                'status' => $status,
-                'payment_data' => json_encode($request->all()), // Store raw payment data if needed
-            ]);
-
-            return redirect()->route('dashboard')->with('success', 'Paiement effectué avec succès!');
-
-        } catch (\Exception $e) {
-            // Handle payment failure
-            return back()->with('error', 'Échec du paiement: ' . $e->getMessage());
-        }
+        // Rediriger vers l'URL initialement demandée
+        return redirect()->intended(route('dashboard')) 
+                         ->with('success', 'Félicitations ! Votre paiement a été validé. Accès débloqué !');
     }
+
+    // ... Logique pour paiement échoué ...
+}
 
 }

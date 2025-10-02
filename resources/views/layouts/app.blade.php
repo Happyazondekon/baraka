@@ -37,7 +37,7 @@
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-green-600 {{ Route::is('home') ? 'text-green-600 font-semibold' : '' }} transition duration-150 ease-in-out">Accueil</a>
                     <a href="{{ route('about') }}" class="text-gray-700 hover:text-green-600 {{ Route::is('about') ? 'text-green-600 font-semibold' : '' }} transition duration-150 ease-in-out">À propos</a>
                     <a href="{{ route('modules.index') }}" class="text-gray-700 hover:text-green-600 {{ Route::is('modules.*') ? 'text-green-600 font-semibold' : '' }} transition duration-150 ease-in-out">Cours</a>
-                    <a href="{{ route('pricing') }}" class="text-gray-700 hover:text-green-600 {{ Route::is('pricing') ? 'text-green-600 font-semibold' : '' }} transition duration-150 ease-in-out">Tarifs</a>
+                    {{--<a href="{{ route('pricing') }}" class="text-gray-700 hover:text-green-600 {{ Route::is('pricing') ? 'text-green-600 font-semibold' : '' }} transition duration-150 ease-in-out">Tarifs</a>--}}
                     <a href="{{ route('contact') }}" class="text-gray-700 hover:text-green-600 {{ Route::is('contact') ? 'text-green-600 font-semibold' : '' }} transition duration-150 ease-in-out">Contact</a>
                 @endauth
             </nav>
