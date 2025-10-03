@@ -15,12 +15,14 @@ class QuizResult extends Model
         'total_questions',
         'correct_answers',
         'passed',
+        'is_mock_exam',
         'time_taken',
         'answers'
     ];
 
     protected $casts = [
         'passed' => 'boolean',
+        'is_mock_exam',
         'answers' => 'json'
     ];
 

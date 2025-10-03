@@ -100,4 +100,29 @@ class CourseController extends Controller
         $course->delete();
         return redirect()->route('admin.courses.index')->with('success', 'Cours supprimé avec succès!');
     }
+    public function complete(Course $course)
+{
+    $user = auth()->user();
+    
+    // Vérifier si déjà terminé
+    $progress = $course->userProgress()
+        ->where('user_id', $user->id)
+        ->first();
+    
+    if (!$progress) {
+        $course->userProgress()->create([
+            'user_id' => $user->id,
+            'module_id' => $course->module_id,
+            'completed' => true,
+            'completed_at' => now()
+        ]);
+    } else {
+        $progress->update([
+            'completed' => true,
+            'completed_at' => now()
+        ]);
+    }
+    
+    return back()->with('success', 'Leçon marquée comme terminée !');
+}
 }

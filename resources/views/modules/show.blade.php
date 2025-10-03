@@ -3,316 +3,613 @@
 @section('title', $module->title ?? 'Module')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <!-- Breadcrumb -->
-    <div class="mb-4">
-        <a href="{{ route('modules.index') }}" class="text-gray-600 hover:text-gray-800 text-sm flex items-center">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Tous les modules
-        </a>
-    </div>
-
-    <!-- Header Section avec style AutoPermis -->
-    <div class="bg-gradient-to-r from-green-100 to-green-200 rounded-2xl p-8 mb-8 relative overflow-hidden">
-        <div class="flex justify-between items-center relative z-10">
-            <div class="flex-1">
-                <h1 class="text-2xl font-bold text-gray-800 mb-2">Phase théorique : Code de la route</h1>
-                <h2 class="text-xl font-semibold text-gray-700 mb-3">{{ $module->title }}</h2>
-                <p class="text-gray-600 leading-relaxed max-w-lg">{{ $module->description }}</p>
-            </div>
-            
-            <!-- Cercle avec numéro du module -->
-            <div class="bg-white rounded-full w-32 h-32 flex flex-col items-center justify-center shadow-lg ml-8">
-                <div class="text-3xl font-bold text-gray-800">
-                    {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }} / {{ $totalModules ?? '08' }}
-                </div>
-                <div class="text-sm text-gray-600 mt-1">Modules</div>
-            </div>
-        </div>
-        
-        <!-- Decoration circles -->
-        <div class="absolute top-4 right-4 w-20 h-20 bg-white bg-opacity-20 rounded-full"></div>
-        <div class="absolute bottom-6 right-16 w-12 h-12 bg-white bg-opacity-15 rounded-full"></div>
-    </div>
-
-    <!-- Module Title avec numérotation -->
-    <div class="mb-8">
-        <h3 class="text-xl font-semibold text-center text-gray-800">
-            Module {{ $module->order }} : {{ $module->title }}
-        </h3>
-    </div>
-
-    <!-- Video/Image Section -->
-    @if($module->video_url || $module->image)
-    <div class="mb-8">
-        <div class="relative bg-black rounded-xl overflow-hidden shadow-lg">
-            @if($module->video_url)
-                <video controls class="w-full h-80 object-cover">
-                    <source src="{{ $module->video_url }}" type="video/mp4">
-                    Votre navigateur ne supporte pas la lecture de vidéos.
-                </video>
-                <!-- Play button overlay pour style -->
-                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div class="bg-white bg-opacity-20 rounded-full p-6">
-                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z"/>
-                        </svg>
-                    </div>
-                </div>
-            @else
-                <img src="{{ $module->image }}" alt="{{ $module->title }}" class="w-full h-80 object-cover">
-            @endif
-        </div>
-    </div>
-    @endif
-
-    <!-- Button "Allons plus en détail" -->
-    <div class="text-center mb-8">
-        <button class="text-gray-700 font-medium hover:text-gray-900 transition-colors">
-            Allons plus en détail !
-        </button>
-    </div>
-
-    <!-- Contenu des cours dans un style card -->
-    @if($module->courses->isNotEmpty())
-    <div class="bg-green-50 rounded-2xl p-6 mb-8">
-        <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg class="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Les Types de Signalisations
-        </h4>
-        
-        @foreach($module->courses as $course)
-        <div class="mb-6">
-            <h5 class="font-medium text-gray-800 mb-2 flex items-center">
-                <svg class="w-4 h-4 mr-2 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"/>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 py-8">
+    <div class="container mx-auto px-4 max-w-6xl">
+        <!-- Navigation -->
+        <div class="mb-8">
+            <a href="{{ route('modules.index') }}" class="inline-flex items-center text-green-600 hover:text-green-800 font-medium transition-colors group">
+                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                {{ $course->title }}
-            </h5>
-            <div class="text-sm text-gray-600 ml-6 space-y-1">
-                <p>{{ $course->description }}</p>
-            </div>
+                Tous les modules
+            </a>
         </div>
-        @endforeach
-    </div>
-    @endif
 
-   <!-- Section Quiz/Test -->
-@if($module->quiz)
-<div class="bg-white rounded-2xl p-6 shadow-sm border mb-8">
-    <h3 class="text-xl font-semibold text-center text-gray-800 mb-6">Test de Validation (QCM)</h3>
-    
-    <!-- Messages de succès/erreur -->
-    @if(session('success'))
-    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 relative" role="alert">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-                <strong class="font-bold">Quiz validé avec succès !</strong>
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-        </div>
-        @if(session('quiz_result_id'))
-        <div class="mt-3">
-            <button onclick="toggleResults()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm font-medium">
-                Voir les bonnes réponses
-            </button>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    @if(session('warning'))
-    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6 relative" role="alert">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-                <strong class="font-bold">Attention !</strong>
-                <span class="block sm:inline">{{ session('warning') }}</span>
-            </div>
-        </div>
-        @if(session('quiz_result_id'))
-        <div class="mt-3">
-            <button onclick="toggleResults()" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded text-sm font-medium">
-                Voir les bonnes réponses
-            </button>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 relative" role="alert">
-        <div class="flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-            </svg>
-            <div>
-                <strong class="font-bold">Erreur !</strong>
-                <span class="block sm:inline">{{ session('error') }}</span>
-            </div>
-        </div>
-    </div>
-    @endif
-
-    <!-- Affichage des résultats détaillés (caché par défaut) -->
-    @if(session('quiz_result_id') && session('detailed_results'))
-    <div id="resultsSection" class="hidden mb-6">
-        <div class="bg-gray-50 rounded-lg p-4">
-            <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <svg class="w-5 h-5 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                </svg>
-                Correction du Quiz
-            </h4>
-            
-            @foreach(session('detailed_results') as $index => $result)
-            <div class="mb-4 p-4 border rounded-lg {{ $result['is_correct'] ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' }}">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 mr-3">
-                        @if($result['is_correct'])
-                        <div class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">
-                            ✓
+        <!-- Module Header -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-green-100">
+            <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-white bg-opacity-10 rounded-full -translate-y-32 translate-x-32"></div>
+                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white bg-opacity-10 rounded-full translate-y-24 -translate-x-24"></div>
+                
+                <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between">
+                    <div class="flex-1 text-white mb-6 lg:mb-0">
+                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-sm font-medium mb-4">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                            </svg>
+                            Phase théorique
                         </div>
-                        @else
-                        <div class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium">
-                            ✗
-                        </div>
-                        @endif
+                        <h1 class="text-3xl lg:text-4xl font-bold mb-3">Code de la route</h1>
+                        <h2 class="text-xl lg:text-2xl font-semibold opacity-95 mb-4">{{ $module->title }}</h2>
+                        <p class="text-green-100 text-lg leading-relaxed max-w-2xl">{{ $module->description }}</p>
                     </div>
-                    <div class="flex-1">
-                        <p class="font-medium text-gray-800 mb-2">
-                            Question {{ $index + 1 }}: {{ $result['question_text'] }}
-                        </p>
-                        
-                        @if($result['is_correct'])
-                        <div class="text-green-700 text-sm">
-                            <strong>✓ Correct :</strong> {{ $result['user_answer_text'] }}
+                    
+                    <div class="bg-white rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
+                        <div class="text-4xl font-bold text-gray-800 mb-2">
+                            {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}<span class="text-2xl text-gray-500">/{{ $totalModules ?? '08' }}</span>
                         </div>
-                        @else
-                        <div class="space-y-1 text-sm">
-                            <div class="text-red-700">
-                                <strong>✗ Votre réponse :</strong> {{ $result['user_answer_text'] ?? 'Aucune réponse' }}
-                            </div>
-                            <div class="text-green-700">
-                                <strong>✓ Bonne réponse :</strong> {{ $result['correct_answer_text'] }}
-                            </div>
-                        </div>
-                        @endif
+                        <div class="text-sm text-gray-600 font-medium">Modules</div>
+                        <div class="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mx-auto mt-3"></div>
                     </div>
                 </div>
             </div>
-            @endforeach
-            
-            <!-- Résumé des résultats -->
-            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        </div>
+
+        <!-- Module Title -->
+        <div class="text-center mb-12">
+            <div class="inline-flex items-center bg-white rounded-full px-6 py-3 shadow-md border border-green-100">
+                <div class="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+                <h3 class="text-xl font-bold text-gray-800">
+                    Module {{ $module->order }} : {{ $module->title }}
+                </h3>
+            </div>
+        </div>
+
+        <!-- Courses Section -->
+        @if($module->courses->isNotEmpty())
+        <div class="mb-12">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl p-8 mb-8 border border-green-200 shadow-sm">
                 <div class="flex items-center justify-between">
-                    <div>
-                        <span class="text-blue-800 font-medium">Score final :</span>
-                        <span class="text-blue-900 font-bold text-lg ml-2">{{ session('quiz_score') }}%</span>
+                    <div class="flex items-center">
+                        <div class="bg-green-500 text-white rounded-xl p-3 mr-4 shadow-md">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-800">Contenu du Module</h4>
+                            <p class="text-gray-600">{{ $module->courses->count() }} leçon(s) disponible(s)</p>
+                        </div>
                     </div>
-                    <div>
-                        <span class="text-blue-800">{{ session('quiz_correct_answers') }}/{{ session('quiz_total_questions') }} correctes</span>
+                    <div class="hidden lg:block">
+                        <div class="flex items-center text-sm text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            </svg>
+                            Cliquez pour développer chaque leçon
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    @endif
-    
-    <!-- Formulaire du quiz (caché si déjà validé) -->
-    <div id="quizForm" class="{{ session('quiz_result_id') && !session('error') ? 'hidden' : '' }}">
-        <form action="{{ route('modules.quiz.submit', $module) }}" method="POST" onsubmit="return handleQuizSubmit(event)">
-            @csrf
-            <input type="hidden" name="time_taken" id="timeTaken" value="0">
-            
-            <div class="space-y-6">
-                @foreach($module->quiz->questions as $index => $question)
-                <div class="border-l-4 border-green-500 pl-4">
-                    <div class="flex items-start">
-                        <div class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-medium mr-3 mt-1">
-                            {{ $index + 1 }}
-                        </div>
-                        <div class="flex-1">
-                            <p class="font-medium text-gray-800 mb-3">{{ $question->question_text }}</p>
+
+            <div class="space-y-4">
+                @foreach($module->courses as $index => $course)
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
+                    <button type="button" 
+                            onclick="toggleCourse({{ $course->id }})"
+                            class="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors group">
+                        <div class="flex items-center space-x-4 flex-1">
+                            <div class="relative">
+                                <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                                    {{ $index + 1 }}
+                                </div>
+                                @if($course->isCompletedBy(auth()->user()))
+                                <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                @endif
+                            </div>
                             
-                            <div class="space-y-2">
-                                @foreach($question->answers as $answer)
-                                <label class="flex items-center space-x-3 p-2 rounded hover:bg-gray-50 cursor-pointer">
-                                    <input type="radio" 
-                                           name="answers[{{ $question->id }}]" 
-                                           value="{{ $answer->id }}" 
-                                           class="text-green-500"
-                                           required>
-                                    <span class="text-gray-700">{{ $answer->answer_text }}</span>
-                                </label>
-                                @endforeach
+                            <div class="text-left flex-1">
+                                <h5 class="text-lg font-semibold text-gray-800 group-hover:text-green-700 transition-colors">{{ $course->title }}</h5>
+                                <div class="flex items-center text-sm text-gray-500 mt-1">
+                                    @if($course->video_url)
+                                    <span class="flex items-center mr-4">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+                                        </svg>
+                                        Vidéo
+                                    </span>
+                                    @endif
+                                    @if($course->audio_url)
+                                    <span class="flex items-center mr-4">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                                        </svg>
+                                        Audio
+                                    </span>
+                                    @endif
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        ~{{ ceil(str_word_count(strip_tags($course->content)) / 200) }} min
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <svg id="chevron-{{ $course->id }}" class="w-6 h-6 text-gray-400 transform transition-transform duration-300 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <div id="course-{{ $course->id }}" class="hidden border-t border-gray-200">
+                        <div class="p-6">
+                            @if($course->video_url)
+                            <div class="mb-6">
+                                <div class="relative bg-black rounded-xl overflow-hidden shadow-lg">
+                                    @if(str_contains($course->video_url, 'youtube.com') || str_contains($course->video_url, 'youtu.be'))
+                                        @php
+                                            preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $course->video_url, $matches);
+                                            $youtube_id = $matches[1] ?? null;
+                                        @endphp
+                                        
+                                        @if($youtube_id)
+                                        <div class="aspect-video">
+                                            <iframe 
+                                                width="100%" 
+                                                height="100%" 
+                                                src="https://www.youtube.com/embed/{{ $youtube_id }}" 
+                                                frameborder="0" 
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                                allowfullscreen
+                                                class="w-full h-full">
+                                            </iframe>
+                                        </div>
+                                        @endif
+                                    @else
+                                        <video controls class="w-full rounded-lg">
+                                            <source src="{{ $course->video_url }}" type="video/mp4">
+                                            Votre navigateur ne supporte pas la lecture de vidéos.
+                                        </video>
+                                    @endif
+                                </div>
+                            </div>
+                            @endif
+
+                            @if($course->audio_url)
+                            <div class="mb-6">
+                                <div class="bg-gradient-to-r from-gray-50 to-green-50 rounded-xl p-6 border border-green-200 shadow-sm">
+                                    <div class="flex items-center mb-4">
+                                        <div class="bg-green-500 text-white rounded-lg p-2 mr-3">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <span class="text-lg font-semibold text-gray-800">Audio du cours</span>
+                                            <p class="text-sm text-gray-600">Écoutez cette leçon en déplacement</p>
+                                        </div>
+                                    </div>
+                                    <audio controls class="w-full rounded-lg">
+                                        <source src="{{ $course->audio_url }}" type="audio/mpeg">
+                                        Votre navigateur ne supporte pas la lecture audio.
+                                    </audio>
+                                </div>
+                            </div>
+                            @endif
+
+                            <div class="prose prose-lg max-w-none mb-6">
+                                <div class="text-gray-700 leading-relaxed text-lg">
+                                    {!! nl2br(e($course->content)) !!}
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                                <div class="text-sm text-gray-500 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Temps estimé : ~{{ ceil(str_word_count(strip_tags($course->content)) / 200) }} minutes
+                                </div>
+
+                                @if(!$course->isCompletedBy(auth()->user()))
+                                <form action="{{ route('courses.complete', $course) }}" method="POST" class="inline-block">
+                                    @csrf
+                                    <button type="submit" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-6 py-3 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 flex items-center">
+                                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        Marquer comme terminé
+                                    </button>
+                                </form>
+                                @else
+                                <div class="flex items-center text-green-600 font-medium bg-green-50 px-4 py-2 rounded-full">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Leçon terminée
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
                 </div>
                 @endforeach
             </div>
-
-            <!-- Bouton de validation -->
-            <div class="text-center mt-8">
-                <button type="submit" 
-                        id="submitBtn"
-                        class="bg-green-500 hover:bg-green-600 text-white font-medium px-8 py-3 rounded-lg transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                    <span id="btnText">Valider mes réponses</span>
-                    <span id="btnSpinner" class="hidden">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Validation en cours...
-                    </span>
-                </button>
+        </div>
+        @else
+        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-8 text-center mb-8 shadow-sm">
+            <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
             </div>
-        </form>
-    </div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">Contenu en préparation</h3>
+            <p class="text-gray-600">Les leçons de ce module seront bientôt disponibles.</p>
+        </div>
+        @endif
 
-    <!-- Bouton pour reprendre le quiz -->
-    @if(session('quiz_result_id'))
-    <div class="text-center mt-6">
-        <button onclick="retakeQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
-            Reprendre le quiz
-        </button>
-    </div>
-    @endif
+        <!-- Quiz Section -->
+        @if($module->quiz)
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-2xl lg:text-3xl font-bold mb-2">Test de Validation</h3>
+                        <p class="text-blue-100 text-lg">Évaluez vos connaissances avec ce QCM</p>
+                    </div>
+                    <div class="hidden lg:block">
+                        <div class="bg-white bg-opacity-20 rounded-xl p-4 text-center">
+                            <div class="text-2xl font-bold">{{ $module->quiz->questions->count() }}</div>
+                            <div class="text-sm opacity-90">Questions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Message de fin -->
-    <div class="text-center mt-6">
-        <p class="text-sm text-gray-600">Fiche récapitulatif du module !</p>
+            <div class="p-8">
+                @if(session('success'))
+                <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
+                    <div class="flex items-start">
+                        <div class="bg-green-100 rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-green-800 mb-1">Quiz validé avec succès !</h4>
+                            <p class="text-green-700">{{ session('success') }}</p>
+                            @if(session('quiz_result_id'))
+                            <button onclick="toggleResults()" class="mt-3 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Voir les corrections
+                            </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if(session('warning'))
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-6 mb-8">
+                    <div class="flex items-start">
+                        <div class="bg-yellow-100 rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-yellow-800 mb-1">Attention !</h4>
+                            <p class="text-yellow-700">{{ session('warning') }}</p>
+                            @if(session('quiz_result_id'))
+                            <button onclick="toggleResults()" class="mt-3 bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                                Voir les corrections
+                            </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if(session('error'))
+                <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+                    <div class="flex items-start">
+                        <div class="bg-red-100 rounded-lg p-3 mr-4">
+                            <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold text-red-800 mb-1">Erreur !</h4>
+                            <p class="text-red-700">{{ session('error') }}</p>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                @if(session('quiz_result_id') && session('detailed_results'))
+                <div id="resultsSection" class="hidden mb-8">
+                    <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-blue-200">
+                        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <div class="bg-blue-500 text-white rounded-lg p-2 mr-3">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            Correction du Quiz
+                        </h4>
+                        
+                        @foreach(session('detailed_results') as $index => $result)
+                        <div class="mb-6 p-5 rounded-xl border-2 {{ $result['is_correct'] ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' }} transition-all hover:shadow-md">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 mr-4">
+                                    @if($result['is_correct'])
+                                    <div class="bg-green-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
+                                        ✓
+                                    </div>
+                                    @else
+                                    <div class="bg-red-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
+                                        ✗
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="flex-1">
+                                    @if($result['image'] ?? false)
+                                    <div class="mb-4">
+                                        <img src="{{ asset('storage/' . $result['image']) }}" 
+                                             alt="Image de la question" 
+                                             class="max-h-64 w-auto rounded-lg shadow-md object-contain border border-gray-300">
+                                    </div>
+                                    @endif
+                                    
+                                    <p class="font-semibold text-gray-800 mb-3 text-lg">
+                                        Question {{ $index + 1 }}: {{ $result['question_text'] }}
+                                    </p>
+                                    
+                                    @if($result['is_correct'])
+                                    <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                                        <div class="flex items-center text-green-800 font-medium">
+                                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            </svg>
+                                            Correct : {{ $result['user_answer_text'] }}
+                                        </div>
+                                    </div>
+                                    @else
+                                    <div class="space-y-3">
+                                        <div class="bg-red-100 border border-red-300 rounded-lg p-4">
+                                            <div class="flex items-center text-red-800 font-medium">
+                                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Votre réponse : {{ $result['user_answer_text'] ?? 'Aucune réponse' }}
+                                            </div>
+                                        </div>
+                                        <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                                            <div class="flex items-center text-green-800 font-medium">
+                                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Bonne réponse : {{ $result['correct_answer_text'] }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                        
+                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg">
+                            <div class="flex flex-col lg:flex-row items-center justify-between text-center lg:text-left">
+                                <div class="mb-4 lg:mb-0">
+                                    <div class="text-3xl font-bold mb-2">{{ session('quiz_score') }}%</div>
+                                    <div class="text-blue-100">Score final</div>
+                                </div>
+                                <div class="text-lg">
+                                    <div class="font-semibold">{{ session('quiz_correct_answers') }}/{{ session('quiz_total_questions') }} réponses correctes</div>
+                                    <div class="text-blue-100 text-sm mt-1">Taux de réussite</div>
+                                </div>
+                                <div class="mt-4 lg:mt-0">
+                                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                                        @if(session('quiz_score') >= 80)
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                        </svg>
+                                        @else
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                        </svg>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+                
+                <div id="quizForm" class="{{ session('quiz_result_id') && !session('error') ? 'hidden' : '' }}">
+                    <form action="{{ route('modules.quiz.submit', $module) }}" method="POST" onsubmit="return handleQuizSubmit(event)">
+                        @csrf
+                        <input type="hidden" name="time_taken" id="timeTaken" value="0">
+                        
+                        <div class="space-y-8">
+                            @foreach($module->quiz->questions as $index => $question)
+                            <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                                <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                                    <div class="flex-1">
+                                        <div class="flex items-start mb-4">
+                                            <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md">
+                                                {{ $index + 1 }}
+                                            </span>
+                                            <p class="text-lg font-semibold text-gray-800 leading-relaxed">
+                                                {{ $question->question_text }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($question->image)
+                                    <div class="flex-shrink-0">
+                                        <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
+                                            <img src="{{ asset('storage/' . $question->image) }}" 
+                                                alt="Image pour la question n°{{ $index + 1 }}" 
+                                                class="w-full h-full object-contain rounded-lg">
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    @php
+                                        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                    @endphp
+                                    @foreach($question->answers as $answerIndex => $answer)
+                                    <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm">
+                                        <input type="radio" 
+                                                name="answers[{{ $question->id }}]" 
+                                                value="{{ $answer->id }}" 
+                                                class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125"
+                                                required>
+                                        <div class="ml-4 flex items-start flex-1">
+                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
+                                                {{ $letters[$answerIndex] }}
+                                            </span>
+                                            <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
+                                                {{ $answer->answer_text }}
+                                            </span>
+                                        </div>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <div class="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 shadow-sm">
+                            <div class="text-center">
+                                <h4 class="text-xl font-bold text-gray-800 mb-4">Prêt à valider vos connaissances ?</h4>
+                                <p class="text-gray-600 mb-6">Vérifiez vos réponses avant de soumettre le quiz.</p>
+                                
+                                <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                                    <button type="button" onclick="resetQuiz()" class="px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-colors duration-300 shadow-sm hover:shadow-md">
+                                        <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                        Réinitialiser
+                                    </button>
+                                    
+                                    <button type="submit" 
+                                            id="submitBtn"
+                                            class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                        <span id="btnText">Valider le Quiz</span>
+                                        <span id="btnSpinner" class="hidden">
+                                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Validation en cours...
+                                        </span>
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-6 text-sm text-gray-500 flex items-center justify-center">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Temps écoulé : <span id="timer" class="font-mono font-bold ml-1">00:00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                @if(session('quiz_result_id'))
+                <div class="text-center mt-6">
+                    <button onclick="retakeQuiz()" class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 py-2 rounded-lg transition-colors">
+                        Reprendre le quiz
+                    </button>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        <!-- Navigation between modules -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-12">
+            @if($previousModule)
+            <a href="{{ route('modules.show', $previousModule->id) }}" 
+                class="flex items-center px-6 py-3 bg-white text-gray-700 hover:bg-gray-50 rounded-xl font-medium transition-all duration-300 shadow-md hover:shadow-lg border border-gray-200 hover:border-gray-300 group w-full sm:w-auto justify-center">
+                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Module précédent
+            </a>
+            @else
+            <div class="w-full sm:w-auto"></div>
+            @endif
+
+            @if($nextModule)
+            <a href="{{ route('modules.show', $nextModule->id) }}" 
+                class="flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 group w-full sm:w-auto justify-center">
+                Module suivant
+                <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+            @else
+            <div class="w-full sm:w-auto"></div>
+            @endif
+        </div>
     </div>
 </div>
 
 <script>
-// Timer pour mesurer le temps passé sur le quiz
+// Fonction pour toggle les cours (accordéon) - LOGIQUE ORIGINALE PRÉSERVÉE
+function toggleCourse(courseId) {
+    const content = document.getElementById(`course-${courseId}`);
+    const chevron = document.getElementById(`chevron-${courseId}`);
+    
+    if (content.classList.contains('hidden')) {
+        // Cacher tous les autres contenus ouverts
+        document.querySelectorAll('[id^="course-"]').forEach(c => {
+            if (c.id !== `course-${courseId}` && !c.classList.contains('hidden')) {
+                c.classList.add('hidden');
+                const otherChevron = document.getElementById(`chevron-${c.id.split('-')[1]}`);
+                if (otherChevron) otherChevron.classList.remove('rotate-180');
+            }
+        });
+
+        // Afficher le contenu cliqué
+        content.classList.remove('hidden');
+        chevron.classList.add('rotate-180');
+        content.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Scroll pour meilleure UX
+    } else {
+        // Cacher le contenu cliqué
+        content.classList.add('hidden');
+        chevron.classList.remove('rotate-180');
+    }
+}
+
+// Timer pour mesurer le temps passé sur le quiz - LOGIQUE ORIGINALE PRÉSERVÉE
 let startTime = Date.now();
 let formSubmitted = false;
+let timerInterval = setInterval(updateTimer, 1000);
 
-// Fonction pour gérer la soumission du formulaire
+function updateTimer() {
+    let elapsed = Math.floor((Date.now() - startTime) / 1000);
+    let minutes = Math.floor(elapsed / 60);
+    let seconds = elapsed % 60;
+    document.getElementById('timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    document.getElementById('timeTaken').value = elapsed;
+}
+
+// Fonction pour gérer la soumission du formulaire - LOGIQUE ORIGINALE PRÉSERVÉE
 function handleQuizSubmit(event) {
     if (formSubmitted) {
         event.preventDefault();
         return false;
     }
 
-    // Calculer le temps passé
     const timeSpent = Math.floor((Date.now() - startTime) / 1000);
     document.getElementById('timeTaken').value = timeSpent;
+    clearInterval(timerInterval);
 
-    // Vérifier que toutes les questions ont une réponse
-    const questions = {{ $module->quiz->questions->count() }};
+    const questions = {{ $module->quiz->questions->count() ?? 0 }};
     const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
     
     if (answeredQuestions < questions) {
@@ -321,7 +618,6 @@ function handleQuizSubmit(event) {
         return false;
     }
 
-    // Désactiver le bouton et afficher le spinner
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
     const btnSpinner = document.getElementById('btnSpinner');
@@ -336,7 +632,6 @@ function handleQuizSubmit(event) {
     return true;
 }
 
-// Fonction pour afficher/masquer les résultats
 function toggleResults() {
     const resultsSection = document.getElementById('resultsSection');
     if (resultsSection) {
@@ -349,27 +644,20 @@ function toggleResults() {
     }
 }
 
-// Fonction pour reprendre le quiz
 function retakeQuiz() {
     if (confirm('Êtes-vous sûr de vouloir reprendre le quiz ? Vos réponses précédentes seront perdues.')) {
-        // Réinitialiser le timer
         startTime = Date.now();
         formSubmitted = false;
         
-        // Masquer les résultats et afficher le formulaire
         const resultsSection = document.getElementById('resultsSection');
         const quizFormSection = document.getElementById('quizForm');
         
         if (resultsSection) resultsSection.classList.add('hidden');
         if (quizFormSection) quizFormSection.classList.remove('hidden');
         
-        // Réinitialiser le formulaire
-        const form = document.querySelector('form');
-        if (form) {
-            form.reset();
-        }
+        const form = document.querySelector('#quizForm form');
+        if (form) form.reset();
         
-        // Réactiver le bouton de soumission
         const submitBtn = document.getElementById('submitBtn');
         const btnText = document.getElementById('btnText');
         const btnSpinner = document.getElementById('btnSpinner');
@@ -380,51 +668,63 @@ function retakeQuiz() {
             btnSpinner.classList.add('hidden');
         }
         
-        // Faire défiler vers le quiz
-        document.getElementById('quizForm').scrollIntoView({ behavior: 'smooth' });
+        // Redémarrer le timer
+        clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
         
-        // Supprimer les données de session (rafraîchir la page)
-        window.location.href = window.location.href;
+        document.getElementById('quizForm').scrollIntoView({ behavior: 'smooth' });
     }
 }
 
-// Auto-scroll vers les résultats si ils existent
+function resetQuiz() {
+    if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes vos réponses ?')) {
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.checked = false;
+        });
+        startTime = Date.now();
+        clearInterval(timerInterval);
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    @if(session('quiz_result_id'))
+    // Si un résultat de quiz existe (même erreur), assurez-vous de faire défiler vers la section quiz.
+    @if(session('quiz_result_id') || session('error'))
     setTimeout(function() {
-        const successMessage = document.querySelector('.bg-green-100');
-        if (successMessage) {
-            successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        const quizSection = document.getElementById('quizForm').closest('.bg-white.rounded-3xl');
+        if (quizSection) {
+            quizSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+        
+        // Afficher les résultats si succès ou avertissement
+        @if(session('quiz_result_id') && !session('error'))
+            toggleResults();
+        @endif
     }, 500);
     @endif
 });
 </script>
-@endif
 
-    <!-- Navigation -->
-    <div class="flex justify-between items-center mt-8">
-        @if($previousModule)
-        <a href="{{ route('modules.show', $previousModule->id) }}" class="text-gray-600 hover:text-gray-800 flex items-center">
-            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Module précédent
-        </a>
-        @else
-        <div></div>
-        @endif
-
-        @if($nextModule)
-        <a href="{{ route('modules.show', $nextModule->id) }}" class="text-gray-600 hover:text-gray-800 flex items-center">
-            Module suivant
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
-        </a>
-        @else
-        <div></div>
-        @endif
-    </div>
-</div>
+<style>
+    .rotate-180 {
+        transform: rotate(180deg);
+    }
+    
+    .prose {
+        line-height: 1.7;
+    }
+    
+    .prose p {
+        margin-bottom: 1em;
+    }
+    
+    .prose ul, .prose ol {
+        margin-bottom: 1em;
+        padding-left: 1.5em;
+    }
+    
+    .prose li {
+        margin-bottom: 0.5em;
+    }
+</style>
 @endsection

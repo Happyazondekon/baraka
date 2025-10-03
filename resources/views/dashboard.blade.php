@@ -1,150 +1,154 @@
 @extends('layouts.app')
 
-@section('title', 'Accueil')
+@section('title', 'Accueil Utilisateur')
 
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="text-center mb-10">
-        <h1 class="text-4xl font-extrabold text-gray-900 leading-tight">
-            Bienvenue, <span class="text-green-600">{{ Auth::user()->name }}</span> !
-        </h1>
-        <p class="text-lg text-gray-600 mt-2">Prêt(e) à maîtriser le code de la route ?</p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 shadow-lg relative overflow-hidden">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                <svg class="w-7 h-7 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a2 2 0 002-2.236V5.5c0 .211-.035.418-.104.614L16 11l2 4v2.5a2.5 2.5 0 01-2.5 2.5H6a3 3 0 01-3-3V6zm0 0v10a1 1 0 001 1h10a1 1 0 001-1V6H3z" clip-rule="evenodd"/>
-                </svg>
-                Votre Progression
-            </h2>
-            <p class="text-gray-700 mb-4">Un aperçu de votre parcours jusqu'à présent.</p>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4 max-w-7xl">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
             
-            <div class="mb-4">
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-md font-medium text-gray-700">Progression globale</span>
-                    <span class="text-lg font-bold text-green-700">{{ $progressionGlobale ?? 0 }}%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-3">
-                    <div class="bg-gradient-to-r from-green-400 to-green-500 h-3 rounded-full transition-all duration-700 ease-out" 
-                         style="width: {{ $progressionGlobale ?? 0 }}%;"></div>
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 border border-gray-200 h-full flex flex-col justify-center">
+                    <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-2">
+                        Bienvenue, <span class="text-green-600">{{ Auth::user()->name }}</span> !
+                    </h1>
+                    <p class="text-xl text-gray-600 max-w-xl">
+                        Votre parcours vers la réussite est en cours. Continuez la pratique ou reprenez vos leçons.
+                    </p>
+                    <div class="mt-6 flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                        <a href="{{ route('modules.index') }}" 
+                           class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-md text-white bg-green-600 hover:bg-green-700 transition duration-150">
+                            Accéder aux Modules
+                        </a>
+                        <a href="{{ route('examens.index') }}" 
+                           class="inline-flex items-center justify-center px-6 py-3 border border-green-600 text-base font-medium rounded-xl shadow-md text-green-600 bg-white hover:bg-green-50 transition duration-150">
+                            Faire un Examen Blanc
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 text-center text-gray-700">
+            <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl shadow-xl p-6 text-white h-full flex flex-col justify-between">
                 <div>
-                    <p class="text-xl font-semibold text-green-600">{{ $progression_theorique ?? 0 }}%</p>
-                    <p class="text-sm">Théorie</p>
+                    <h3 class="text-xl font-bold mb-2">Progression Totale</h3>
+                    <p class="text-green-100 mb-4 text-sm">
+                        @if($progressionGlobale < 100)
+                        Il vous reste des leçons à maîtriser !
+                        @else
+                        Objectif atteint ! Vous êtes prêt(e).
+                        @endif
+                    </p>
                 </div>
-                <div>
-                    <p class="text-xl font-semibold text-green-600">{{ $progression_pratique ?? 0 }}%</p>
-                    <p class="text-sm">Pratique</p>
+                
+                <div class="mb-4">
+                    <div class="w-full bg-white bg-opacity-30 rounded-full h-3">
+                        <div class="bg-white h-3 rounded-full" style="width: {{ $progressionGlobale ?? 0 }}%;"></div>
+                    </div>
+                    <div class="text-3xl font-extrabold mt-2 text-right">
+                        {{ $progressionGlobale ?? 0 }}%
+                    </div>
                 </div>
             </div>
-            
-            <div class="text-center mt-6">
-                <a href="{{ route('progression') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
-                    Voir ma progression complète
-                    <svg class="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                        <path fill-rule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 5.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                </a>
-            </div>
-            <div class="absolute top-0 right-0 w-24 h-24 bg-white bg-opacity-10 rounded-full transform translate-x-1/4 -translate-y-1/4"></div>
-            <div class="absolute bottom-0 left-0 w-16 h-16 bg-white bg-opacity-10 rounded-full transform -translate-x-1/2 translate-y-1/2"></div>
         </div>
 
-        <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-                <svg class="w-7 h-7 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-1-11a1 1 0 00-2 0v4a1 1 0 00.293.707l3 3a1 1 0 001.414-1.414L11 9.586V7a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                </svg>
-                Dernière activité
-            </h2>
-            @if(isset($latestModule))
-                <p class="text-gray-700 mb-4">
-                    Vous avez récemment travaillé sur le module :
-                </p>
-                <div class="border border-green-200 rounded-xl p-4 flex items-center space-x-4 bg-green-50 hover:bg-green-100 transition-colors duration-200">
-                    <div class="flex-shrink-0 w-12 h-12 flex items-center justify-center bg-green-500 text-white rounded-full font-bold text-xl shadow">
-                        {{ str_pad($latestModule->order, 2, '0', STR_PAD_LEFT) }}
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold text-gray-800">{{ $latestModule->title }}</h3>
-                        <p class="text-sm text-gray-600 truncate">{{ $latestModule->description }}</p>
-                    </div>
-                    <a href="{{ route('modules.show', $latestModule->id) }}" class="flex-shrink-0 text-green-600 hover:text-green-800">
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
-                    </a>
-                </div>
-                <div class="text-center mt-6">
-                    <a href="{{ route('modules.index') }}" class="text-green-600 hover:text-green-800 font-medium text-sm">
-                        Explorer tous les modules
-                    </a>
-                </div>
-            @else
-                <div class="text-center py-8 text-gray-500">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                    </svg>
-                    <p class="mt-2">Aucune activité récente.</p>
-                    <p>Commencez un module pour suivre votre progression !</p>
-                    <a href="{{ route('modules.index') }}" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        Commencer un module
-                    </a>
-                </div>
-            @endif
-        </div>
-    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+            
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200 h-full">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">Vos Performances</h3>
 
-    <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-12">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-            <svg class="w-7 h-7 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M12 6.293l-4 4-4-4a1 1 0 01-1.414-1.414l4.707-4.707a1 1 0 011.414 0l4.707 4.707a1 1 0 01-1.414 1.414zM10 18a8 8 0 100-16 8 8 0 000 16zm-1-11a1 1 0 00-2 0v4a1 1 0 00.293.707l3 3a1 1 0 001.414-1.414L11 9.586V7a1 1 0 00-1-1z"/>
-            </svg>
-            Continuez à apprendre
-        </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($suggestedModules as $module)
-                <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 hover:shadow-md transition-shadow duration-200">
-                    <div class="flex items-center mb-3">
-                        <div class="w-10 h-10 flex items-center justify-center bg-green-100 text-green-700 rounded-full font-bold text-lg mr-3">
-                            {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}
+                    <div class="grid grid-cols-2 gap-6 text-center">
+                        <div class="bg-green-50 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-green-700">{{ $progressionGlobale ?? 0 }}%</div>
+                            <div class="text-sm text-gray-600">Progression globale</div>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-800">{{ $module->title }}</h3>
+                        <div class="bg-yellow-50 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-yellow-700">{{ $completedLessonsCount ?? 0 }}</div>
+                            <div class="text-sm text-gray-600">Leçons terminées</div>
+                        </div>
+                        <div class="bg-red-50 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-red-700">{{ $modulesCompletedCount ?? 0 }}</div>
+                            <div class="text-sm text-gray-600">Modules complétés</div>
+                        </div>
+                        <div class="bg-blue-50 rounded-xl p-4">
+                            <div class="text-3xl font-bold text-blue-700">{{ $modules->count() ?? 0 }}</div>
+                            <div class="text-sm text-gray-600">Modules disponibles</div>
+                        </div>
                     </div>
-                    <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ $module->description }}</p>
-                    <a href="{{ route('modules.show', $module->id) }}" class="text-green-600 hover:text-green-800 text-sm font-medium flex items-center">
-                        Commencer ce module
-                        <svg class="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200">
+                 <h3 class="text-2xl font-bold text-gray-900 mb-4">Dernière Activité</h3>
+
+                <div class="flex flex-col h-full justify-between">
+                    <div>
+                        <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider">MODULE EN COURS</span>
+                        <h4 class="text-xl font-bold text-gray-900 mt-1 mb-2">
+                            @if(isset($lastActiveModule))
+                                {{ $lastActiveModule->title ?? 'Module Précédent' }}
+                            @else
+                                Votre parcours n'a pas encore démarré.
+                            @endif
+                        </h4>
+                        <p class="text-gray-600 text-sm">
+                            @if(isset($lastActiveModule))
+                                Reprenez la leçon **{{ $lastActiveLessonName ?? 'en cours' }}** pour avancer.
+                            @else
+                                Commencez par le premier module pour débloquer toutes les fonctionnalités.
+                            @endif
+                        </p>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <a href="{{ route('modules.index') }}" 
+                           class="w-full text-center inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-500 hover:bg-orange-600 transition duration-150">
+                            Reprendre Maintenant
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        @if (isset($recentExams) && $recentExams->isNotEmpty())
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 border-b pb-2">Vos Derniers Examens Blancs</h2>
+            <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+                <ul class="divide-y divide-gray-100">
+                    @foreach ($recentExams as $exam)
+                    <li class="py-3 flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">Examen n° {{ $exam->id }}</p>
+                            <p class="text-sm text-gray-500">Passé le {{ $exam->created_at->format('d/m/Y') }}</p>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                                @if ($exam->score >= 80) 
+                                    bg-green-100 text-green-800
+                                @elseif ($exam->score >= 60)
+                                    bg-yellow-100 text-yellow-800
+                                @else
+                                    bg-red-100 text-red-800
+                                @endif
+                            ">
+                                Score: {{ $exam->score }}%
+                            </span>
+                            <a href="{{ route('examens.results', $exam) }}" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                Voir les résultats &rarr;
+                            </a>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+                <div class="mt-4 text-center border-t pt-4">
+                    <a href="{{ route('examens.index') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                        Voir tout l'historique des examens
                     </a>
                 </div>
-            @empty
-                <p class="col-span-full text-center text-gray-500 py-4">Aucun module suggéré pour le moment.</p>
-            @endforelse
+            </div>
         </div>
-    </div>
+        @endif
 
-    <div class="bg-blue-600 text-white rounded-2xl p-8 flex flex-col md:flex-row items-center justify-between shadow-xl">
-        <div class="md:w-2/3 mb-6 md:mb-0 text-center md:text-left">
-            <h2 class="text-3xl font-bold mb-2">Prêt(e) pour l'examen ?</h2>
-            <p class="text-blue-100 text-lg">Testez vos connaissances avec nos examens blancs interactifs.</p>
-        </div>
-        <div class="md:w-1/3 flex justify-center md:justify-end">
-            
-                Passer un examen blanc
-                <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10.293 15.707a1 1 0 010-1.414L14.586 10l-4.293-4.293a1 1 0 111.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
-                </svg>
-            </a>
-        </div>
     </div>
-
 </div>
 @endsection

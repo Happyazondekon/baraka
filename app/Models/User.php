@@ -111,4 +111,31 @@ class User extends Authenticatable implements MustVerifyEmail
             ->distinct('quizzes.module_id')
             ->count();
     }
+public function completedCourses()
+    {
+        // We use a hasManyThrough relation to get to the courses
+        // that have a corresponding completed record in user_progress.
+        // A simpler approach is to directly query UserProgress.
+        
+        return $this->hasMany(UserProgress::class)->where('completed', true);
+    }
+
+    public function getCompletedExamsCount()
+{
+    // Uses the new 'is_mock_exam' column
+    return \App\Models\QuizResult::where('user_id', $this->id)
+        ->where('is_mock_exam', true)
+        ->count();
+}
+
+/**
+ * Obtenir le score moyen de l'utilisateur pour les examens blancs
+ */
+public function getAverageExamScore()
+{
+    // Uses the new 'is_mock_exam' column
+    return round(\App\Models\QuizResult::where('user_id', $this->id)
+        ->where('is_mock_exam', true)
+        ->avg('score') ?? 0);
+}
 }

@@ -15,6 +15,7 @@ class HomeController extends Controller
                             ->get();
 
         return view('home', compact('featuredModules'));
+        
     }
 
     public function about()
@@ -46,17 +47,22 @@ class HomeController extends Controller
     }
 
     public function dashboard()
-{
-    $user = auth()->user();
-    $modules = Module::where('is_active', true)->orderBy('order')->get();
+    {
+        $user = auth()->user();
+        $modules = Module::where('is_active', true)->orderBy('order')->get();
 
-    // Modules non encore complétés par l'utilisateur (suggérés)
-    $suggestedModules = $modules->filter(function ($module) use ($user) {
-        return !$module->isCompletedBy($user);
-    })->take(3); // suggère les 3 premiers non terminés
+        // 1. CALCULER LA PROGRESSION GLOBALE
+        // Appeler la méthode sur l'utilisateur authentifié
+        $progressionGlobale = $user->getProgressPercentage();
 
-    return view('dashboard', compact('user', 'modules', 'suggestedModules'));
-}
+        // Modules non encore complétés par l'utilisateur (suggérés)
+        $suggestedModules = $modules->filter(function ($module) use ($user) {
+            return !$module->isCompletedBy($user);
+        })->take(3); // suggère les 3 premiers non terminés
+
+        // 2. PASSER LA VARIABLE À LA VUE
+        return view('dashboard', compact('user', 'modules', 'suggestedModules', 'progressionGlobale'));
+    }
 
 
     public function profile()

@@ -59,6 +59,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // AFFICHAGE DE LA LISTE DES COURS (FREE-TO-VIEW)
     // Permet de voir la liste des modules sans avoir payé.
     Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');
+// EXAMENS BLANCS (FREE-TO-VIEW)
+    Route::get('/examens', [QuizController::class, 'examIndex'])->name('examens.index');
+    Route::get('/examens/start', [QuizController::class, 'startExam'])->name('examens.start');
+    Route::post('/examens/submit', [QuizController::class, 'submitExam'])->name('examens.submit');
 
 
     // =======================================================================
@@ -134,6 +138,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/results/{result}/details', [AdminController::class, 'resultDetails'])->name('admin.users.result-details');
     Route::get('/api/users/{user}/quiz-results', [AdminController::class, 'getUserQuizResults'])->name('admin.api.user.quiz-results');
 
+    
+
     // Paiements
     Route::get('/payments', [AdminController::class, 'payments'])->name('admin.payments');
 
@@ -157,7 +163,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Gestion des Paiements
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
-
+    Route::post('/cours/{course}/complete', [CourseController::class, 'complete'])->name('courses.complete');
 
 
 // Auth routes Laravel Breeze ou Jetstream
