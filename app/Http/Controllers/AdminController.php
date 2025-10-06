@@ -9,6 +9,9 @@ use App\Models\Quiz;
 use App\Models\Payment;
 use App\Models\QuizResult;
 use Illuminate\Http\Request;
+use App\Models\Question;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
@@ -153,7 +156,7 @@ class AdminController extends Controller
     /**
      * Afficher les détails d'un résultat spécifique
      */
-    public function resultDetails($resultId)
+    public function resulttDetails($resultId)
     {
         $result = QuizResult::with(['quiz.module', 'user', 'quiz.questions.answers'])
             ->findOrFail($resultId);
@@ -179,4 +182,247 @@ class AdminController extends Controller
             'results' => $results
         ]);
     }
+    
+
+public function mockExams()
+{
+    $mockExams = Quiz::mockExams()
+        ->withCount('questions')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+    
+    $allQuestions = Question::with('quiz.module')->get();
+    
+    return view('admin.mock-exams.index', compact('mockExams', 'allQuestions'));
+}
+
+// AdminController.php
+public function destroyMockExam(Quiz $quiz)
+{
+    if (!$quiz->isMockExam()) {
+        abort(404);
+    }
+
+    try {
+        // Supprimer les questions et réponses associées
+        foreach ($quiz->questions as $question) {
+            $question->answers()->delete();
+            $question->delete();
+        }
+
+        // Supprimer les résultats de quiz associés
+        $quiz->userResults()->delete();
+
+        // Supprimer le quiz
+        $quiz->delete();
+
+        return redirect()->route('admin.mock-exams.index')
+            ->with('success', 'Examen blanc supprimé avec succès !');
+
+    } catch (\Exception $e) {
+        Log::error('Erreur lors de la suppression de l\'examen blanc: ' . $e->getMessage());
+        
+        return redirect()->route('admin.mock-exams.index')
+            ->with('error', 'Erreur lors de la suppression de l\'examen blanc.');
+    }
+}
+
+public function storeMockExam(Request $request)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'time_limit' => 'required|integer|min:1',
+        'passing_score' => 'required|integer|min:0|max:100',
+        'selected_questions' => 'required|array|min:1',
+        'selected_questions.*' => 'exists:questions,id',
+        'is_active' => 'boolean'
+    ]);
+
+    DB::beginTransaction();
+    
+    try {
+        // Créer le quiz examen blanc avec module_id null et is_mock_exam true
+        $quiz = Quiz::create([
+            'module_id' => null, // Pas de module associé
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'time_limit' => $validated['time_limit'],
+            'passing_score' => $validated['passing_score'],
+            'is_active' => $validated['is_active'] ?? true,
+            'is_mock_exam' => true, // Marquer comme examen blanc
+        ]);
+
+        // Associer les questions sélectionnées
+        foreach ($validated['selected_questions'] as $questionId) {
+            $question = Question::find($questionId);
+            
+            // Créer une copie de la question pour l'examen blanc
+            $newQuestion = $question->replicate();
+            $newQuestion->quiz_id = $quiz->id;
+            $newQuestion->save();
+
+            // Copier les réponses
+            foreach ($question->answers as $answer) {
+                $newAnswer = $answer->replicate();
+                $newAnswer->question_id = $newQuestion->id;
+                $newAnswer->save();
+            }
+        }
+
+        DB::commit();
+
+        return redirect()->route('admin.mock-exams.index')
+            ->with('success', 'Examen blanc créé avec succès !');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Erreur lors de la création de l\'examen blanc: ' . $e->getMessage());
+        
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Erreur lors de la création de l\'examen blanc: ' . $e->getMessage());
+    }
+}
+
+
+
+public function updateMockExam(Request $request, Quiz $quiz)
+{
+    if (!$quiz->isMockExam()) {
+        abort(404);
+    }
+
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'time_limit' => 'required|integer|min:1',
+        'passing_score' => 'required|integer|min:0|max:100',
+        'selected_questions' => 'required|array|min:1',
+        'selected_questions.*' => 'exists:questions,id',
+        'is_active' => 'boolean'
+    ]);
+
+    DB::beginTransaction();
+    
+    try {
+        // Mettre à jour le quiz
+        $quiz->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'time_limit' => $validated['time_limit'],
+            'passing_score' => $validated['passing_score'],
+            'is_active' => $validated['is_active'] ?? $quiz->is_active,
+            'is_mock_exam' => true,
+        ]);
+
+        // Supprimer les anciennes questions
+        $quiz->questions()->delete();
+
+        // Ajouter les nouvelles questions avec vérification
+        foreach ($validated['selected_questions'] as $questionId) {
+            $question = Question::find($questionId);
+            
+            // Vérifier que la question existe
+            if (!$question) {
+                throw new \Exception("Question avec ID {$questionId} non trouvée");
+            }
+            
+            // Créer une copie de la question
+            $newQuestion = $question->replicate();
+            $newQuestion->quiz_id = $quiz->id;
+            $newQuestion->save();
+
+            // Copier les réponses
+            foreach ($question->answers as $answer) {
+                $newAnswer = $answer->replicate();
+                $newAnswer->question_id = $newQuestion->id;
+                $newAnswer->save();
+            }
+        }
+
+        DB::commit();
+
+        return redirect()->route('admin.mock-exams.index')
+            ->with('success', 'Examen blanc mis à jour avec succès !');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Erreur lors de la mise à jour de l\'examen blanc: ' . $e->getMessage());
+        
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Erreur lors de la mise à jour de l\'examen blanc: ' . $e->getMessage());
+    }
+}
+
+public function createMockExam()
+{
+    $questions = Question::with(['quiz.module', 'answers'])->get();
+    $modules = Module::all(); // Pour le filtre
+    
+    return view('admin.mock-exams.create', compact('questions', 'modules'));
+}
+
+public function editMockExam(Quiz $quiz)
+{
+    if (!$quiz->isMockExam()) {
+        abort(404);
+    }
+
+    $questions = Question::with(['quiz.module', 'answers'])->get();
+    $selectedQuestions = $quiz->questions->pluck('id')->toArray();
+    $modules = Module::all();
+
+    return view('admin.mock-exams.edit', compact('quiz', 'questions', 'selectedQuestions', 'modules'));
+}
+
+public function resultDetails($resultId)
+{
+    $result = QuizResult::with(['quiz.module', 'user', 'quiz.questions.answers'])
+        ->findOrFail($resultId);
+
+    // Calculer les statistiques des examens pour cet utilisateur
+    $examStats = $this->getUserExamStats($result->user_id);
+    
+    return view('admin.users.result-details', compact('result', 'examStats'));
+}
+
+/**
+ * Obtenir les statistiques des examens pour un utilisateur
+ */
+private function getUserExamStats($userId)
+{
+    $userResults = QuizResult::where('user_id', $userId)
+        ->with('quiz')
+        ->get();
+
+    $totalExams = $userResults->count();
+    $passedExams = $userResults->where('passed', true)->count();
+    $averageScore = $userResults->avg('score');
+    
+    // Statistiques par type (module vs examen blanc)
+    $moduleExams = $userResults->filter(function($result) {
+        return $result->quiz && $result->quiz->module_id !== null;
+    });
+    
+    $mockExams = $userResults->filter(function($result) {
+        return $result->quiz && $result->quiz->is_mock_exam;
+    });
+
+    return [
+        'total_exams' => $totalExams,
+        'passed_exams' => $passedExams,
+        'failed_exams' => $totalExams - $passedExams,
+        'success_rate' => $totalExams > 0 ? round(($passedExams / $totalExams) * 100, 1) : 0,
+        'average_score' => round($averageScore, 1),
+        'module_exams_count' => $moduleExams->count(),
+        'mock_exams_count' => $mockExams->count(),
+        'module_exams_success_rate' => $moduleExams->count() > 0 ? 
+            round(($moduleExams->where('passed', true)->count() / $moduleExams->count()) * 100, 1) : 0,
+        'mock_exams_success_rate' => $mockExams->count() > 0 ? 
+            round(($mockExams->where('passed', true)->count() / $mockExams->count()) * 100, 1) : 0,
+    ];
+}
+
 }

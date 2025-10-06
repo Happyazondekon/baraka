@@ -124,10 +124,21 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($results as $result)
-                            <tr class="bg-white border-b hover:bg-gray-50">
-                                <td class="px-6 py-4">{{ $result->created_at->format('d/m/Y H:i') }}</td>
-                                <td class="px-6 py-4">{{ $result->quiz->module->title }}</td>
+    @forelse($results as $result)
+    <tr class="bg-white border-b hover:bg-gray-50">
+        <td class="px-6 py-4">{{ $result->created_at->format('d/m/Y H:i') }}</td>
+        <td class="px-6 py-4">
+            @if($result->quiz->module)
+                {{ $result->quiz->module->title }}
+            @else
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd"/>
+                    </svg>
+                    Examen blanc
+                </span>
+            @endif
+        </td>
                                 <td class="px-6 py-4">{{ $result->quiz->title }}</td>
                                 <td class="px-6 py-4">
                                     <div class="w-full bg-gray-200 rounded-full h-2.5">

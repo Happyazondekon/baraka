@@ -55,14 +55,15 @@
                         <a href="{{ route('admin.courses.edit', $course) }}" class="text-blue-600 hover:text-blue-900 transition duration-150 ease-in-out" title="Modifier">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form method="POST" action="{{ route('admin.courses.destroy', $course) }}" class="inline-block">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900 transition duration-150 ease-in-out" 
-                                onclick="return confirm('Confirmez-vous la suppression de ce cours ?')" title="Supprimer">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        {{-- Remplacer l'ancien formulaire de suppression --}}
+<form method="POST" action="{{ route('admin.courses.destroy', $course) }}" class="inline-block">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-600 hover:text-red-900 transition duration-150 ease-in-out" 
+        onclick="confirmDelete(event, 'Supprimer le cours', 'Êtes-vous sûr de vouloir supprimer ce cours ?')" title="Supprimer">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
                     </td>
                 </tr>
                 @empty

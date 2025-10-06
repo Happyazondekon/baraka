@@ -17,8 +17,8 @@ class QuestionController extends Controller
         return view('admin.questions.create', compact('quiz'));
     }
 
-    public function store(Request $request)
-    {
+   public function store(Request $request)
+{
     // Validation des champs
     $validated = $request->validate([
         'quiz_id' => 'required|exists:quizzes,id',
@@ -33,7 +33,7 @@ class QuestionController extends Controller
         'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
     ]);
 
-    // Gestion de l’image (si elle existe)
+    // Gestion de l'image (si elle existe)
     $imagePath = null;
     if ($request->hasFile('image')) {
         $imagePath = $request->file('image')->store('questions', 'public');
@@ -58,17 +58,18 @@ class QuestionController extends Controller
         ]);
     }
 
-    // Redirection
+    // Redirection CORRIGÉE
     if ($request->has('add_another')) {
         return redirect()
-            ->route('admin.questions.create', ['quiz' => $validated['quiz_id']])
+            ->route('admin.questions.create', ['quiz_id' => $validated['quiz_id']])
             ->with('success', 'Question ajoutée ! Vous pouvez en ajouter une autre.');
     }
 
+    // CORRECTION : Utiliser la route admin.quizzes.edit au lieu de quizzes.index
     return redirect()
-        ->route('quizzes.index')
+        ->route('admin.quizzes.edit', $validated['quiz_id'])
         ->with('success', 'Question et réponses ajoutées avec succès !');
-    }
+}
 
 
     public function edit(Question $question)

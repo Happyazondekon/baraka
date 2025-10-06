@@ -101,14 +101,15 @@
                             <a href="{{ route('admin.questions.edit', $question) }}" class="text-blue-600 hover:text-blue-900">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form method="POST" action="{{ route('admin.questions.destroy', $question) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900" 
-                                    onclick="return confirm('Êtes-vous sûr ?')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
+                            {{-- Pour la suppression des questions --}}
+<form method="POST" action="{{ route('admin.questions.destroy', $question) }}" class="inline">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-600 hover:text-red-900" 
+        onclick="confirmDelete(event, 'Supprimer la question', 'Êtes-vous sûr de vouloir supprimer cette question ?')">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
                         </div>
                     </div>
 

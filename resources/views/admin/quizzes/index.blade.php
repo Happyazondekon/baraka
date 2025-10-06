@@ -26,8 +26,17 @@
             @foreach($quizzes as $quiz)
                 <tr>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">{{ $quiz->module->title }}</div>
-                    </td>
+    @if($quiz->module)
+        <div class="text-sm font-medium text-gray-900">{{ $quiz->module->title }}</div>
+    @else
+        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd"/>
+            </svg>
+            Examen blanc
+        </span>
+    @endif
+</td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">{{ $quiz->title }}</div>
                         <div class="text-sm text-gray-500">{{ Str::limit($quiz->description, 50) }}</div>
@@ -48,14 +57,15 @@
                         <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="text-blue-600 hover:text-blue-900">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form method="POST" action="{{ route('admin.quizzes.destroy', $quiz) }}" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900" 
-                                onclick="return confirm('Êtes-vous sûr ?')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        {{-- Remplacer l'ancien formulaire --}}
+<form method="POST" action="{{ route('admin.quizzes.destroy', $quiz) }}" class="inline">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-600 hover:text-red-900" 
+        onclick="confirmDelete(event, 'Supprimer le quiz', 'Êtes-vous sûr de vouloir supprimer ce quiz ? Toutes les questions associées seront également supprimées.')">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
                     </td>
                 </tr>
             @endforeach

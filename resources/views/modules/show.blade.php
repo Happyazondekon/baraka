@@ -557,8 +557,9 @@
     </div>
 </div>
 
+{{-- Dans la section script de show.blade.php --}}
 <script>
-// Fonction pour toggle les cours (accordéon) - LOGIQUE ORIGINALE PRÉSERVÉE
+// Fonction pour toggle les cours
 function toggleCourse(courseId) {
     const content = document.getElementById(`course-${courseId}`);
     const chevron = document.getElementById(`chevron-${courseId}`);
@@ -576,7 +577,7 @@ function toggleCourse(courseId) {
         // Afficher le contenu cliqué
         content.classList.remove('hidden');
         chevron.classList.add('rotate-180');
-        content.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Scroll pour meilleure UX
+        content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     } else {
         // Cacher le contenu cliqué
         content.classList.add('hidden');
@@ -584,7 +585,7 @@ function toggleCourse(courseId) {
     }
 }
 
-// Timer pour mesurer le temps passé sur le quiz - LOGIQUE ORIGINALE PRÉSERVÉE
+// Timer pour mesurer le temps passé sur le quiz
 let startTime = Date.now();
 let formSubmitted = false;
 let timerInterval = setInterval(updateTimer, 1000);
@@ -598,8 +599,8 @@ function updateTimer() {
     document.getElementById('timeTaken').value = elapsed;
 }
 
-// Fonction pour gérer la soumission du formulaire - LOGIQUE ORIGINALE PRÉSERVÉE
-function handleQuizSubmit(event) {
+// Fonction pour gérer la soumission du formulaire avec SweetAlert
+async function handleQuizSubmit(event) {
     if (formSubmitted) {
         event.preventDefault();
         return false;
@@ -614,7 +615,18 @@ function handleQuizSubmit(event) {
     
     if (answeredQuestions < questions) {
         event.preventDefault();
-        alert('Veuillez répondre à toutes les questions avant de valider.');
+        
+        await Swal.fire({
+            title: 'Réponses manquantes',
+            html: `Vous avez répondu à <strong>${answeredQuestions}</strong> sur <strong>${questions}</strong> questions.<br>Veuillez répondre à toutes les questions avant de valider.`,
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Compris',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
         return false;
     }
 
@@ -644,8 +656,25 @@ function toggleResults() {
     }
 }
 
-function retakeQuiz() {
-    if (confirm('Êtes-vous sûr de vouloir reprendre le quiz ? Vos réponses précédentes seront perdues.')) {
+// Reprendre le quiz avec SweetAlert
+async function retakeQuiz() {
+    const result = await Swal.fire({
+        title: 'Reprendre le quiz',
+        text: 'Êtes-vous sûr de vouloir reprendre le quiz ? Vos réponses précédentes seront perdues.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Oui, reprendre',
+        cancelButtonText: 'Annuler',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl',
+            cancelButton: 'rounded-xl'
+        }
+    });
+    
+    if (result.isConfirmed) {
         startTime = Date.now();
         formSubmitted = false;
         
@@ -673,22 +702,109 @@ function retakeQuiz() {
         timerInterval = setInterval(updateTimer, 1000);
         
         document.getElementById('quizForm').scrollIntoView({ behavior: 'smooth' });
+        
+        // Message de confirmation
+        Swal.fire({
+            title: 'Quiz réinitialisé !',
+            text: 'Vous pouvez maintenant reprendre le quiz.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Commencer',
+            timer: 2000,
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
     }
 }
 
-function resetQuiz() {
-    if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes vos réponses ?')) {
+// Réinitialiser le quiz avec SweetAlert
+async function resetQuiz() {
+    const result = await Swal.fire({
+        title: 'Réinitialiser le quiz',
+        text: 'Êtes-vous sûr de vouloir réinitialiser toutes vos réponses ?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, réinitialiser',
+        cancelButtonText: 'Annuler',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl',
+            cancelButton: 'rounded-xl'
+        }
+    });
+    
+    if (result.isConfirmed) {
         document.querySelectorAll('input[type="radio"]').forEach(radio => {
             radio.checked = false;
         });
         startTime = Date.now();
         clearInterval(timerInterval);
         timerInterval = setInterval(updateTimer, 1000);
+        
+        Swal.fire({
+            title: 'Réinitialisé !',
+            text: 'Toutes vos réponses ont été réinitialisées.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            timer: 1500,
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
     }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Si un résultat de quiz existe (même erreur), assurez-vous de faire défiler vers la section quiz.
+    // Afficher les messages flash avec SweetAlert
+    @if(session('success'))
+    Swal.fire({
+        title: 'Succès !',
+        text: '{{ session('success') }}',
+        icon: 'success',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'OK',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl'
+        }
+    });
+    @endif
+
+    @if(session('warning'))
+    Swal.fire({
+        title: 'Attention !',
+        text: '{{ session('warning') }}',
+        icon: 'warning',
+        confirmButtonColor: '#3085d6',
+        confirmButtonText: 'Compris',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl'
+        }
+    });
+    @endif
+
+    @if(session('error'))
+    Swal.fire({
+        title: 'Erreur !',
+        text: '{{ session('error') }}',
+        icon: 'error',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl'
+        }
+    });
+    @endif
+
+    // Si un résultat de quiz existe, faire défiler vers la section quiz
     @if(session('quiz_result_id') || session('error'))
     setTimeout(function() {
         const quizSection = document.getElementById('quizForm').closest('.bg-white.rounded-3xl');
@@ -703,7 +819,95 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
     @endif
 });
+
+// Gestion de la soumission des cours avec SweetAlert
+document.addEventListener('DOMContentLoaded', function() {
+    // Intercepter les soumissions de formulaire "Marquer comme terminé"
+    document.querySelectorAll('form[action*="courses.complete"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            Swal.fire({
+                title: 'Marquer comme terminé ?',
+                text: 'Confirmez-vous avoir terminé cette leçon ?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#10B981',
+                cancelButtonColor: '#6B7280',
+                confirmButtonText: 'Oui, terminer',
+                cancelButtonText: 'Annuler',
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-xl',
+                    cancelButton: 'rounded-xl'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Afficher un indicateur de chargement
+                    Swal.fire({
+                        title: 'Enregistrement...',
+                        text: 'Marquage de la leçon comme terminée',
+                        icon: 'info',
+                        showConfirmButton: false,
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+                    
+                    // Soumettre le formulaire
+                    form.submit();
+                }
+            });
+        });
+    });
+});
 </script>
+<style>
+/* Personnalisation des SweetAlert pour correspondre au design */
+.swal2-popup {
+    border-radius: 1rem !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #1F2937 !important;
+}
+
+.swal2-html-container {
+    font-size: 1.1rem !important;
+    color: #6B7280 !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+    border-radius: 0.75rem !important;
+    font-weight: 500 !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+.swal2-confirm {
+    background: linear-gradient(to right, #3B82F6, #6366F1) !important;
+    border: none !important;
+}
+
+.swal2-confirm:hover {
+    background: linear-gradient(to right, #2563EB, #4F46E5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4) !important;
+}
+
+.swal2-cancel {
+    background-color: #6B7280 !important;
+    border: none !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #4B5563 !important;
+    transform: translateY(-1px);
+}
+</style>
 
 <style>
     .rotate-180 {

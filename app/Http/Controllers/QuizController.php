@@ -257,68 +257,121 @@ class QuizController extends Controller
         ]);
     }
 
-    // EXAMENS BLANCS (FREE-TO-VIEW)
-    public function examIndex(Request $request)
+    // Méthodes pour les examens blancs (mock exams)
+
+public function examIndex(Request $request)
 {
     $user = $request->user();
 
-    // The total number of questions for a mock exam (e.g., all questions not tied to a specific quiz)
-    // You might need to adjust this logic based on where your mock exam questions are stored.
-    // For now, we'll keep the value from the blade file if no questions are found.
-    $totalQuestions = Question::count() > 0 ? Question::count() : 40; 
+    // Récupérer les examens blancs actifs
+    $mockExams = Quiz::mockExams()
+        ->where('is_active', true)
+        ->withCount('questions')
+        ->get();
+    
+    // Statistiques mises à jour
+    $totalQuestions = Question::count();
+    $completedExams = $user->quizResults()->where('is_mock_exam', true)->count();
+    
+    // Calcul du score moyen
+    $averageScore = $user->quizResults()
+        ->where('is_mock_exam', true)
+        ->avg('score') ?? 0;
+    $averageScore = round($averageScore);
 
-    // Uses the new method in User.php
-    $completedExams = $user->getCompletedExamsCount(); 
+    // Examens récents
+    $recentExams = $user->quizResults()
+        ->where('is_mock_exam', true)
+        ->with('quiz')
+        ->orderByDesc('created_at')
+        ->limit(5)
+        ->get();
 
-    // Uses the new method in User.php
-    $averageScore = $user->getAverageExamScore();
-
-    // Fetch the recent mock exam results
-    $recentExams = QuizResult::where('user_id', $user->id)
-                               ->where('is_mock_exam', true)
-                               ->orderByDesc('created_at')
-                               ->limit(5)
-                               ->get();
-
-    return view('examens.index', compact('totalQuestions', 'completedExams', 'averageScore', 'recentExams'));
+    return view('examens.index', compact(
+        'mockExams', 
+        'totalQuestions', 
+        'completedExams', 
+        'averageScore', 
+        'recentExams'
+    ));
 }
-    public function startExam(Request $request)
-{
-    $user = $request->user();
 
-    // Fetch all questions for the mock exam
-    $questions = Question::with('answers')->inRandomOrder()->get();
+public function startExam(?Quiz $exam = null)
+{
+    $user = auth()->user();
+
+    if ($exam) {
+        // Examen blanc spécifique créé par l'admin
+        if (!$exam->isMockExam() || !$exam->is_active) {
+            abort(404);
+        }
+        
+        $questions = $exam->questions()->with('answers')->get();
+        $timeLimit = $exam->time_limit;
+    } else {
+        // Examen blanc aléatoire (comportement actuel)
+        $questions = Question::with('answers')->inRandomOrder()->get();
+        $timeLimit = 30; // Durée par défaut
+    }
 
     if ($questions->isEmpty()) {
         return redirect()->route('examens.index')->with('error', 'Aucune question disponible pour l\'examen blanc.');
     }
 
-    return view('examens.start', compact('questions'));
+    return view('examens.start', compact('questions', 'exam', 'timeLimit'));
 }
-    public function submitExam(Request $request)
+
+
+public function showResults($resultId)
+{
+    $user = auth()->user();
+    
+    // Récupérer le résultat du quiz
+    $quizResult = QuizResult::where('id', $resultId)
+        ->where('user_id', $user->id)
+        ->with(['quiz'])
+        ->firstOrFail();
+
+    // Les résultats détaillés sont déjà dans la colonne detailed_results
+    $detailedResults = $quizResult->detailed_results ?? [];
+
+    // Récupérer l'examen si c'est un examen spécifique
+    $exam = $quizResult->quiz_id ? Quiz::find($quizResult->quiz_id) : null;
+
+    return view('examens.results', compact('quizResult', 'exam', 'detailedResults'));
+}
+
+/**
+ * Traiter la soumission de l'examen et rediriger vers les résultats
+ */
+public function submitExam(Request $request, ?Quiz $exam = null)
 {
     try {
-        // Validation des données
         $request->validate([
             'answers' => 'required|array',
             'answers.*' => 'required|integer',
             'time_taken' => 'nullable|integer|min:0'
         ]);
 
-        // Fetch all questions for the mock exam
-        $questions = Question::with('answers')->get();
-        $totalQuestions = $questions->count();
-
-        if ($totalQuestions === 0) {
-            return redirect()->route('examens.index')->with('error', 'Aucune question disponible pour l\'examen blanc.');
-        }
-
         $user = auth()->user();
         $answers = $request->input('answers', []);
+
+        if ($exam) {
+            // Examen blanc spécifique
+            $questions = $exam->questions()->with('answers')->get();
+            $quizId = $exam->id;
+            $passingScore = $exam->passing_score;
+        } else {
+            // Examen blanc aléatoire
+            $questions = Question::with('answers')->get();
+            $quizId = null;
+            $passingScore = 70; // Score par défaut
+        }
+
+        $totalQuestions = $questions->count();
         $correctAnswers = 0;
         $detailedResults = [];
 
-        // Vérifier que toutes les questions ont une réponse
         if (count($answers) < $totalQuestions) {
             return redirect()->back()
                 ->withInput()
@@ -350,12 +403,11 @@ class QuizController extends Controller
         }
 
         $score = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
-        // For mock exams, we can set a fixed passing score, e.g., 70%
-        $passingScore = 70; 
         $passed = $score >= $passingScore;
+
         $quizResult = QuizResult::create([
             'user_id' => $user->id,
-            'quiz_id' => null, // No specific quiz for mock exams
+            'quiz_id' => $quizId,
             'score' => $score,
             'total_questions' => $totalQuestions,
             'correct_answers' => $correctAnswers,
@@ -363,37 +415,14 @@ class QuizController extends Controller
             'time_taken' => $request->input('time_taken', 0),
             'answers' => $answers,
             'detailed_results' => $detailedResults,
-            'is_mock_exam' => true // Mark this result as a mock exam
+            'is_mock_exam' => true
         ]);
-        DB::commit();
-        // Messages personnalisés selon le score
-        if ($passed) {
-            if ($score == 100) {
-                $message = "🎉 Parfait ! Vous avez obtenu 100% ! Excellent travail
-    !";
-            } elseif ($score >= 90) {
-                $message = "🌟 Très bien ! Vous avez obtenu {$score}% ! Presque parfait !";
-            } else {
-                $message = "👍 Félicitations ! Vous avez réussi avec {$score}% !";
-            }
-            $messageType = 'success';
-        } else {
-            if ($score >= 50) {
-                $message = "📚 Score : {$score}%. Vous y êtes presque ! Révisez et réessayez.";
-            } else {
-                $message = "📖 Score : {$score}%. Il faut réviser avant de reprendre l'examen blanc.";
-            }
-            $messageType = 'warning';
-        }
 
-        // Stocker les résultats en session pour l'affichage
-        return redirect()->route('examens.index')
-            ->with($messageType, $message)
-            ->with('quiz_result_id', $quizResult->id)
-            ->with('quiz_score', $score)
-            ->with('quiz_correct_answers', $correctAnswers)
-            ->with('quiz_total_questions', $totalQuestions)
-            ->with('detailed_results', $detailedResults);
+        DB::commit();
+
+        // Rediriger vers la page de résultats au lieu de l'index
+        return redirect()->route('examens.results', $quizResult->id)
+            ->with('success', 'Examen terminé avec succès !');
 
     } catch (\Exception $e) {
         DB::rollBack();
@@ -404,51 +433,5 @@ class QuizController extends Controller
             ->with('error', 'Une erreur est survenue lors de la validation. Veuillez réessayer.');
     }
 }
-private function calculateExamScore($userAnswers)
-{
-    $questions = Question::with('answers')->get();
-    $totalQuestions = $questions->count();
-    $correctAnswers = 0;
-
-    foreach ($questions as $question) {
-        $userAnswerId = $userAnswers[$question->id] ?? null;
-        $correctAnswer = $question->answers()->where('is_correct', true)->first();
-
-        if ($correctAnswer && $userAnswerId == $correctAnswer->id) {
-            $correctAnswers++;
-        }
-    }
-
-    return $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
-}
-
-public function examResults(QuizResult $examResult)
-{
-    $user = auth()->user();
-
-    // S'assurer que le résultat appartient à l'utilisateur
-    if ($examResult->user_id !== $user->id) {
-        abort(403);
-    }
-
-    return view('examens.results', compact('examResult'));
-}
-
-
-
-public function showExamResults(QuizResult $exam)
-{
-    // S'assurer que le résultat est bien un examen blanc et appartient à l'utilisateur
-    if ($exam->user_id !== auth()->id() || !$exam->is_mock_exam) {
-        abort(403);
-    }
-
-    // Charger les détails nécessaires
-    // La colonne `detailed_results` du QuizResult devrait contenir tout ce qui est nécessaire.
-    $detailedResults = $exam->detailed_results;
-
-    return view('examens.results.show', compact('exam', 'detailedResults'));
-}
-
 
 }

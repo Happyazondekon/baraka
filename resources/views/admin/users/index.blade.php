@@ -169,27 +169,34 @@
                     </a>
                     
                     @if(!$user->email_verified_at)
-                        <form method="POST" action="{{ route('admin.users.verify', $user) }}" class="inline">
-                            @csrf
-                            <button type="submit" class="text-green-600 hover:text-green-900" title="Vérifier email">
-                                <i class="fas fa-check"></i>
-                            </button>
-                        </form>
+                        {{-- Pour la vérification d'email --}}
+<form method="POST" action="{{ route('admin.users.verify', $user) }}" class="inline" onsubmit="return false">
+    @csrf
+    <button type="submit" class="text-green-600 hover:text-green-900" 
+        onclick="confirmAction(event, 'Vérifier l\\'email', 'Êtes-vous sûr de vouloir marquer cet email comme vérifié ?')" 
+        title="Vérifier email">
+        <i class="fas fa-check"></i>
+    </button>
+</form>
                     @endif
                     
-                    <button onclick="toggleUserStatus({{ $user->id }})" 
-                        class="text-yellow-600 hover:text-yellow-900" title="Suspendre/Activer">
-                        <i class="fas fa-user-slash"></i>
-                    </button>
+                    {{-- Pour suspendre/activer un utilisateur --}}
+<button onclick="toggleUserStatus({{ $user->id }})" 
+    class="text-yellow-600 hover:text-yellow-900" title="Suspendre/Activer">
+    <i class="fas fa-user-slash"></i>
+</button>
                     
-                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" 
-                        class="inline" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-600 hover:text-red-900" title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
+                    {{-- Pour la suppression d'utilisateur --}}
+<form method="POST" action="{{ route('admin.users.destroy', $user) }}" 
+    class="inline" onsubmit="return false">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-600 hover:text-red-900" 
+        onclick="confirmDelete(event, 'Supprimer l\'utilisateur', 'Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.')" 
+        title="Supprimer">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
                 </div>
             </td>
         </tr>
@@ -240,11 +247,38 @@
     }
 
     function toggleUserStatus(userId) {
-        if (confirm('Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?')) {
+    Swal.fire({
+        title: 'Changer le statut',
+        text: 'Êtes-vous sûr de vouloir changer le statut de cet utilisateur ?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirmer',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
             // Ici vous pouvez faire un appel AJAX pour changer le statut
             console.log('Toggle status for user:', userId);
+            // Exemple d'appel AJAX :
+            /*
+            fetch(`/admin/users/${userId}/toggle-status`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('Succès!', 'Statut modifié avec succès.', 'success')
+                    .then(() => location.reload());
+                }
+            });
+            */
         }
-    }
+    });
+}
 
     // Fermer le modal en cliquant à l'extérieur
     document.getElementById('userDetailsModal').addEventListener('click', function(e) {

@@ -49,25 +49,25 @@
         </div>
 
         <!-- Exam Instructions -->
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
-            <div class="flex items-start">
-                <div class="bg-yellow-100 text-yellow-600 rounded-xl p-3 mr-4 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Instructions importantes</h3>
-                    <ul class="text-gray-700 space-y-1">
-                        <li>• L'examen contient <strong>{{ $questions->count() }} questions</strong> à choix multiples</li>
-                        <li>• Vous avez <strong>30 minutes</strong> pour terminer l'examen</li>
-                        <li>• Le score de réussite est de <strong>70%</strong> ({{ ceil($questions->count() * 0.7) }} bonnes réponses)</li>
-                        <li>• Une seule réponse est correcte par question</li>
-                        <li>• Vous ne pouvez pas revenir en arrière après validation</li>
-                    </ul>
-                </div>
-            </div>
+<div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
+    <div class="flex items-start">
+        <div class="bg-yellow-100 text-yellow-600 rounded-xl p-3 mr-4 flex-shrink-0">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
         </div>
+        <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Instructions importantes</h3>
+            <ul class="text-gray-700 space-y-1">
+                <li>• L'examen contient <strong>{{ $questions->count() }} questions</strong> à choix multiples</li>
+                <li>• Vous avez <strong>{{ $timeLimit ?? 30 }} minutes</strong> pour terminer l'examen</li>
+                <li>• Le score de réussite est de <strong>{{ $exam->passing_score ?? 70 }}%</strong> ({{ ceil($questions->count() * (($exam->passing_score ?? 70) / 100)) }} bonnes réponses)</li>
+                <li>• Une seule réponse est correcte par question</li>
+                <li>• Vous ne pouvez pas revenir en arrière après validation</li>
+            </ul>
+        </div>
+    </div>
+</div>
 
         <!-- Exam Form -->
         <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
@@ -90,7 +90,7 @@
                 </div>
             </div>
 
-            <form action="{{ route('examens.submit') }}" method="POST" id="examForm" onsubmit="return handleExamSubmit(event)">
+            <form action="{{ $exam ? route('examens.submit.specific', $exam) : route('examens.submit') }}" method="POST" id="examForm" onsubmit="return handleExamSubmit(event)">
                 @csrf
                 <input type="hidden" name="time_taken" id="timeTaken" value="0">
                 
@@ -206,6 +206,7 @@
     </div>
 </div>
 
+{{-- Dans la section script de start.blade.php --}}
 <script>
 // Timer et gestion de l'examen
 let examStartTime = Date.now();
@@ -215,7 +216,7 @@ let elapsedTimeInterval;
 
 // Initialisation du timer
 function startTimer() {
-    const totalTime = 30 * 60; // 30 minutes en secondes
+    const totalTime = {{ $timeLimit ?? 30 }} * 60;
     let remainingTime = totalTime;
     
     timerInterval = setInterval(() => {
@@ -235,7 +236,6 @@ function startTimer() {
             
     }, 1000);
     
-    // Timer du temps écoulé
     elapsedTimeInterval = setInterval(updateElapsedTime, 1000);
 }
 
@@ -259,7 +259,6 @@ function updateProgress() {
     document.getElementById('answeredCount').textContent = answeredQuestions + ' question' + (answeredQuestions > 1 ? 's' : '');
     document.getElementById('remainingQuestions').textContent = totalQuestions - answeredQuestions;
     
-    // Mettre à jour la couleur de la barre de progression
     const progressBar = document.getElementById('progressBar');
     if (progressPercentage < 50) {
         progressBar.className = 'bg-gradient-to-r from-red-400 to-red-500 h-3 rounded-full transition-all duration-500 ease-out';
@@ -270,8 +269,8 @@ function updateProgress() {
     }
 }
 
-// Gestion de la soumission
-function handleExamSubmit(event) {
+// Gestion de la soumission avec SweetAlert
+async function handleExamSubmit(event) {
     if (examSubmitted) {
         event.preventDefault();
         return false;
@@ -282,7 +281,24 @@ function handleExamSubmit(event) {
     
     if (answeredQuestions < totalQuestions) {
         event.preventDefault();
-        if (confirm(`Vous n'avez répondu qu'à ${answeredQuestions} sur ${totalQuestions} questions. Voulez-vous vraiment soumettre ?`)) {
+        
+        const result = await Swal.fire({
+            title: 'Validation incomplète',
+            html: `Vous n'avez répondu qu'à <strong>${answeredQuestions}</strong> sur <strong>${totalQuestions}</strong> questions.<br>Voulez-vous vraiment soumettre ?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui, soumettre',
+            cancelButtonText: 'Continuer',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl',
+                cancelButton: 'rounded-xl'
+            }
+        });
+        
+        if (result.isConfirmed) {
             return submitExam();
         }
         return false;
@@ -313,16 +329,64 @@ function submitExam() {
 
 function autoSubmitExam() {
     if (!examSubmitted) {
-        document.getElementById('examForm').submit();
+        Swal.fire({
+            title: 'Temps écoulé !',
+            text: 'Le temps imparti est écoulé. Votre examen va être soumis automatiquement.',
+            icon: 'info',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        }).then(() => {
+            document.getElementById('examForm').submit();
+        });
     }
 }
 
-function resetExam() {
-    if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes vos réponses ?')) {
+// Réinitialisation avec SweetAlert
+async function resetExam() {
+    const result = await Swal.fire({
+        title: 'Réinitialiser les réponses',
+        text: 'Êtes-vous sûr de vouloir réinitialiser toutes vos réponses ?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, réinitialiser',
+        cancelButtonText: 'Annuler',
+        customClass: {
+            popup: 'rounded-2xl',
+            confirmButton: 'rounded-xl',
+            cancelButton: 'rounded-xl'
+        }
+    });
+    
+    if (result.isConfirmed) {
         document.querySelectorAll('.answer-radio').forEach(radio => {
             radio.checked = false;
         });
         updateProgress();
+        
+        // Réinitialiser les styles des réponses
+        document.querySelectorAll('.answer-label').forEach(label => {
+            label.classList.remove('border-blue-500', 'bg-blue-50');
+            label.classList.add('border-gray-200', 'hover:border-blue-400');
+        });
+        
+        Swal.fire({
+            title: 'Réinitialisé !',
+            text: 'Toutes vos réponses ont été réinitialisées.',
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            timer: 2000,
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
     }
 }
 
@@ -360,11 +424,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Avertissement avant de quitter la page
+// Avertissement avant de quitter la page avec SweetAlert
 window.addEventListener('beforeunload', function(e) {
     if (!examSubmitted) {
         e.preventDefault();
-        e.returnValue = 'Vos réponses seront perdues si vous quittez cette page. Êtes-vous sûr ?';
+        e.returnValue = '';
+        
+        // Optionnel: Afficher une SweetAlert personnalisée
+        Swal.fire({
+            title: 'Quitter la page ?',
+            text: 'Vos réponses seront perdues si vous quittez cette page.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Quitter',
+            cancelButtonText: 'Rester',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl',
+                cancelButton: 'rounded-xl'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.reload();
+            }
+        });
     }
 });
 </script>
@@ -384,6 +469,51 @@ window.addEventListener('beforeunload', function(e) {
 
 .question-container:hover {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+</style>
+<style>
+/* Personnalisation des SweetAlert pour correspondre au design */
+.swal2-popup {
+    border-radius: 1rem !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.swal2-title {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    color: #1F2937 !important;
+}
+
+.swal2-html-container {
+    font-size: 1.1rem !important;
+    color: #6B7280 !important;
+}
+
+.swal2-confirm, .swal2-cancel {
+    border-radius: 0.75rem !important;
+    font-weight: 500 !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+.swal2-confirm {
+    background: linear-gradient(to right, #3B82F6, #6366F1) !important;
+    border: none !important;
+}
+
+.swal2-confirm:hover {
+    background: linear-gradient(to right, #2563EB, #4F46E5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4) !important;
+}
+
+.swal2-cancel {
+    background-color: #6B7280 !important;
+    border: none !important;
+}
+
+.swal2-cancel:hover {
+    background-color: #4B5563 !important;
+    transform: translateY(-1px);
 }
 </style>
 @endsection

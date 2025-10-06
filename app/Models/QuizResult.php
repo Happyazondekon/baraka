@@ -21,10 +21,14 @@ class QuizResult extends Model
     ];
 
     protected $casts = [
-        'passed' => 'boolean',
-        'is_mock_exam',
-        'answers' => 'json'
-    ];
+    'passed' => 'boolean',
+    'is_mock_exam' => 'boolean',
+    'answers' => 'array',
+    'detailed_results' => 'array', // Ajoutez cette ligne
+    'created_at' => 'datetime',
+    'updated_at' => 'datetime',
+];
+
 
     public function user()
     {

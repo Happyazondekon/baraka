@@ -11,6 +11,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    {{-- SweetAlert CSS --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     {{-- Font Awesome CDN - This line was removed and needs to be re-added for icons to show --}}
@@ -18,6 +21,86 @@
 
 </head>
 <body class="font-sans antialiased bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+    {{-- SweetAlert JS --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Configuration globale de SweetAlert
+const Swal = window.Swal;
+
+// Fonction utilitaire pour les confirmations de suppression
+function confirmDelete(event, title = 'Êtes-vous sûr ?', text = 'Cette action est irréversible.') {
+    event.preventDefault();
+    const form = event.target.closest('form');
+    
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Oui, supprimer',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+
+// Fonction pour les confirmations simples
+function confirmAction(event, title = 'Confirmer l\'action', text = 'Voulez-vous vraiment effectuer cette action ?') {
+    event.preventDefault();
+    const form = event.target.closest('form');
+    
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Confirmer',
+        cancelButtonText: 'Annuler'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
+<script>
+// Afficher les messages flash avec SweetAlert
+@if (session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Succès',
+        text: '{{ session('success') }}',
+        timer: 3000,
+        showConfirmButton: false
+    });
+@endif
+
+@if (session('error'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Erreur',
+        text: '{{ session('error') }}',
+        timer: 4000
+    });
+@endif
+
+@if (session('warning'))
+    Swal.fire({
+        icon: 'warning',
+        title: 'Attention',
+        text: '{{ session('warning') }}',
+        timer: 4000
+    });
+@endif
+</script>
 
     <header class="bg-white shadow-md"> {{-- Using shadow-md for consistency with public site --}}
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"> {{-- Increased space-y for mobile --}}
@@ -37,6 +120,9 @@
                 </a>
                 <a href="{{ route('admin.quizzes.index') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.quizzes.*') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Quiz
+                </a>
+                <a href="{{ route('admin.mock-exams.index') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.quizzes.*') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
+                    Examens blancs
                 </a>
                 <a href="{{ route('admin.users') }}" class="py-2 px-3 rounded-md transition duration-150 ease-in-out {{ Route::is('admin.users') ? 'bg-green-100 text-green-700 font-semibold' : 'text-gray-700 hover:bg-gray-50 hover:text-green-600' }}">
                     Utilisateurs

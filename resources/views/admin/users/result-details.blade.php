@@ -19,13 +19,82 @@
     </div>
 
     <div class="container mx-auto px-4 py-8 space-y-8">
+        <!-- Statistiques des examens de l'utilisateur -->
+        @if(isset($examStats))
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Statistiques des examens - {{ $result->user->name }}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Taux de réussite global -->
+                    <div class="text-center">
+                        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                            <div class="text-3xl font-bold text-blue-600 mb-2">{{ $examStats['success_rate'] }}%</div>
+                            <div class="text-sm text-gray-600 font-medium">Taux de réussite</div>
+                            <div class="text-xs text-gray-500 mt-1">{{ $examStats['passed_exams'] }}/{{ $examStats['total_exams'] }} examens</div>
+                        </div>
+                    </div>
+
+                    <!-- Score moyen -->
+                    <div class="text-center">
+                        <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                            <div class="text-3xl font-bold text-green-600 mb-2">{{ $examStats['average_score'] }}%</div>
+                            <div class="text-sm text-gray-600 font-medium">Score moyen</div>
+                            <div class="text-xs text-gray-500 mt-1">Sur tous les examens</div>
+                        </div>
+                    </div>
+
+                    <!-- Examens modules -->
+                    <div class="text-center">
+                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                            <div class="text-3xl font-bold text-purple-600 mb-2">{{ $examStats['module_exams_success_rate'] }}%</div>
+                            <div class="text-sm text-gray-600 font-medium">Modules réussis</div>
+                            <div class="text-xs text-gray-500 mt-1">{{ $examStats['module_exams_count'] }} examens</div>
+                        </div>
+                    </div>
+
+                    <!-- Examens blancs -->
+                    <div class="text-center">
+                        <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                            <div class="text-3xl font-bold text-orange-600 mb-2">{{ $examStats['mock_exams_success_rate'] }}%</div>
+                            <div class="text-sm text-gray-600 font-medium">Examens blancs</div>
+                            <div class="text-xs text-gray-500 mt-1">{{ $examStats['mock_exams_count'] }} examens</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barre de progression détaillée -->
+                <div class="mt-6">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Progression globale</span>
+                        <span>{{ $examStats['success_rate'] }}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-blue-500 h-3 rounded-full" style="width: {{ $examStats['success_rate'] }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-6">
                     <h2 class="text-xl font-semibold text-gray-800 mb-4">Informations générales</h2>
                     <p class="text-sm text-gray-600 mb-2"><strong>Utilisateur :</strong> {{ $result->user->name }}</p>
                     <p class="text-sm text-gray-600 mb-2"><strong>Email :</strong> {{ $result->user->email }}</p>
-                    <p class="text-sm text-gray-600 mb-2"><strong>Module :</strong> {{ $result->quiz->module->title }}</p>
+                    <p class="text-sm text-gray-600 mb-2">
+                        <strong>Type d'examen :</strong> 
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold {{ $result->quiz->is_mock_exam ? 'bg-orange-100 text-orange-800' : 'bg-purple-100 text-purple-800' }}">
+                            {{ $result->quiz->is_mock_exam ? 'Examen Blanc' : 'Module' }}
+                        </span>
+                    </p>
+                    <td class="px-6 py-4">
+    @if($result->quiz->module)
+        {{ $result->quiz->module->title }}
+    @else
+        Examen blanc
+    @endif
+</td>
                     <p class="text-sm text-gray-600 mb-2"><strong>Quiz :</strong> {{ $result->quiz->title }}</p>
                     <p class="text-sm text-gray-600"><strong>Date :</strong> {{ $result->created_at->format('d/m/Y H:i') }}</p>
                 </div>
@@ -93,4 +162,5 @@
         </div>
     </div>
 </div>
+
 @endsection

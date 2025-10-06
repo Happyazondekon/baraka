@@ -61,9 +61,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');
 // EXAMENS BLANCS (FREE-TO-VIEW)
     Route::get('/examens', [QuizController::class, 'examIndex'])->name('examens.index');
-    Route::get('/examens/start', [QuizController::class, 'startExam'])->name('examens.start');
-    Route::post('/examens/submit', [QuizController::class, 'submitExam'])->name('examens.submit');
-
+    
+Route::post('/examens/submit', [QuizController::class, 'submitExam'])->name('examens.submit');
+Route::post('/examens/submit/{exam}', [QuizController::class, 'submitExam'])->name('examens.submit.specific');
 
     // =======================================================================
     // GROUPE 2 : Routes Protégées par Paiement (PAY-TO-START / CONTENU DE DÉTAIL)
@@ -84,6 +84,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // QUIZ DIRECT (Si c'est du contenu payant)
         Route::get('/quiz/{quiz}', [QuizController::class, 'showByQuiz'])->name('quizzes.show');
     });
+
+    Route::get('/examens/start', [QuizController::class, 'startExam'])->name('examens.start');
+    Route::get('/examens/start/{exam}', [QuizController::class, 'startExam'])->name('examens.start.specific');
+    Route::get('/examens/results/{result}', [QuizController::class, 'showResults'])->name('examens.results');
 
 });
 
@@ -127,16 +131,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('courses', CourseController::class, ['as' => 'admin'])->except('show');
     Route::resource('quizzes', QuizController::class, ['as' => 'admin'])->except('show');
     Route::resource('questions', QuestionController::class, ['as' => 'admin']);
+    // Gestion des examens blancs
+    Route::get('/mock-exams', [AdminController::class, 'mockExams'])->name('admin.mock-exams.index');
+    Route::get('/mock-exams/create', [AdminController::class, 'createMockExam'])->name('admin.mock-exams.create');
+    Route::post('/mock-exams', [AdminController::class, 'storeMockExam'])->name('admin.mock-exams.store');
+    Route::get('/mock-exams/{quiz}/edit', [AdminController::class, 'editMockExam'])->name('admin.mock-exams.edit');
+    Route::put('/mock-exams/{quiz}', [AdminController::class, 'updateMockExam'])->name('admin.mock-exams.update');
+    Route::delete('/mock-exams/{quiz}', [AdminController::class, 'destroyMockExam'])->name('admin.mock-exams.destroy');
+    
 
-    // Gestion utilisateurs
-    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
-    Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('admin.users.verify');
-    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
-    Route::post('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle-status');
-    Route::get('/users/{user}/details', [AdminController::class, 'getUserDetails'])->name('admin.users.details');
-    Route::get('/users/{user}/results', [AdminController::class, 'userResults'])->name('admin.users.results');
-    Route::get('/results/{result}/details', [AdminController::class, 'resultDetails'])->name('admin.users.result-details');
-    Route::get('/api/users/{user}/quiz-results', [AdminController::class, 'getUserQuizResults'])->name('admin.api.user.quiz-results');
+
+    
 
     
 
@@ -150,7 +155,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     // Voir un quiz en admin
     Route::get('/quizzes/{quiz}', [QuizController::class, 'adminShow'])->name('admin.quizzes.show');
-});
     // Gestion des Utilisateurs
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('users.verify');
@@ -160,6 +164,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/users/{user}/results', [AdminController::class, 'userResults'])->name('users.results');
     Route::get('/results/{result}/details', [AdminController::class, 'resultDetails'])->name('users.result-details');
     Route::get('/api/users/{user}/quiz-results', [AdminController::class, 'getUserQuizResults'])->name('api.user.quiz-results');
+});
+    
+// Gestion utilisateurs
+    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
+    Route::post('/users/{user}/verify', [AdminController::class, 'verifyUser'])->name('admin.users.verify');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+    Route::post('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle-status');
+    Route::get('/users/{user}/details', [AdminController::class, 'getUserDetails'])->name('admin.users.details');
+    Route::get('/users/{user}/results', [AdminController::class, 'userResults'])->name('admin.users.results');
+    Route::get('/results/{result}/details', [AdminController::class, 'resultDetails'])->name('admin.users.result-details');
+    Route::get('/api/users/{user}/quiz-results', [AdminController::class, 'getUserQuizResults'])->name('admin.api.user.quiz-results');
 
     // Gestion des Paiements
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');

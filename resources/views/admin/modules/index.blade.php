@@ -49,14 +49,15 @@
                         <a href="{{ route('admin.modules.edit', $module) }}" class="text-blue-600 hover:text-blue-900">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <form method="POST" action="{{ route('admin.modules.destroy', $module) }}" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-600 hover:text-red-900" 
-                                onclick="return confirm('Êtes-vous sûr ?')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
+                        {{-- Remplacer l'ancien formulaire --}}
+<form method="POST" action="{{ route('admin.modules.destroy', $module) }}" class="inline">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="text-red-600 hover:text-red-900" 
+        onclick="confirmDelete(event, 'Supprimer le module', 'Êtes-vous sûr de vouloir supprimer ce module ? Cette action supprimera également tous les cours associés.')">
+        <i class="fas fa-trash"></i>
+    </button>
+</form>
                     </td>
                 </tr>
             @endforeach
