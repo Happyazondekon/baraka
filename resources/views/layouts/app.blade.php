@@ -126,7 +126,6 @@
                     <a href="{{ route('home') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 {{ Route::is('home') ? 'text-green-600 bg-gray-50' : '' }}">Accueil</a>
                     <a href="{{ route('about') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 {{ Route::is('about') ? 'text-green-600 bg-gray-50' : '' }}">À propos</a>
                     <a href="{{ route('modules.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 {{ Route::is('modules.*') ? 'text-green-600 bg-gray-50' : '' }}">Cours</a>
-                    <a href="{{ route('pricing') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 {{ Route::is('pricing') ? 'text-green-600 bg-gray-50' : '' }}">Tarifs</a>
                     <a href="{{ route('contact') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50 {{ Route::is('contact') ? 'text-green-600 bg-gray-50' : '' }}">Contact</a>
                     <div class="pt-4 border-t border-gray-200">
                         <a href="{{ route('login') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-green-600 hover:bg-gray-50">Connexion</a>
