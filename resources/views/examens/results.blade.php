@@ -214,39 +214,31 @@
                                 </div>
                                 @endif
                                 
-                                @if($resultItem['is_correct'])
-                                <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                                    <div class="flex items-center text-green-800 font-medium mb-2">
-                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                        </svg>
-                                        Vos réponses correctes :
-                                    </div>
-                                    <div class="text-green-700">
-                                        @if(is_array($resultItem['user_answers_text']))
-                                            {{ implode(', ', $resultItem['user_answers_text']) }}
-                                        @else
-                                            {{ $resultItem['user_answers_text'] }}
-                                        @endif
-                                    </div>
-                                </div>
-                                @else
-                                <div class="space-y-3">
-                                    <div class="bg-red-100 border border-red-300 rounded-lg p-4">
-                                        <div class="flex items-center text-red-800 font-medium mb-2">
+                                <!-- AFFICHAGE DES RÉPONSES AVEC PRÉSÉLECTION -->
+                                <div class="space-y-4">
+                                    <!-- Affichage des réponses de l'utilisateur -->
+                                    <div class="bg-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-100 border border-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-300 rounded-lg p-4">
+                                        <div class="flex items-center text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-800 font-medium mb-2">
                                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                @if($resultItem['is_correct'])
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                                @else
                                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                @endif
                                             </svg>
-                                            Vos réponses :
+                                            {{ $resultItem['is_correct'] ? 'Vos réponses correctes' : 'Vos réponses' }} :
                                         </div>
-                                        <div class="text-red-700">
-                                            @if(is_array($resultItem['user_answers_text']) && count($resultItem['user_answers_text']) > 0)
+                                        <div class="text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-700">
+                                            @if(count($resultItem['user_answers_text']) > 0)
                                                 {{ implode(', ', $resultItem['user_answers_text']) }}
                                             @else
-                                                Aucune réponse sélectionnée
+                                                <span class="italic">Aucune réponse sélectionnée</span>
                                             @endif
                                         </div>
                                     </div>
+
+                                    <!-- Affichage des bonnes réponses (seulement si incorrect) -->
+                                    @if(!$resultItem['is_correct'])
                                     <div class="bg-green-100 border border-green-300 rounded-lg p-4">
                                         <div class="flex items-center text-green-800 font-medium mb-2">
                                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -255,18 +247,57 @@
                                             Bonnes réponses :
                                         </div>
                                         <div class="text-green-700">
-                                            @if(is_array($resultItem['correct_answers_text']))
-                                                {{ implode(', ', $resultItem['correct_answers_text']) }}
-                                            @else
-                                                {{ $resultItem['correct_answers_text'] }}
-                                            @endif
+                                            {{ implode(', ', $resultItem['correct_answers_text']) }}
                                         </div>
                                     </div>
+                                    @endif
                                 </div>
-                                @endif
+
+                                <!-- AFFICHAGE VISUEL DES RÉPONSES AVEC PRÉSÉLECTION -->
+                                <div class="mt-6">
+                                    <h4 class="font-semibold text-gray-700 mb-3">Détail des réponses :</h4>
+                                    <div class="space-y-3">
+                                        @php
+                                            $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                        @endphp
+                                        @foreach($questions[$index]->answers as $answerIndex => $answer)
+                                        @php
+                                            $isUserAnswer = in_array($answer->id, $userAnswerIds);
+                                            $isCorrectAnswer = $answer->is_correct;
+                                        @endphp
+                                        <div class="flex items-start p-4 rounded-xl border-2 
+                                            {{ $isUserAnswer && $isCorrectAnswer ? 'border-green-500 bg-green-50' : '' }}
+                                            {{ $isUserAnswer && !$isCorrectAnswer ? 'border-red-500 bg-red-50' : '' }}
+                                            {{ !$isUserAnswer && $isCorrectAnswer ? 'border-green-300 bg-green-25' : '' }}
+                                            {{ !$isUserAnswer && !$isCorrectAnswer ? 'border-gray-200' : '' }}
+                                            transition-all duration-300">
+                                            <div class="flex items-start flex-1">
+                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg 
+                                                    {{ $isUserAnswer && $isCorrectAnswer ? 'bg-green-500 text-white' : '' }}
+                                                    {{ $isUserAnswer && !$isCorrectAnswer ? 'bg-red-500 text-white' : '' }}
+                                                    {{ !$isUserAnswer && $isCorrectAnswer ? 'bg-green-300 text-green-800' : '' }}
+                                                    {{ !$isUserAnswer && !$isCorrectAnswer ? 'bg-gray-100 text-gray-600' : '' }}
+                                                    font-bold text-sm mr-4 flex-shrink-0 shadow-sm">
+                                                    {{ $letters[$answerIndex] }}
+                                                </span>
+                                                <span class="text-gray-700 leading-relaxed font-medium flex-1">
+                                                    {{ $answer->answer_text }}
+                                                    @if($isUserAnswer && $isCorrectAnswer)
+                                                    <span class="ml-2 text-green-600 font-semibold">✓ Votre réponse correcte</span>
+                                                    @elseif($isUserAnswer && !$isCorrectAnswer)
+                                                    <span class="ml-2 text-red-600 font-semibold">✗ Votre réponse incorrecte</span>
+                                                    @elseif(!$isUserAnswer && $isCorrectAnswer)
+                                                    <span class="ml-2 text-green-600 font-semibold">✓ Bonne réponse</span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
                                 
                                 @if($resultItem['explanation'])
-                                <div class="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
                                     <div class="flex items-start">
                                         <div class="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3 flex-shrink-0">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -408,6 +439,10 @@
 
 .animate-pulse {
     animation: pulse 2s infinite;
+}
+
+.bg-green-25 {
+    background-color: rgba(187, 247, 208, 0.3);
 }
 </style>
 @endsection

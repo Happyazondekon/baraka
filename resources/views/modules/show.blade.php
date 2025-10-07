@@ -320,136 +320,208 @@
                 </div>
                 @endif
 
-                @if(session('quiz_result_id') && session('detailed_results'))
-                <div id="resultsSection" class="hidden mb-8">
-                    <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-blue-200">
-                        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
-                            <div class="bg-blue-500 text-white rounded-lg p-2 mr-3">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-                                </svg>
-                            </div>
-                            Correction du Quiz
-                        </h4>
+               @if(session('quiz_result_id') && session('detailed_results'))
+<div id="resultsSection" class="hidden mb-8">
+    <div class="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 border border-blue-200">
+        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+            <div class="bg-blue-500 text-white rounded-lg p-2 mr-3">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            Correction du Quiz
+        </h4>
+        
+        @php
+            $questions = $module->quiz->questions;
+        @endphp
+        
+        <div class="space-y-6">
+            @foreach(session('detailed_results') as $index => $resultItem)
+            @php
+                $question = $questions[$index];
+                $userAnswerIds = session('user_answers')[$question->id] ?? [];
+                
+                // Assurer que toutes les clés existent avec des valeurs par défaut
+                $resultItem = array_merge([
+                    'question_text' => '',
+                    'image' => null,
+                    'is_correct' => false,
+                    'is_multiple_choice' => false,
+                    'user_answers_text' => [],
+                    'correct_answers_text' => [],
+                    'explanation' => null
+                ], $resultItem);
+            @endphp
+            <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border-2 {{ $resultItem['is_correct'] ? 'border-green-200' : 'border-red-200' }} shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-start mb-4">
+                    <div class="flex-shrink-0 mr-4">
+                        @if($resultItem['is_correct'])
+                        <div class="bg-green-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
+                            ✓
+                        </div>
+                        @else
+                        <div class="bg-red-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
+                            ✗
+                        </div>
+                        @endif
+                    </div>
+                    <div class="flex-1">
+                        @if($resultItem['image'])
+                        <div class="mb-4">
+                            <img src="{{ asset('storage/' . $resultItem['image']) }}" 
+                                 alt="Image de la question" 
+                                 class="max-h-64 w-auto rounded-lg shadow-md object-contain border border-gray-300">
+                        </div>
+                        @endif
                         
-                        @foreach(session('detailed_results') as $index => $result)
-                        <div class="mb-6 p-5 rounded-xl border-2 {{ $result['is_correct'] ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200' }} transition-all hover:shadow-md">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 mr-4">
-                                    @if($result['is_correct'])
-                                    <div class="bg-green-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
-                                        ✓
-                                    </div>
+                        <p class="font-semibold text-gray-800 mb-3 text-lg">
+                            Question {{ $index + 1 }}: {{ $resultItem['question_text'] }}
+                        </p>
+                        
+                        @if($resultItem['is_multiple_choice'])
+                        <div class="mb-3">
+                            <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
+                                Question à réponses multiples
+                            </span>
+                        </div>
+                        @endif
+                        
+                        <!-- AFFICHAGE DES RÉPONSES AVEC PRÉSÉLECTION -->
+                        <div class="space-y-4">
+                            <!-- Affichage des réponses de l'utilisateur -->
+                            <div class="bg-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-100 border border-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-300 rounded-lg p-4">
+                                <div class="flex items-center text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-800 font-medium mb-2">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        @if($resultItem['is_correct'])
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        @else
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        @endif
+                                    </svg>
+                                    {{ $resultItem['is_correct'] ? 'Vos réponses correctes' : 'Vos réponses' }} :
+                                </div>
+                                <div class="text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-700">
+                                    @if(is_array($resultItem['user_answers_text']) && count($resultItem['user_answers_text']) > 0)
+                                        {{ implode(', ', $resultItem['user_answers_text']) }}
                                     @else
-                                    <div class="bg-red-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
-                                        ✗
-                                    </div>
+                                        <span class="italic">Aucune réponse sélectionnée</span>
                                     @endif
                                 </div>
-                                <div class="flex-1">
-                                    @if($result['image'] ?? false)
-                                    <div class="mb-4">
-                                        <img src="{{ asset('storage/' . $result['image']) }}" 
-                                             alt="Image de la question" 
-                                             class="max-h-64 w-auto rounded-lg shadow-md object-contain border border-gray-300">
-                                    </div>
+                            </div>
+
+                            <!-- Affichage des bonnes réponses (seulement si incorrect) -->
+                            @if(!$resultItem['is_correct'])
+                            <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                                <div class="flex items-center text-green-800 font-medium mb-2">
+                                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                    Bonnes réponses :
+                                </div>
+                                <div class="text-green-700">
+                                    @if(is_array($resultItem['correct_answers_text']))
+                                        {{ implode(', ', $resultItem['correct_answers_text']) }}
+                                    @else
+                                        {{ $resultItem['correct_answers_text'] }}
                                     @endif
-                                    
-                                    <p class="font-semibold text-gray-800 mb-3 text-lg">
-                                        Question {{ $index + 1 }}: {{ $result['question_text'] }}
-                                    </p>
-                                    
-                                    @if($result['is_multiple_choice'])
-                                    <div class="mb-3">
-                                        <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
-                                            Question à réponses multiples
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+
+                        <!-- AFFICHAGE VISUEL DES RÉPONSES AVEC PRÉSÉLECTION -->
+                        <div class="mt-6">
+                            <h4 class="font-semibold text-gray-700 mb-3">Détail des réponses :</h4>
+                            <div class="space-y-3">
+                                @php
+                                    $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                @endphp
+                                @foreach($question->answers as $answerIndex => $answer)
+                                @php
+                                    $isUserAnswer = in_array($answer->id, $userAnswerIds);
+                                    $isCorrectAnswer = $answer->is_correct;
+                                @endphp
+                                <div class="flex items-start p-4 rounded-xl border-2 
+                                    {{ $isUserAnswer && $isCorrectAnswer ? 'border-green-500 bg-green-50' : '' }}
+                                    {{ $isUserAnswer && !$isCorrectAnswer ? 'border-red-500 bg-red-50' : '' }}
+                                    {{ !$isUserAnswer && $isCorrectAnswer ? 'border-green-300 bg-green-25' : '' }}
+                                    {{ !$isUserAnswer && !$isCorrectAnswer ? 'border-gray-200' : '' }}
+                                    transition-all duration-300">
+                                    <div class="flex items-start flex-1">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg 
+                                            {{ $isUserAnswer && $isCorrectAnswer ? 'bg-green-500 text-white' : '' }}
+                                            {{ $isUserAnswer && !$isCorrectAnswer ? 'bg-red-500 text-white' : '' }}
+                                            {{ !$isUserAnswer && $isCorrectAnswer ? 'bg-green-300 text-green-800' : '' }}
+                                            {{ !$isUserAnswer && !$isCorrectAnswer ? 'bg-gray-100 text-gray-600' : '' }}
+                                            font-bold text-sm mr-4 flex-shrink-0 shadow-sm">
+                                            {{ $letters[$answerIndex] }}
+                                        </span>
+                                        <span class="text-gray-700 leading-relaxed font-medium flex-1">
+                                            {{ $answer->answer_text }}
+                                            @if($isUserAnswer && $isCorrectAnswer)
+                                            <span class="ml-2 text-green-600 font-semibold">✓ Votre réponse correcte</span>
+                                            @elseif($isUserAnswer && !$isCorrectAnswer)
+                                            <span class="ml-2 text-red-600 font-semibold">✗ Votre réponse incorrecte</span>
+                                            @elseif(!$isUserAnswer && $isCorrectAnswer)
+                                            <span class="ml-2 text-green-600 font-semibold">✓ Bonne réponse</span>
+                                            @endif
                                         </span>
                                     </div>
-                                    @endif
-                                    
-                                    @if($result['is_correct'])
-                                    <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                                        <div class="flex items-center text-green-800 font-medium mb-2">
-                                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                            Vos réponses correctes :
-                                        </div>
-                                        <div class="text-green-700">
-                                            @if(is_array($result['user_answers_text']))
-                                                {{ implode(', ', $result['user_answers_text']) }}
-                                            @else
-                                                {{ $result['user_answers_text'] }}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    @else
-                                    <div class="space-y-3">
-                                        <div class="bg-red-100 border border-red-300 rounded-lg p-4">
-                                            <div class="flex items-center text-red-800 font-medium mb-2">
-                                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Vos réponses :
-                                            </div>
-                                            <div class="text-red-700">
-                                                @if(is_array($result['user_answers_text']) && count($result['user_answers_text']) > 0)
-                                                    {{ implode(', ', $result['user_answers_text']) }}
-                                                @else
-                                                    Aucune réponse sélectionnée
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                                            <div class="flex items-center text-green-800 font-medium mb-2">
-                                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                                </svg>
-                                                Bonnes réponses :
-                                            </div>
-                                            <div class="text-green-700">
-                                                @if(is_array($result['correct_answers_text']))
-                                                    {{ implode(', ', $result['correct_answers_text']) }}
-                                                @else
-                                                    {{ $result['correct_answers_text'] }}
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endif
                                 </div>
+                                @endforeach
                             </div>
                         </div>
-                        @endforeach
                         
-                        <div class="mt-8 p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg">
-                            <div class="flex flex-col lg:flex-row items-center justify-between text-center lg:text-left">
-                                <div class="mb-4 lg:mb-0">
-                                    <div class="text-3xl font-bold mb-2">{{ session('quiz_score') }}%</div>
-                                    <div class="text-blue-100">Score final</div>
+                        @if($resultItem['explanation'])
+                        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <div class="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3 flex-shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
                                 </div>
-                                <div class="text-lg">
-                                    <div class="font-semibold">{{ session('quiz_correct_answers') }}/{{ session('quiz_total_questions') }} réponses correctes</div>
-                                    <div class="text-blue-100 text-sm mt-1">Taux de réussite</div>
-                                </div>
-                                <div class="mt-4 lg:mt-0">
-                                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                                        @if(session('quiz_score') >= 80)
-                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                        </svg>
-                                        @else
-                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
-                                        </svg>
-                                        @endif
-                                    </div>
+                                <div>
+                                    <h4 class="font-semibold text-blue-800 mb-2">Explication</h4>
+                                    <p class="text-blue-700 leading-relaxed">{{ $resultItem['explanation'] }}</p>
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
                 </div>
-                @endif
+            </div>
+            @endforeach
+        </div>
+        
+        <div class="mt-8 p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl text-white shadow-lg">
+            <div class="flex flex-col lg:flex-row items-center justify-between text-center lg:text-left">
+                <div class="mb-4 lg:mb-0">
+                    <div class="text-3xl font-bold mb-2">{{ session('quiz_score') }}%</div>
+                    <div class="text-blue-100">Score final</div>
+                </div>
+                <div class="text-lg">
+                    <div class="font-semibold">{{ session('quiz_correct_answers') }}/{{ session('quiz_total_questions') }} réponses correctes</div>
+                    <div class="text-blue-100 text-sm mt-1">Taux de réussite</div>
+                </div>
+                <div class="mt-4 lg:mt-0">
+                    <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                        @if(session('quiz_score') >= 80)
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        @else
+                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                        </svg>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
                 
                 <div id="quizForm" class="{{ session('quiz_result_id') && !session('error') ? 'hidden' : '' }}">
                     <form action="{{ route('modules.quiz.submit', $module) }}" method="POST" onsubmit="return handleQuizSubmit(event)">

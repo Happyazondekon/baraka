@@ -355,9 +355,6 @@ public function showResults($resultId)
     // Les résultats détaillés sont déjà dans la colonne detailed_results
     $detailedResults = $result->detailed_results ?? [];
 
-    // Debug temporaire - Décommentez cette ligne pour voir le contenu
-    // dd($detailedResults);
-
     // Récupérer l'examen si c'est un examen spécifique
     $exam = $result->quiz_id ? Quiz::find($result->quiz_id) : null;
 
@@ -366,26 +363,30 @@ public function showResults($resultId)
     $userAnswers = [];
     
     if (!empty($detailedResults)) {
-        $questionIds = collect($detailedResults)->pluck('question_id')->toArray();
+        $questionIds = collect($detailedResults)->pluck('question_id')->filter()->toArray();
         
-        // Debug - Vérifier les IDs des questions
-        // dd($questionIds);
-        
-        $questions = Question::with('answers')
-            ->whereIn('id', $questionIds)
-            ->get();
+        if (!empty($questionIds)) {
+            $questions = Question::with('answers')
+                ->whereIn('id', $questionIds)
+                ->get();
 
-        // Debug - Vérifier si les questions sont chargées
-        // dd($questions->count(), $questions);
-
-        // Préparer les réponses utilisateur pour la vue
-        foreach ($detailedResults as $detail) {
-            $userAnswers[$detail['question_id']] = $detail['user_answer_ids'] ?? [];
+            // Préparer les réponses utilisateur pour la vue
+            foreach ($detailedResults as $detail) {
+                if (isset($detail['question_id'])) {
+                    $userAnswers[$detail['question_id']] = $detail['user_answer_ids'] ?? [];
+                }
+            }
         }
-    } else {
-        // Si pas de detailed_results, essayer de récupérer via le quiz
-        if ($exam) {
-            $questions = $exam->questions()->with('answers')->get();
+    }
+
+    // Si toujours pas de questions, essayer de récupérer via le quiz
+    if ($questions->isEmpty() && $exam) {
+        $questions = $exam->questions()->with('answers')->get();
+        
+        // Essayer de récupérer les réponses depuis la colonne answers
+        $submittedAnswers = $result->answers ?? [];
+        foreach ($submittedAnswers as $questionId => $answerIds) {
+            $userAnswers[$questionId] = is_array($answerIds) ? $answerIds : [$answerIds];
         }
     }
 
