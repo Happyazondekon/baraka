@@ -428,56 +428,70 @@
                         <input type="hidden" name="time_taken" id="timeTaken" value="0">
                         
                         <div class="space-y-8">
-                            @foreach($module->quiz->questions as $index => $question)
-                            <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                                <div class="flex flex-col lg:flex-row gap-6 mb-6">
-                                    <div class="flex-1">
-                                        <div class="flex items-start mb-4">
-                                            <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md">
-                                                {{ $index + 1 }}
-                                            </span>
-                                            <p class="text-lg font-semibold text-gray-800 leading-relaxed">
-                                                {{ $question->question_text }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    @if($question->image)
-                                    <div class="flex-shrink-0">
-                                        <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
-                                            <img src="{{ asset('storage/' . $question->image) }}" 
-                                                alt="Image pour la question n°{{ $index + 1 }}" 
-                                                class="w-full h-full object-contain rounded-lg">
-                                        </div>
-                                    </div>
-                                    @endif
-                                </div>
-                                
-                                <div class="space-y-3">
-                                    @php
-                                        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-                                    @endphp
-                                    @foreach($question->answers as $answerIndex => $answer)
-                                    <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm">
-                                        <input type="radio" 
-                                                name="answers[{{ $question->id }}]" 
-                                                value="{{ $answer->id }}" 
-                                                class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125"
-                                                required>
-                                        <div class="ml-4 flex items-start flex-1">
-                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
-                                                {{ $letters[$answerIndex] }}
-                                            </span>
-                                            <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
-                                                {{ $answer->answer_text }}
-                                            </span>
-                                        </div>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endforeach
+    @foreach($module->quiz->questions as $index => $question)
+    <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+        <div class="flex flex-col lg:flex-row gap-6 mb-6">
+            <div class="flex-1">
+                <div class="flex items-start mb-4">
+                    <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md">
+                        {{ $index + 1 }}
+                    </span>
+                    <div class="flex-1">
+                        <div class="flex items-start justify-between">
+                            <p class="text-lg font-semibold text-gray-800 leading-relaxed flex-1">
+                                {{ $question->question_text }}
+                            </p>
+                            <!-- Bouton de lecture audio -->
+                            <button type="button" 
+                                    id="tts-quiz-btn-{{ $question->id }}"
+                                    onclick="readQuestion('{{ addslashes(strip_tags($question->question_text)) }}', 'tts-quiz-btn-{{ $question->id }}')"
+                                    class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
+                                    title="Écouter la question">
+                                <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                </svg>
+                            </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            @if($question->image)
+            <div class="flex-shrink-0">
+                <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
+                    <img src="{{ asset('storage/' . $question->image) }}" 
+                        alt="Image pour la question n°{{ $index + 1 }}" 
+                        class="w-full h-full object-contain rounded-lg">
+                </div>
+            </div>
+            @endif
+        </div>
+        
+        <div class="space-y-3">
+            @php
+                $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+            @endphp
+            @foreach($question->answers as $answerIndex => $answer)
+            <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm">
+                <input type="radio" 
+                        name="answers[{{ $question->id }}]" 
+                        value="{{ $answer->id }}" 
+                        class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125"
+                        required>
+                <div class="ml-4 flex items-start flex-1">
+                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
+                        {{ $letters[$answerIndex] }}
+                    </span>
+                    <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
+                        {{ $answer->answer_text }}
+                    </span>
+                </div>
+            </label>
+            @endforeach
+        </div>
+    </div>
+    @endforeach
+</div>
 
                         <div class="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 shadow-sm">
                             <div class="text-center">
@@ -863,6 +877,116 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<script>
+// Ajouter ce code au début de votre section <script> existante
+
+class QuestionReader {
+    constructor() {
+        this.synthesis = window.speechSynthesis;
+        this.currentUtterance = null;
+        this.isReading = false;
+        this.voices = [];
+        
+        this.loadVoices();
+        
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => this.loadVoices();
+        }
+    }
+    
+    loadVoices() {
+        this.voices = this.synthesis.getVoices();
+        this.frenchVoice = this.voices.find(voice => 
+            voice.lang.startsWith('fr') && voice.name.includes('Female')
+        ) || this.voices.find(voice => 
+            voice.lang.startsWith('fr')
+        );
+    }
+    
+    read(text, buttonElement) {
+        if (this.isReading && this.currentUtterance) {
+            this.stop(buttonElement);
+            return;
+        }
+        
+        this.currentUtterance = new SpeechSynthesisUtterance(text);
+        
+        if (this.frenchVoice) {
+            this.currentUtterance.voice = this.frenchVoice;
+        }
+        
+        this.currentUtterance.lang = 'fr-FR';
+        this.currentUtterance.rate = 0.9;
+        this.currentUtterance.pitch = 1.0;
+        this.currentUtterance.volume = 1.0;
+        
+        this.currentUtterance.onstart = () => {
+            this.isReading = true;
+            this.updateButtonState(buttonElement, true);
+        };
+        
+        this.currentUtterance.onend = () => {
+            this.isReading = false;
+            this.updateButtonState(buttonElement, false);
+        };
+        
+        this.currentUtterance.onerror = (event) => {
+            console.error('Erreur de lecture:', event);
+            this.isReading = false;
+            this.updateButtonState(buttonElement, false);
+        };
+        
+        this.synthesis.speak(this.currentUtterance);
+    }
+    
+    stop(buttonElement) {
+        this.synthesis.cancel();
+        this.isReading = false;
+        this.updateButtonState(buttonElement, false);
+    }
+    
+    updateButtonState(button, isReading) {
+        if (!button) return;
+        
+        const icon = button.querySelector('svg');
+        
+        if (isReading) {
+            button.classList.add('reading');
+            button.classList.remove('text-gray-600', 'hover:text-blue-600');
+            button.classList.add('text-blue-600', 'bg-blue-100');
+            if (icon) icon.classList.add('animate-pulse');
+        } else {
+            button.classList.remove('reading', 'bg-blue-100');
+            button.classList.remove('text-blue-600');
+            button.classList.add('text-gray-600', 'hover:text-blue-600');
+            if (icon) icon.classList.remove('animate-pulse');
+        }
+    }
+}
+
+const questionReader = new QuestionReader();
+
+function readQuestion(text, buttonId) {
+    const button = document.getElementById(buttonId);
+    questionReader.read(text, button);
+}
+
+function checkTTSSupport() {
+    if (!('speechSynthesis' in window)) {
+        console.warn('La synthèse vocale n\'est pas supportée par ce navigateur.');
+        document.querySelectorAll('.tts-button').forEach(btn => {
+            btn.style.display = 'none';
+        });
+        return false;
+    }
+    return true;
+}
+
+// Vérifier au chargement
+document.addEventListener('DOMContentLoaded', () => {
+    checkTTSSupport();
+});
+</script>
 <style>
 /* Personnalisation des SweetAlert pour correspondre au design */
 .swal2-popup {
@@ -906,6 +1030,37 @@ document.addEventListener('DOMContentLoaded', function() {
 .swal2-cancel:hover {
     background-color: #4B5563 !important;
     transform: translateY(-1px);
+}
+</style>
+<!-- Même style CSS que pour l'examen -->
+<style>
+.tts-button {
+    transition: all 0.3s ease;
+}
+
+.tts-button:hover {
+    transform: scale(1.1);
+}
+
+.tts-button.reading {
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.tts-icon {
+    transition: transform 0.3s ease;
+}
+
+.tts-button:hover .tts-icon {
+    transform: rotate(10deg);
 }
 </style>
 
