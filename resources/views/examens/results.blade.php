@@ -129,13 +129,12 @@
             </div>
         </div>
 
-        <!-- Section de correction détaillée inspirée de show.blade.php -->
         <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden mb-8">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-2xl lg:text-3xl font-bold mb-2">Correction Détaillée</h3>
-                        <p class="text-blue-100 text-lg">Analyse question par question de votre performance</p>
+                        <h3 class="text-2xl lg:text-3xl font-bold mb-2">Correction Détaillée (Dépliable)</h3>
+                        <p class="text-blue-100 text-lg">Cliquez sur chaque question pour voir l'analyse complète</p>
                     </div>
                     <div class="hidden lg:block">
                         <div class="bg-white bg-opacity-20 rounded-xl p-4 text-center">
@@ -180,138 +179,155 @@
                 
                 <div class="space-y-6">
                     @foreach($detailedResults as $index => $resultItem)
-                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border-2 {{ $resultItem['is_correct'] ? 'border-green-200' : 'border-red-200' }} shadow-sm hover:shadow-md transition-all duration-300">
-                        <div class="flex items-start mb-4">
-                            <div class="flex-shrink-0 mr-4">
-                                @if($resultItem['is_correct'])
-                                <div class="bg-green-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
-                                    ✓
-                                </div>
-                                @else
-                                <div class="bg-red-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
-                                    ✗
-                                </div>
-                                @endif
-                            </div>
-                            <div class="flex-1">
-                                @if($resultItem['image'])
-                                <div class="mb-4">
-                                    <img src="{{ asset('storage/' . $resultItem['image']) }}" 
-                                         alt="Image de la question" 
-                                         class="max-h-64 w-auto rounded-lg shadow-md object-contain border border-gray-300">
-                                </div>
-                                @endif
-                                
-                                <p class="font-semibold text-gray-800 mb-3 text-lg">
-                                    Question {{ $index + 1 }}: {{ $resultItem['question_text'] }}
-                                </p>
-                                
-                                @if($resultItem['is_multiple_choice'])
-                                <div class="mb-3">
-                                    <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
-                                        Question à réponses multiples
-                                    </span>
-                                </div>
-                                @endif
-                                
-                                <!-- AFFICHAGE DES RÉPONSES AVEC PRÉSÉLECTION -->
-                                <div class="space-y-4">
-                                    <!-- Affichage des réponses de l'utilisateur -->
-                                    <div class="bg-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-100 border border-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-300 rounded-lg p-4">
-                                        <div class="flex items-center text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-800 font-medium mb-2">
-                                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                @if($resultItem['is_correct'])
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                                @else
-                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                                                @endif
-                                            </svg>
-                                            {{ $resultItem['is_correct'] ? 'Vos réponses correctes' : 'Vos réponses' }} :
-                                        </div>
-                                        <div class="text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-700">
-                                            @if(count($resultItem['user_answers_text']) > 0)
-                                                {{ implode(', ', $resultItem['user_answers_text']) }}
-                                            @else
-                                                <span class="italic">Aucune réponse sélectionnée</span>
-                                            @endif
-                                        </div>
-                                    </div>
+                    {{-- Conteneur de question cliquable pour déplier --}}
+                    <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-0 border-2 {{ $resultItem['is_correct'] ? 'border-green-200' : 'border-red-200' }} shadow-sm hover:shadow-md transition-all duration-300 question-toggle-container">
 
-                                    <!-- Affichage des bonnes réponses (seulement si incorrect) -->
-                                    @if(!$resultItem['is_correct'])
-                                    <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                                        <div class="flex items-center text-green-800 font-medium mb-2">
-                                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                            </svg>
-                                            Bonnes réponses :
-                                        </div>
-                                        <div class="text-green-700">
-                                            {{ implode(', ', $resultItem['correct_answers_text']) }}
-                                        </div>
+                        {{-- EN-TÊTE CLIQUABLE --}}
+                        <button type="button" 
+                                class="w-full text-left p-6 flex items-center justify-between focus:outline-none transition-all duration-300 hover:bg-gray-100/50"
+                                onclick="toggleCorrection('{{ $index }}')">
+                            
+                            <div class="flex items-start flex-1 pr-4">
+                                <div class="flex-shrink-0 mr-4">
+                                    @if($resultItem['is_correct'])
+                                    <div class="bg-green-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
+                                        ✓
+                                    </div>
+                                    @else
+                                    <div class="bg-red-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">
+                                        ✗
                                     </div>
                                     @endif
                                 </div>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-gray-800 mb-1 text-lg leading-snug">
+                                        Question {{ $index + 1 }}: {{ $resultItem['question_text'] }}
+                                    </p>
+                                    <span class="text-sm {{ $resultItem['is_correct'] ? 'text-green-600' : 'text-red-600' }} font-bold">
+                                        {{ $resultItem['is_correct'] ? 'Réponse Correcte' : 'Réponse Incorrecte' }}
+                                    </span>
+                                </div>
+                            </div>
 
-                                <!-- AFFICHAGE VISUEL DES RÉPONSES AVEC PRÉSÉLECTION -->
-                                <div class="mt-6">
-                                    <h4 class="font-semibold text-gray-700 mb-3">Détail des réponses :</h4>
-                                    <div class="space-y-3">
-                                        @php
-                                            $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-                                        @endphp
-                                        @foreach($questions[$index]->answers as $answerIndex => $answer)
-                                        @php
-                                            $isUserAnswer = in_array($answer->id, $userAnswerIds);
-                                            $isCorrectAnswer = $answer->is_correct;
-                                        @endphp
-                                        <div class="flex items-start p-4 rounded-xl border-2 
-                                            {{ $isUserAnswer && $isCorrectAnswer ? 'border-green-500 bg-green-50' : '' }}
-                                            {{ $isUserAnswer && !$isCorrectAnswer ? 'border-red-500 bg-red-50' : '' }}
-                                            {{ !$isUserAnswer && $isCorrectAnswer ? 'border-green-300 bg-green-25' : '' }}
-                                            {{ !$isUserAnswer && !$isCorrectAnswer ? 'border-gray-200' : '' }}
-                                            transition-all duration-300">
-                                            <div class="flex items-start flex-1">
-                                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg 
-                                                    {{ $isUserAnswer && $isCorrectAnswer ? 'bg-green-500 text-white' : '' }}
-                                                    {{ $isUserAnswer && !$isCorrectAnswer ? 'bg-red-500 text-white' : '' }}
-                                                    {{ !$isUserAnswer && $isCorrectAnswer ? 'bg-green-300 text-green-800' : '' }}
-                                                    {{ !$isUserAnswer && !$isCorrectAnswer ? 'bg-gray-100 text-gray-600' : '' }}
-                                                    font-bold text-sm mr-4 flex-shrink-0 shadow-sm">
-                                                    {{ $letters[$answerIndex] }}
-                                                </span>
-                                                <span class="text-gray-700 leading-relaxed font-medium flex-1">
-                                                    {{ $answer->answer_text }}
-                                                    @if($isUserAnswer && $isCorrectAnswer)
-                                                    <span class="ml-2 text-green-600 font-semibold">✓ Votre réponse correcte</span>
-                                                    @elseif($isUserAnswer && !$isCorrectAnswer)
-                                                    <span class="ml-2 text-red-600 font-semibold">✗ Votre réponse incorrecte</span>
-                                                    @elseif(!$isUserAnswer && $isCorrectAnswer)
-                                                    <span class="ml-2 text-green-600 font-semibold">✓ Bonne réponse</span>
-                                                    @endif
-                                                </span>
-                                            </div>
-                                        </div>
-                                        @endforeach
+                            <svg class="w-6 h-6 text-gray-500 transform transition-transform duration-300 chevron-icon-{{ $index }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        {{-- DÉTAIL DE LA CORRECTION (MASQUÉ PAR DÉFAUT) --}}
+                        <div id="correction-details-{{ $index }}" class="hidden p-6 pt-0 border-t border-gray-200">
+                            
+                            {{-- Image de la question --}}
+                            @if($resultItem['image'])
+                            <div class="mb-4">
+                                <img src="{{ asset('storage/' . $resultItem['image']) }}" 
+                                     alt="Image de la question" 
+                                     class="max-h-64 w-auto rounded-lg shadow-md object-contain border border-gray-300">
+                            </div>
+                            @endif
+                            
+                            @if($resultItem['is_multiple_choice'])
+                            <div class="mb-3">
+                                <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
+                                    Question à réponses multiples
+                                </span>
+                            </div>
+                            @endif
+                            
+                            <div class="space-y-4 my-4">
+                                <div class="bg-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-100 border border-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-300 rounded-lg p-4">
+                                    <div class="flex items-center text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-800 font-medium mb-2">
+                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            @if($resultItem['is_correct'])
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                            @else
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                            @endif
+                                        </svg>
+                                        {{ $resultItem['is_correct'] ? 'Vos réponses correctes' : 'Vos réponses' }} :
+                                    </div>
+                                    <div class="text-{{ $resultItem['is_correct'] ? 'green' : 'red' }}-700">
+                                        @if(count($resultItem['user_answers_text']) > 0)
+                                            {{ implode(', ', $resultItem['user_answers_text']) }}
+                                        @else
+                                            <span class="italic">Aucune réponse sélectionnée</span>
+                                        @endif
                                     </div>
                                 </div>
-                                
-                                @if($resultItem['explanation'])
-                                <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                    <div class="flex items-start">
-                                        <div class="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3 flex-shrink-0">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold text-blue-800 mb-2">Explication</h4>
-                                            <p class="text-blue-700 leading-relaxed">{{ $resultItem['explanation'] }}</p>
-                                        </div>
+
+                                @if(!$resultItem['is_correct'])
+                                <div class="bg-green-100 border border-green-300 rounded-lg p-4">
+                                    <div class="flex items-center text-green-800 font-medium mb-2">
+                                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                        Bonnes réponses :
+                                    </div>
+                                    <div class="text-green-700">
+                                        {{ implode(', ', $resultItem['correct_answers_text']) }}
                                     </div>
                                 </div>
                                 @endif
                             </div>
+
+                            <div class="mt-6">
+                                <h4 class="font-semibold text-gray-700 mb-3">Détail de toutes les options :</h4>
+                                <div class="space-y-3">
+                                    @php
+                                        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                    @endphp
+                                    @foreach($questions[$index]->answers as $answerIndex => $answer)
+                                    @php
+                                        $isUserAnswer = in_array($answer->id, $userAnswerIds);
+                                        $isCorrectAnswer = $answer->is_correct;
+                                    @endphp
+                                    <div class="flex items-start p-4 rounded-xl border-2 
+                                        {{ $isUserAnswer && $isCorrectAnswer ? 'border-green-500 bg-green-50' : '' }}
+                                        {{ $isUserAnswer && !$isCorrectAnswer ? 'border-red-500 bg-red-50' : '' }}
+                                        {{ !$isUserAnswer && $isCorrectAnswer ? 'border-green-300 bg-green-25' : '' }}
+                                        {{ !$isUserAnswer && !$isCorrectAnswer ? 'border-gray-200' : '' }}
+                                        transition-all duration-300">
+                                        <div class="flex items-start flex-1">
+                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg 
+                                                {{ $isUserAnswer && $isCorrectAnswer ? 'bg-green-500 text-white' : '' }}
+                                                {{ $isUserAnswer && !$isCorrectAnswer ? 'bg-red-500 text-white' : '' }}
+                                                {{ !$isUserAnswer && $isCorrectAnswer ? 'bg-green-300 text-green-800' : '' }}
+                                                {{ !$isUserAnswer && !$isCorrectAnswer ? 'bg-gray-100 text-gray-600' : '' }}
+                                                font-bold text-sm mr-4 flex-shrink-0 shadow-sm">
+                                                {{ $letters[$answerIndex] }}
+                                            </span>
+                                            <span class="text-gray-700 leading-relaxed font-medium flex-1">
+                                                {{ $answer->answer_text }}
+                                                @if($isUserAnswer && $isCorrectAnswer)
+                                                <span class="ml-2 text-green-600 font-semibold">✓ Votre réponse correcte</span>
+                                                @elseif($isUserAnswer && !$isCorrectAnswer)
+                                                <span class="ml-2 text-red-600 font-semibold">✗ Votre réponse incorrecte</span>
+                                                @elseif(!$isUserAnswer && $isCorrectAnswer)
+                                                <span class="ml-2 text-green-600 font-semibold">✓ Bonne réponse</span>
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            
+                            {{-- Explication --}}
+                            @if($resultItem['explanation'])
+                            <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-lg p-2 mr-3 flex-shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-blue-800 mb-2">Explication</h4>
+                                        <p class="text-blue-700 leading-relaxed">{{ $resultItem['explanation'] }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endforeach
@@ -414,18 +430,47 @@
     </div>
 </div>
 
+<script>
+    /**
+     * Bascule l'affichage du détail de la correction pour une question donnée.
+     * @param {string} index L'index de la question (utilisé dans l'ID).
+     */
+    function toggleCorrection(index) {
+        const details = document.getElementById('correction-details-' + index);
+        const icon = document.querySelector('.chevron-icon-' + index);
+
+        if (details.classList.contains('hidden')) {
+            // Afficher les détails
+            details.classList.remove('hidden');
+            icon.classList.add('rotate-180');
+        } else {
+            // Masquer les détails
+            details.classList.add('hidden');
+            icon.classList.remove('rotate-180');
+        }
+    }
+</script>
+
 <style>
-.question-container {
+/* Les styles existants sont conservés */
+.question-toggle-container {
+    /* Style pour le conteneur de question, maintenant le conteneur principal de l'accordéon */
     transition: all 0.3s ease;
 }
 
-.question-container:hover {
+.question-toggle-container:hover {
+    /* Maintenir l'effet au survol */
     transform: translateY(-2px);
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .answer-label {
     transition: all 0.3s ease;
+}
+
+/* Ajout de la rotation pour l'icône chevron (utilisé par le JS) */
+.rotate-180 {
+    transform: rotate(180deg);
 }
 
 @keyframes pulse {
