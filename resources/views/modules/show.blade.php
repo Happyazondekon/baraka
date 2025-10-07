@@ -442,15 +442,24 @@
                                 {{ $question->question_text }}
                             </p>
                             <!-- Bouton de lecture audio -->
-                            <button type="button" 
-                                    id="tts-quiz-btn-{{ $question->id }}"
-                                    onclick="readQuestion('{{ addslashes(strip_tags($question->question_text)) }}', 'tts-quiz-btn-{{ $question->id }}')"
-                                    class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
-                                    title="Écouter la question">
-                                <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-                                </svg>
-                            </button>
+                            
+                                <button type="button" 
+                                        id="tts-quiz-btn-{{ $question->id }}"
+                                        onclick="readQuestion(
+                                            '{{ addslashes(strip_tags($question->question_text)) }}', 
+                                            'tts-quiz-btn-{{ $question->id }}',
+                                            [
+                                                @foreach($question->answers as $answer)
+                                                '{{ addslashes(strip_tags($answer->answer_text)) }}'{{ !$loop->last ? ',' : '' }}
+                                                @endforeach
+                                            ]
+                                        )"
+                                        class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
+                                        title="Écouter la question et les réponses">
+                                    <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                    </svg>
+                                </button>
                         </div>
                     </div>
                 </div>
@@ -878,7 +887,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-// Ajouter ce code au début de votre section <script> existante
+// ==============================================================
+// COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS
+// À ajouter dans votre fichier JavaScript principal ou dans les vues
+// ==============================================================
+
+// ==============================================================
+// COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS - CORRIGÉ
+// ==============================================================
 
 class QuestionReader {
     constructor() {
@@ -886,9 +902,13 @@ class QuestionReader {
         this.currentUtterance = null;
         this.isReading = false;
         this.voices = [];
+        this.currentTexts = []; // Stocker tous les textes à lire
+        this.currentIndex = 0; // Index du texte en cours
         
+        // Charger les voix disponibles
         this.loadVoices();
         
+        // Gérer le rechargement des voix (nécessaire pour certains navigateurs)
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => this.loadVoices();
         }
@@ -896,6 +916,7 @@ class QuestionReader {
     
     loadVoices() {
         this.voices = this.synthesis.getVoices();
+        // Privilégier les voix françaises
         this.frenchVoice = this.voices.find(voice => 
             voice.lang.startsWith('fr') && voice.name.includes('Female')
         ) || this.voices.find(voice => 
@@ -903,45 +924,78 @@ class QuestionReader {
         );
     }
     
-    read(text, buttonElement) {
+    read(questionText, buttonElement, answers = []) {
+        // Si on est en train de lire, arrêter
         if (this.isReading && this.currentUtterance) {
             this.stop(buttonElement);
             return;
         }
         
+        // Préparer tous les textes à lire : question + réponses
+        this.currentTexts = [questionText];
+        
+        // Ajouter les réponses avec leur lettre
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+        answers.forEach((answer, index) => {
+            if (index < letters.length) {
+                this.currentTexts.push(`Réponse ${letters[index]} : ${answer}`);
+            }
+        });
+        
+        this.currentIndex = 0;
+        this.buttonElement = buttonElement;
+        
+        // Commencer la lecture
+        this.readNextText();
+    }
+    
+    readNextText() {
+        if (this.currentIndex >= this.currentTexts.length) {
+            // Tous les textes ont été lus
+            this.isReading = false;
+            this.updateButtonState(this.buttonElement, false);
+            return;
+        }
+        
+        const text = this.currentTexts[this.currentIndex];
         this.currentUtterance = new SpeechSynthesisUtterance(text);
         
+        // Configuration de la voix
         if (this.frenchVoice) {
             this.currentUtterance.voice = this.frenchVoice;
         }
         
         this.currentUtterance.lang = 'fr-FR';
-        this.currentUtterance.rate = 0.9;
+        this.currentUtterance.rate = 0.9; // Vitesse légèrement plus lente
         this.currentUtterance.pitch = 1.0;
         this.currentUtterance.volume = 1.0;
         
+        // Événements
         this.currentUtterance.onstart = () => {
             this.isReading = true;
-            this.updateButtonState(buttonElement, true);
+            this.updateButtonState(this.buttonElement, true);
         };
         
         this.currentUtterance.onend = () => {
-            this.isReading = false;
-            this.updateButtonState(buttonElement, false);
+            this.currentIndex++;
+            setTimeout(() => this.readNextText(), 500); // Pause entre les lectures
         };
         
         this.currentUtterance.onerror = (event) => {
             console.error('Erreur de lecture:', event);
             this.isReading = false;
-            this.updateButtonState(buttonElement, false);
+            this.updateButtonState(this.buttonElement, false);
         };
         
+        // Lancer la lecture
         this.synthesis.speak(this.currentUtterance);
     }
     
     stop(buttonElement) {
         this.synthesis.cancel();
         this.isReading = false;
+        this.currentIndex = 0;
+        this.currentTexts = [];
         this.updateButtonState(buttonElement, false);
     }
     
@@ -949,31 +1003,38 @@ class QuestionReader {
         if (!button) return;
         
         const icon = button.querySelector('svg');
+        const spinner = button.querySelector('.spinner');
         
         if (isReading) {
             button.classList.add('reading');
             button.classList.remove('text-gray-600', 'hover:text-blue-600');
-            button.classList.add('text-blue-600', 'bg-blue-100');
+            button.classList.add('text-blue-600');
             if (icon) icon.classList.add('animate-pulse');
+            if (spinner) spinner.classList.remove('hidden');
         } else {
-            button.classList.remove('reading', 'bg-blue-100');
+            button.classList.remove('reading');
             button.classList.remove('text-blue-600');
             button.classList.add('text-gray-600', 'hover:text-blue-600');
             if (icon) icon.classList.remove('animate-pulse');
+            if (spinner) spinner.classList.add('hidden');
         }
     }
 }
 
+// Initialiser le lecteur
 const questionReader = new QuestionReader();
 
-function readQuestion(text, buttonId) {
+// Fonction globale pour lire une question avec ses réponses
+function readQuestion(questionText, buttonId, answers = []) {
     const button = document.getElementById(buttonId);
-    questionReader.read(text, button);
+    questionReader.read(questionText, button, answers);
 }
 
+// Vérifier la compatibilité du navigateur
 function checkTTSSupport() {
     if (!('speechSynthesis' in window)) {
         console.warn('La synthèse vocale n\'est pas supportée par ce navigateur.');
+        // Masquer tous les boutons de lecture
         document.querySelectorAll('.tts-button').forEach(btn => {
             btn.style.display = 'none';
         });
@@ -982,7 +1043,7 @@ function checkTTSSupport() {
     return true;
 }
 
-// Vérifier au chargement
+// Vérifier au chargement de la page
 document.addEventListener('DOMContentLoaded', () => {
     checkTTSSupport();
 });
