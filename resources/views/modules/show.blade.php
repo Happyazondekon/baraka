@@ -359,31 +359,60 @@
                                         Question {{ $index + 1 }}: {{ $result['question_text'] }}
                                     </p>
                                     
+                                    @if($result['is_multiple_choice'])
+                                    <div class="mb-3">
+                                        <span class="inline-block px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
+                                            Question à réponses multiples
+                                        </span>
+                                    </div>
+                                    @endif
+                                    
                                     @if($result['is_correct'])
                                     <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                                        <div class="flex items-center text-green-800 font-medium">
+                                        <div class="flex items-center text-green-800 font-medium mb-2">
                                             <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                             </svg>
-                                            Correct : {{ $result['user_answer_text'] }}
+                                            Vos réponses correctes :
+                                        </div>
+                                        <div class="text-green-700">
+                                            @if(is_array($result['user_answers_text']))
+                                                {{ implode(', ', $result['user_answers_text']) }}
+                                            @else
+                                                {{ $result['user_answers_text'] }}
+                                            @endif
                                         </div>
                                     </div>
                                     @else
                                     <div class="space-y-3">
                                         <div class="bg-red-100 border border-red-300 rounded-lg p-4">
-                                            <div class="flex items-center text-red-800 font-medium">
+                                            <div class="flex items-center text-red-800 font-medium mb-2">
                                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                                 </svg>
-                                                Votre réponse : {{ $result['user_answer_text'] ?? 'Aucune réponse' }}
+                                                Vos réponses :
+                                            </div>
+                                            <div class="text-red-700">
+                                                @if(is_array($result['user_answers_text']) && count($result['user_answers_text']) > 0)
+                                                    {{ implode(', ', $result['user_answers_text']) }}
+                                                @else
+                                                    Aucune réponse sélectionnée
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="bg-green-100 border border-green-300 rounded-lg p-4">
-                                            <div class="flex items-center text-green-800 font-medium">
+                                            <div class="flex items-center text-green-800 font-medium mb-2">
                                                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                                                 </svg>
-                                                Bonne réponse : {{ $result['correct_answer_text'] }}
+                                                Bonnes réponses :
+                                            </div>
+                                            <div class="text-green-700">
+                                                @if(is_array($result['correct_answers_text']))
+                                                    {{ implode(', ', $result['correct_answers_text']) }}
+                                                @else
+                                                    {{ $result['correct_answers_text'] }}
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -428,79 +457,89 @@
                         <input type="hidden" name="time_taken" id="timeTaken" value="0">
                         
                         <div class="space-y-8">
-    @foreach($module->quiz->questions as $index => $question)
-    <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-        <div class="flex flex-col lg:flex-row gap-6 mb-6">
-            <div class="flex-1">
-                <div class="flex items-start mb-4">
-                    <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md">
-                        {{ $index + 1 }}
-                    </span>
-                    <div class="flex-1">
-                        <div class="flex items-start justify-between">
-                            <p class="text-lg font-semibold text-gray-800 leading-relaxed flex-1">
-                                {{ $question->question_text }}
-                            </p>
-                            <!-- Bouton de lecture audio -->
-                            
-                                <button type="button" 
-                                        id="tts-quiz-btn-{{ $question->id }}"
-                                        onclick="readQuestion(
-                                            '{{ addslashes(strip_tags($question->question_text)) }}', 
-                                            'tts-quiz-btn-{{ $question->id }}',
-                                            [
-                                                @foreach($question->answers as $answer)
-                                                '{{ addslashes(strip_tags($answer->answer_text)) }}'{{ !$loop->last ? ',' : '' }}
-                                                @endforeach
-                                            ]
-                                        )"
-                                        class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
-                                        title="Écouter la question et les réponses">
-                                    <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-                                    </svg>
-                                </button>
+                            @foreach($module->quiz->questions as $index => $question)
+                            @php
+                                $correctAnswersCount = $question->answers->where('is_correct', true)->count();
+                                $isMultipleChoice = $correctAnswersCount > 1;
+                            @endphp
+                            <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow question-container" data-question-id="{{ $question->id }}">
+                                <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                                    <div class="flex-1">
+                                        <div class="flex items-start mb-4">
+                                            <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md">
+                                                {{ $index + 1 }}
+                                            </span>
+                                            <div class="flex-1">
+                                                <div class="flex items-start justify-between">
+                                                    <p class="text-lg font-semibold text-gray-800 leading-relaxed flex-1">
+                                                        {{ $question->question_text }}
+                                                        @if($isMultipleChoice)
+                                                        <span class="inline-block ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
+                                                            Plusieurs réponses
+                                                        </span>
+                                                        @endif
+                                                    </p>
+                                                    <!-- Bouton de lecture audio -->
+                                                    <button type="button" 
+                                                            id="tts-quiz-btn-{{ $question->id }}"
+                                                            onclick="readQuestion(
+                                                                '{{ addslashes(strip_tags($question->question_text)) }}', 
+                                                                'tts-quiz-btn-{{ $question->id }}',
+                                                                [
+                                                                    @foreach($question->answers as $answer)
+                                                                    '{{ addslashes(strip_tags($answer->answer_text)) }}'{{ !$loop->last ? ',' : '' }}
+                                                                    @endforeach
+                                                                ]
+                                                            )"
+                                                            class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
+                                                            title="Écouter la question et les réponses">
+                                                        <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    @if($question->image)
+                                    <div class="flex-shrink-0">
+                                        <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
+                                            <img src="{{ asset('storage/' . $question->image) }}" 
+                                                alt="Image pour la question n°{{ $index + 1 }}" 
+                                                class="w-full h-full object-contain rounded-lg">
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    @php
+                                        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                    @endphp
+                                    @foreach($question->answers as $answerIndex => $answer)
+                                    <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm answer-label" data-question-id="{{ $question->id }}">
+                                        <input type="{{ $isMultipleChoice ? 'checkbox' : 'radio' }}" 
+                                                name="answers[{{ $question->id }}]{{ $isMultipleChoice ? '[]' : '' }}" 
+                                                value="{{ $answer->id }}" 
+                                                class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-input"
+                                                {{ !$isMultipleChoice ? 'required' : '' }}
+                                                data-question-id="{{ $question->id }}"
+                                                data-is-multiple="{{ $isMultipleChoice ? 'true' : 'false' }}">
+                                        <div class="ml-4 flex items-start flex-1">
+                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
+                                                {{ $letters[$answerIndex] }}
+                                            </span>
+                                            <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
+                                                {{ $answer->answer_text }}
+                                            </span>
+                                        </div>
+                                    </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endforeach
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            @if($question->image)
-            <div class="flex-shrink-0">
-                <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
-                    <img src="{{ asset('storage/' . $question->image) }}" 
-                        alt="Image pour la question n°{{ $index + 1 }}" 
-                        class="w-full h-full object-contain rounded-lg">
-                </div>
-            </div>
-            @endif
-        </div>
-        
-        <div class="space-y-3">
-            @php
-                $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-            @endphp
-            @foreach($question->answers as $answerIndex => $answer)
-            <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm">
-                <input type="radio" 
-                        name="answers[{{ $question->id }}]" 
-                        value="{{ $answer->id }}" 
-                        class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125"
-                        required>
-                <div class="ml-4 flex items-start flex-1">
-                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
-                        {{ $letters[$answerIndex] }}
-                    </span>
-                    <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
-                        {{ $answer->answer_text }}
-                    </span>
-                </div>
-            </label>
-            @endforeach
-        </div>
-    </div>
-    @endforeach
-</div>
 
                         <div class="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 shadow-sm">
                             <div class="text-center">
@@ -580,7 +619,6 @@
     </div>
 </div>
 
-{{-- Dans la section script de show.blade.php --}}
 <script>
 // Fonction pour toggle les cours
 function toggleCourse(courseId) {
@@ -634,7 +672,16 @@ async function handleQuizSubmit(event) {
     clearInterval(timerInterval);
 
     const questions = {{ $module->quiz->questions->count() ?? 0 }};
-    const answeredQuestions = document.querySelectorAll('input[type="radio"]:checked').length;
+    let answeredQuestions = 0;
+    
+    // Compter les questions répondues (au moins une réponse cochée)
+    document.querySelectorAll('.question-container').forEach(container => {
+        const questionId = container.dataset.questionId;
+        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
+        if (hasAnswer) {
+            answeredQuestions++;
+        }
+    });
     
     if (answeredQuestions < questions) {
         event.preventDefault();
@@ -761,7 +808,7 @@ async function resetQuiz() {
     });
     
     if (result.isConfirmed) {
-        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        document.querySelectorAll('.answer-input').forEach(radio => {
             radio.checked = false;
         });
         startTime = Date.now();
@@ -782,6 +829,43 @@ async function resetQuiz() {
         });
     }
 }
+
+// Gestion des réponses multiples
+document.addEventListener('DOMContentLoaded', function() {
+    // Écouter les changements de réponses
+    document.querySelectorAll('.answer-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const questionId = this.getAttribute('data-question-id');
+            const isMultiple = this.getAttribute('data-is-multiple') === 'true';
+            const questionContainer = document.querySelector(`.question-container[data-question-id="${questionId}"]`);
+            
+            if (!isMultiple) {
+                // Réinitialiser toutes les réponses de cette question (cas radio)
+                questionContainer.querySelectorAll('.answer-label').forEach(label => {
+                    label.classList.remove('border-blue-500', 'bg-blue-50');
+                    label.classList.add('border-gray-200', 'hover:border-blue-400');
+                });
+            }
+            
+            // Mettre en surbrillance la réponse sélectionnée
+            const selectedLabel = this.closest('.answer-label');
+            if (this.checked) {
+                selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
+                selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
+            } else {
+                selectedLabel.classList.remove('border-blue-500', 'bg-blue-50');
+                selectedLabel.classList.add('border-gray-200', 'hover:border-blue-400');
+            }
+        });
+    });
+    
+    // Pré-sélectionner les réponses déjà choisies
+    document.querySelectorAll('.answer-input:checked').forEach(input => {
+        const selectedLabel = input.closest('.answer-label');
+        selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
+        selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     // Afficher les messages flash avec SweetAlert
@@ -887,11 +971,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <script>
-// ==============================================================
-// COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS
-// À ajouter dans votre fichier JavaScript principal ou dans les vues
-// ==============================================================
-
 // ==============================================================
 // COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS - CORRIGÉ
 // ==============================================================
@@ -1122,6 +1201,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 .tts-button:hover .tts-icon {
     transform: rotate(10deg);
+}
+
+.answer-label {
+    transition: all 0.3s ease;
+}
+
+.answer-label:hover {
+    transform: translateY(-2px);
+}
+
+.question-container {
+    transition: all 0.3s ease;
+}
+
+.question-container:hover {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 </style>
 

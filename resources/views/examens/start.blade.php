@@ -49,25 +49,26 @@
         </div>
 
         <!-- Exam Instructions -->
-<div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
-    <div class="flex items-start">
-        <div class="bg-yellow-100 text-yellow-600 rounded-xl p-3 mr-4 flex-shrink-0">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-            </svg>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
+            <div class="flex items-start">
+                <div class="bg-yellow-100 text-yellow-600 rounded-xl p-3 mr-4 flex-shrink-0">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Instructions importantes</h3>
+                    <ul class="text-gray-700 space-y-1">
+                        <li>• L'examen contient <strong>{{ $questions->count() }} questions</strong> à choix multiples</li>
+                        <li>• Vous avez <strong>{{ $timeLimit ?? 30 }} minutes</strong> pour terminer l'examen</li>
+                        <li>• Le score de réussite est de <strong>{{ $exam->passing_score ?? 70 }}%</strong> ({{ ceil($questions->count() * (($exam->passing_score ?? 70) / 100)) }} bonnes réponses)</li>
+                        <li>• Certaines questions peuvent avoir <strong>plusieurs réponses correctes</strong></li>
+                        <li>• Cochez <strong>toutes les réponses</strong> qui vous semblent correctes</li>
+                        <li>• Vous ne pouvez pas revenir en arrière après validation</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Instructions importantes</h3>
-            <ul class="text-gray-700 space-y-1">
-                <li>• L'examen contient <strong>{{ $questions->count() }} questions</strong> à choix multiples</li>
-                <li>• Vous avez <strong>{{ $timeLimit ?? 30 }} minutes</strong> pour terminer l'examen</li>
-                <li>• Le score de réussite est de <strong>{{ $exam->passing_score ?? 70 }}%</strong> ({{ ceil($questions->count() * (($exam->passing_score ?? 70) / 100)) }} bonnes réponses)</li>
-                <li>• Une seule réponse est correcte par question</li>
-                <li>• Vous ne pouvez pas revenir en arrière après validation</li>
-            </ul>
-        </div>
-    </div>
-</div>
 
         <!-- Exam Form -->
         <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
@@ -97,79 +98,87 @@
                 <div class="p-6">
                     <div class="space-y-8" id="questionsContainer">
                         @foreach($questions as $index => $question)
-<div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow question-container" data-question-id="{{ $question->id }}">
-    <div class="flex flex-col lg:flex-row gap-6 mb-6">
-        <div class="flex-1">
-            <div class="flex items-start mb-4">
-                <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md flex-shrink-0">
-                    {{ $index + 1 }}
-                </span>
-                <div class="flex-1">
-                    <div class="flex items-start justify-between">
-                        <p class="text-lg font-semibold text-gray-800 leading-relaxed flex-1">
-                            {{ $question->question_text }}
-                        </p>
-                        <!-- Bouton de lecture audio -->
-                        
-                        <button type="button" 
-                                id="tts-btn-{{ $question->id }}"
-                                onclick="readQuestion(
-                                    '{{ addslashes(strip_tags($question->question_text)) }}', 
-                                    'tts-btn-{{ $question->id }}',
-                                    [
-                                        @foreach($question->answers as $answer)
-                                        '{{ addslashes(strip_tags($answer->answer_text)) }}'{{ !$loop->last ? ',' : '' }}
-                                        @endforeach
-                                    ]
-                                )"
-                                class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
-                                title="Écouter la question et les réponses">
-                            <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        @if($question->image)
-        <div class="flex-shrink-0">
-            <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
-                <img src="{{ asset('storage/' . $question->image) }}" 
-                    alt="Image pour la question n°{{ $index + 1 }}" 
-                    class="w-full h-full object-contain rounded-lg">
-            </div>
-        </div>
-        @endif
-    </div>
-    
-    <div class="space-y-3">
-        @php
-            $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-        @endphp
-        @foreach($question->answers as $answerIndex => $answer)
-        <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm answer-label">
-            <input type="radio" 
-                    name="answers[{{ $question->id }}]" 
-                    value="{{ $answer->id }}" 
-                    class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-radio"
-                    required
-                    data-question-id="{{ $question->id }}">
-            <div class="ml-4 flex items-start flex-1">
-                <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
-                    {{ $letters[$answerIndex] }}
-                </span>
-                <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
-                    {{ $answer->answer_text }}
-                </span>
-            </div>
-        </label>
-        @endforeach
-    </div>
-</div>
-@endforeach
-
+                        @php
+                            $correctAnswersCount = $question->answers->where('is_correct', true)->count();
+                            $isMultipleChoice = $correctAnswersCount > 1;
+                        @endphp
+                        <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow question-container" data-question-id="{{ $question->id }}">
+                            <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                                <div class="flex-1">
+                                    <div class="flex items-start mb-4">
+                                        <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md flex-shrink-0">
+                                            {{ $index + 1 }}
+                                        </span>
+                                        <div class="flex-1">
+                                            <div class="flex items-start justify-between">
+                                                <p class="text-lg font-semibold text-gray-800 leading-relaxed flex-1">
+                                                    {{ $question->question_text }}
+                                                    @if($isMultipleChoice)
+                                                    <span class="inline-block ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
+                                                        Plusieurs réponses
+                                                    </span>
+                                                    @endif
+                                                </p>
+                                                <!-- Bouton de lecture audio -->
+                                                <button type="button" 
+                                                        id="tts-btn-{{ $question->id }}"
+                                                        onclick="readQuestion(
+                                                            '{{ addslashes(strip_tags($question->question_text)) }}', 
+                                                            'tts-btn-{{ $question->id }}',
+                                                            [
+                                                                @foreach($question->answers as $answer)
+                                                                '{{ addslashes(strip_tags($answer->answer_text)) }}'{{ !$loop->last ? ',' : '' }}
+                                                                @endforeach
+                                                            ]
+                                                        )"
+                                                        class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
+                                                        title="Écouter la question et les réponses">
+                                                    <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @if($question->image)
+                                <div class="flex-shrink-0">
+                                    <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
+                                        <img src="{{ asset('storage/' . $question->image) }}" 
+                                            alt="Image pour la question n°{{ $index + 1 }}" 
+                                            class="w-full h-full object-contain rounded-lg">
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                            
+                            <div class="space-y-3">
+                                @php
+                                    $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                @endphp
+                                @foreach($question->answers as $answerIndex => $answer)
+                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm answer-label" data-question-id="{{ $question->id }}">
+                                    <input type="{{ $isMultipleChoice ? 'checkbox' : 'radio' }}" 
+                                            name="answers[{{ $question->id }}]{{ $isMultipleChoice ? '[]' : '' }}" 
+                                            value="{{ $answer->id }}" 
+                                            class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-input"
+                                            {{ !$isMultipleChoice ? 'required' : '' }}
+                                            data-question-id="{{ $question->id }}"
+                                            data-is-multiple="{{ $isMultipleChoice ? 'true' : 'false' }}">
+                                    <div class="ml-4 flex items-start flex-1">
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
+                                            {{ $letters[$answerIndex] }}
+                                        </span>
+                                        <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
+                                            {{ $answer->answer_text }}
+                                        </span>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endforeach
                     </div>
 
                     <!-- Submit Section -->
@@ -230,7 +239,6 @@
     </div>
 </div>
 
-{{-- Dans la section script de start.blade.php --}}
 <script>
 // Timer et gestion de l'examen
 let examStartTime = Date.now();
@@ -272,10 +280,20 @@ function updateElapsedTime() {
     document.getElementById('timeTaken').value = elapsed;
 }
 
-// Gestion de la progression
+// Gestion de la progression - MISE À JOUR POUR RÉPONSES MULTIPLES
 function updateProgress() {
     const totalQuestions = {{ $questions->count() }};
-    const answeredQuestions = document.querySelectorAll('.answer-radio:checked').length;
+    let answeredQuestions = 0;
+    
+    // Compter les questions répondues (au moins une réponse cochée)
+    document.querySelectorAll('.question-container').forEach(container => {
+        const questionId = container.dataset.questionId;
+        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
+        if (hasAnswer) {
+            answeredQuestions++;
+        }
+    });
+    
     const progressPercentage = Math.round((answeredQuestions / totalQuestions) * 100);
     
     document.getElementById('progressPercentage').textContent = progressPercentage + '%';
@@ -293,7 +311,23 @@ function updateProgress() {
     }
 }
 
-// Gestion de la soumission avec SweetAlert
+// Vérification de la complétude des réponses - MISE À JOUR POUR RÉPONSES MULTIPLES
+function checkAllQuestionsAnswered() {
+    const totalQuestions = {{ $questions->count() }};
+    let answeredQuestions = 0;
+    
+    document.querySelectorAll('.question-container').forEach(container => {
+        const questionId = container.dataset.questionId;
+        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
+        if (hasAnswer) {
+            answeredQuestions++;
+        }
+    });
+    
+    return answeredQuestions === totalQuestions;
+}
+
+// Gestion de la soumission avec SweetAlert - MISE À JOUR
 async function handleExamSubmit(event) {
     if (examSubmitted) {
         event.preventDefault();
@@ -301,7 +335,14 @@ async function handleExamSubmit(event) {
     }
 
     const totalQuestions = {{ $questions->count() }};
-    const answeredQuestions = document.querySelectorAll('.answer-radio:checked').length;
+    let answeredQuestions = 0;
+    
+    document.querySelectorAll('.question-container').forEach(container => {
+        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
+        if (hasAnswer) {
+            answeredQuestions++;
+        }
+    });
     
     if (answeredQuestions < totalQuestions) {
         event.preventDefault();
@@ -369,7 +410,7 @@ function autoSubmitExam() {
     }
 }
 
-// Réinitialisation avec SweetAlert
+// Réinitialisation avec SweetAlert - MISE À JOUR
 async function resetExam() {
     const result = await Swal.fire({
         title: 'Réinitialiser les réponses',
@@ -388,8 +429,8 @@ async function resetExam() {
     });
     
     if (result.isConfirmed) {
-        document.querySelectorAll('.answer-radio').forEach(radio => {
-            radio.checked = false;
+        document.querySelectorAll('.answer-input').forEach(input => {
+            input.checked = false;
         });
         updateProgress();
         
@@ -414,35 +455,43 @@ async function resetExam() {
     }
 }
 
-// Gestion des réponses
+// Gestion des réponses - MISE À JOUR POUR RÉPONSES MULTIPLES
 document.addEventListener('DOMContentLoaded', function() {
     startTimer();
     updateProgress();
     
     // Écouter les changements de réponses
-    document.querySelectorAll('.answer-radio').forEach(radio => {
-        radio.addEventListener('change', function() {
+    document.querySelectorAll('.answer-input').forEach(input => {
+        input.addEventListener('change', function() {
             const questionId = this.getAttribute('data-question-id');
+            const isMultiple = this.getAttribute('data-is-multiple') === 'true';
             const questionContainer = document.querySelector(`.question-container[data-question-id="${questionId}"]`);
             
-            // Réinitialiser toutes les réponses de cette question
-            questionContainer.querySelectorAll('.answer-label').forEach(label => {
-                label.classList.remove('border-blue-500', 'bg-blue-50');
-                label.classList.add('border-gray-200', 'hover:border-blue-400');
-            });
+            if (!isMultiple) {
+                // Réinitialiser toutes les réponses de cette question (cas radio)
+                questionContainer.querySelectorAll('.answer-label').forEach(label => {
+                    label.classList.remove('border-blue-500', 'bg-blue-50');
+                    label.classList.add('border-gray-200', 'hover:border-blue-400');
+                });
+            }
             
             // Mettre en surbrillance la réponse sélectionnée
             const selectedLabel = this.closest('.answer-label');
-            selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
-            selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
+            if (this.checked) {
+                selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
+                selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
+            } else {
+                selectedLabel.classList.remove('border-blue-500', 'bg-blue-50');
+                selectedLabel.classList.add('border-gray-200', 'hover:border-blue-400');
+            }
             
             updateProgress();
         });
     });
     
     // Pré-sélectionner les réponses déjà choisies
-    document.querySelectorAll('.answer-radio:checked').forEach(radio => {
-        const selectedLabel = radio.closest('.answer-label');
+    document.querySelectorAll('.answer-input:checked').forEach(input => {
+        const selectedLabel = input.closest('.answer-label');
         selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
         selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
     });
@@ -480,11 +529,6 @@ window.addEventListener('beforeunload', function(e) {
 </script>
 <script>
 // ==============================================================
-// COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS
-// À ajouter dans votre fichier JavaScript principal ou dans les vues
-// ==============================================================
-
-// ==============================================================
 // COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS - CORRIGÉ
 // ==============================================================
 
@@ -494,13 +538,11 @@ class QuestionReader {
         this.currentUtterance = null;
         this.isReading = false;
         this.voices = [];
-        this.currentTexts = []; // Stocker tous les textes à lire
-        this.currentIndex = 0; // Index du texte en cours
+        this.currentTexts = [];
+        this.currentIndex = 0;
         
-        // Charger les voix disponibles
         this.loadVoices();
         
-        // Gérer le rechargement des voix (nécessaire pour certains navigateurs)
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => this.loadVoices();
         }
@@ -508,7 +550,6 @@ class QuestionReader {
     
     loadVoices() {
         this.voices = this.synthesis.getVoices();
-        // Privilégier les voix françaises
         this.frenchVoice = this.voices.find(voice => 
             voice.lang.startsWith('fr') && voice.name.includes('Female')
         ) || this.voices.find(voice => 
@@ -517,16 +558,13 @@ class QuestionReader {
     }
     
     read(questionText, buttonElement, answers = []) {
-        // Si on est en train de lire, arrêter
         if (this.isReading && this.currentUtterance) {
             this.stop(buttonElement);
             return;
         }
         
-        // Préparer tous les textes à lire : question + réponses
         this.currentTexts = [questionText];
         
-        // Ajouter les réponses avec leur lettre
         const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
         answers.forEach((answer, index) => {
             if (index < letters.length) {
@@ -537,13 +575,11 @@ class QuestionReader {
         this.currentIndex = 0;
         this.buttonElement = buttonElement;
         
-        // Commencer la lecture
         this.readNextText();
     }
     
     readNextText() {
         if (this.currentIndex >= this.currentTexts.length) {
-            // Tous les textes ont été lus
             this.isReading = false;
             this.updateButtonState(this.buttonElement, false);
             return;
@@ -552,17 +588,15 @@ class QuestionReader {
         const text = this.currentTexts[this.currentIndex];
         this.currentUtterance = new SpeechSynthesisUtterance(text);
         
-        // Configuration de la voix
         if (this.frenchVoice) {
             this.currentUtterance.voice = this.frenchVoice;
         }
         
         this.currentUtterance.lang = 'fr-FR';
-        this.currentUtterance.rate = 0.9; // Vitesse légèrement plus lente
+        this.currentUtterance.rate = 0.9;
         this.currentUtterance.pitch = 1.0;
         this.currentUtterance.volume = 1.0;
         
-        // Événements
         this.currentUtterance.onstart = () => {
             this.isReading = true;
             this.updateButtonState(this.buttonElement, true);
@@ -570,7 +604,7 @@ class QuestionReader {
         
         this.currentUtterance.onend = () => {
             this.currentIndex++;
-            setTimeout(() => this.readNextText(), 500); // Pause entre les lectures
+            setTimeout(() => this.readNextText(), 500);
         };
         
         this.currentUtterance.onerror = (event) => {
@@ -579,7 +613,6 @@ class QuestionReader {
             this.updateButtonState(this.buttonElement, false);
         };
         
-        // Lancer la lecture
         this.synthesis.speak(this.currentUtterance);
     }
     
@@ -613,20 +646,16 @@ class QuestionReader {
     }
 }
 
-// Initialiser le lecteur
 const questionReader = new QuestionReader();
 
-// Fonction globale pour lire une question avec ses réponses
 function readQuestion(questionText, buttonId, answers = []) {
     const button = document.getElementById(buttonId);
     questionReader.read(questionText, button, answers);
 }
 
-// Vérifier la compatibilité du navigateur
 function checkTTSSupport() {
     if (!('speechSynthesis' in window)) {
         console.warn('La synthèse vocale n\'est pas supportée par ce navigateur.');
-        // Masquer tous les boutons de lecture
         document.querySelectorAll('.tts-button').forEach(btn => {
             btn.style.display = 'none';
         });
@@ -635,7 +664,6 @@ function checkTTSSupport() {
     return true;
 }
 
-// Vérifier au chargement de la page
 document.addEventListener('DOMContentLoaded', () => {
     checkTTSSupport();
 });
@@ -657,8 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
 .question-container:hover {
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
-</style>
-<style>
+
 .tts-button {
     transition: all 0.3s ease;
 }
@@ -689,7 +716,6 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 </style>
 <style>
-/* Personnalisation des SweetAlert pour correspondre au design */
 .swal2-popup {
     border-radius: 1rem !important;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
@@ -719,8 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 .swal2-confirm:hover {
     background: linear-gradient(to right, #2563EB, #4F46E5) !important;
-    transform: translateY(-1px);
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.4) !important;
+    transform: translateY(-1px) !important;
 }
 
 .swal2-cancel {
@@ -730,8 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 .swal2-cancel:hover {
     background-color: #4B5563 !important;
-    transform: translateY(-1px);
+    transform: translateY(-1px) !important;
 }
 </style>
-
 @endsection

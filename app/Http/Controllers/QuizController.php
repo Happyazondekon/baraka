@@ -45,124 +45,144 @@ class QuizController extends Controller
     }
 
     public function submit(Request $request, Module $module)
-    {
-        try {
-            // Validation des données
-            $request->validate([
-                'answers' => 'required|array',
-                'answers.*' => 'required|integer',
-                'time_taken' => 'nullable|integer|min:0'
-            ]);
+{
+    try {
+        // Validation des données - permettre les tableaux pour les réponses multiples
+        $request->validate([
+            'answers' => 'required|array',
+            'answers.*' => 'required', // Supprimer 'integer' pour permettre les tableaux
+            'time_taken' => 'nullable|integer|min:0'
+        ]);
 
-            $quiz = $module->quiz()->with(['questions.answers'])->first();
-            
-            if (!$quiz) {
-                return redirect()->route('modules.show', $module)
-                    ->with('error', 'Quiz introuvable.');
-            }
-
-            // Vérifier que l'utilisateur n'a pas déjà passé le quiz récemment
-            $user = auth()->user();
-            $recentResult = $quiz->userResults()
-                ->where('user_id', $user->id)
-                ->where('created_at', '>', now()->subMinutes(5))
-                ->first();
-
-            if ($recentResult) {
-                return redirect()->route('modules.show', $module)
-                    ->with('error', 'Vous devez attendre 5 minutes avant de repasser ce quiz.');
-            }
-
-            $answers = $request->input('answers', []);
-            $correctAnswers = 0;
-            $totalQuestions = $quiz->questions->count();
-            $detailedResults = [];
-
-            // Vérifier que toutes les questions ont une réponse
-            if (count($answers) < $totalQuestions) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error', 'Veuillez répondre à toutes les questions.');
-            }
-
-            DB::beginTransaction();
-
-            foreach ($quiz->questions as $question) {
-                $userAnswerId = $answers[$question->id] ?? null;
-                $correctAnswer = $question->answers()->where('is_correct', true)->first();
-                $userAnswer = $question->answers()->find($userAnswerId);
-                
-                $isCorrect = $correctAnswer && $userAnswerId == $correctAnswer->id;
-                
-                if ($isCorrect) {
-                    $correctAnswers++;
-                }
-
-                $detailedResults[] = [
-                    'question_id' => $question->id,
-                    'question_text' => $question->question_text,
-                    'user_answer_id' => $userAnswerId,
-                    'user_answer_text' => $userAnswer ? $userAnswer->answer_text : null,
-                    'correct_answer_id' => $correctAnswer ? $correctAnswer->id : null,
-                    'correct_answer_text' => $correctAnswer ? $correctAnswer->answer_text : null,
-                    'is_correct' => $isCorrect
-                ];
-            }
-
-            $score = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
-            $passed = $score >= $quiz->passing_score;
-
-            $quizResult = QuizResult::create([
-                'user_id' => $user->id,
-                'quiz_id' => $quiz->id,
-                'score' => $score,
-                'total_questions' => $totalQuestions,
-                'correct_answers' => $correctAnswers,
-                'passed' => $passed,
-                'time_taken' => $request->input('time_taken', 0),
-                'answers' => $answers,
-                'detailed_results' => $detailedResults
-            ]);
-
-            DB::commit();
-
-            // Messages personnalisés selon le score
-            if ($passed) {
-                if ($score == 100) {
-                    $message = "🎉 Parfait ! Vous avez obtenu 100% ! Excellent travail !";
-                } elseif ($score >= 90) {
-                    $message = "🌟 Très bien ! Vous avez obtenu {$score}% ! Presque parfait !";
-                } else {
-                    $message = "👍 Félicitations ! Vous avez réussi avec {$score}% !";
-                }
-                $messageType = 'success';
-            } else {
-                if ($score >= 50) {
-                    $message = "📚 Score : {$score}%. Vous y êtes presque ! Révisez et réessayez.";
-                } else {
-                    $message = "📖 Score : {$score}%. Il faut réviser le module avant de reprendre le quiz.";
-                }
-                $messageType = 'warning';
-            }
-
-            // Stocker les résultats en session pour l'affichage
+        $quiz = $module->quiz()->with(['questions.answers'])->first();
+        
+        if (!$quiz) {
             return redirect()->route('modules.show', $module)
-                ->with($messageType, $message)
-                ->with('quiz_result_id', $quizResult->id)
-                ->with('quiz_score', $score)
-                ->with('quiz_correct_answers', $correctAnswers)
-                ->with('quiz_total_questions', $totalQuestions)
-                ->with('detailed_results', $detailedResults);
+                ->with('error', 'Quiz introuvable.');
+        }
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Erreur lors de la soumission du quiz: ' . $e->getMessage());
-            
+        // Vérifier que l'utilisateur n'a pas déjà passé le quiz récemment
+        $user = auth()->user();
+        $recentResult = $quiz->userResults()
+            ->where('user_id', $user->id)
+            ->where('created_at', '>', now()->subMinutes(5))
+            ->first();
+
+        if ($recentResult) {
+            return redirect()->route('modules.show', $module)
+                ->with('error', 'Vous devez attendre 5 minutes avant de repasser ce quiz.');
+        }
+
+        $answers = $request->input('answers', []);
+        $correctAnswers = 0;
+        $totalQuestions = $quiz->questions->count();
+        $detailedResults = [];
+
+        // Vérifier que toutes les questions ont une réponse
+        $answeredQuestions = 0;
+        foreach ($quiz->questions as $question) {
+            $userAnswer = $answers[$question->id] ?? null;
+            if ($userAnswer && (!is_array($userAnswer) || count($userAnswer) > 0)) {
+                $answeredQuestions++;
+            }
+        }
+
+        if ($answeredQuestions < $totalQuestions) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Une erreur est survenue lors de la validation. Veuillez réessayer.');
+                ->with('error', 'Veuillez répondre à toutes les questions.');
         }
+
+        DB::beginTransaction();
+
+        foreach ($quiz->questions as $question) {
+            $userAnswerIds = $answers[$question->id] ?? [];
+            // Si c'est une réponse unique, convertir en tableau
+            if (!is_array($userAnswerIds)) {
+                $userAnswerIds = [$userAnswerIds];
+            }
+            
+            $correctAnswerIds = $question->answers()->where('is_correct', true)->pluck('id')->toArray();
+            $userAnswers = $question->answers()->whereIn('id', $userAnswerIds)->get();
+            
+            // Vérifier si toutes les bonnes réponses sont sélectionnées et aucune mauvaise
+            $isCorrect = false;
+            if (count($correctAnswerIds) > 0) {
+                $allCorrectSelected = count(array_intersect($userAnswerIds, $correctAnswerIds)) === count($correctAnswerIds);
+                $noIncorrectSelected = count(array_diff($userAnswerIds, $correctAnswerIds)) === 0;
+                $isCorrect = $allCorrectSelected && $noIncorrectSelected;
+            }
+            
+            if ($isCorrect) {
+                $correctAnswers++;
+            }
+
+            $detailedResults[] = [
+                'question_id' => $question->id,
+                'question_text' => $question->question_text,
+                'user_answer_ids' => $userAnswerIds,
+                'user_answers_text' => $userAnswers->pluck('answer_text')->toArray(),
+                'correct_answer_ids' => $correctAnswerIds,
+                'correct_answers_text' => $question->answers()->where('is_correct', true)->pluck('answer_text')->toArray(),
+                'is_correct' => $isCorrect,
+                'is_multiple_choice' => count($correctAnswerIds) > 1
+            ];
+        }
+
+        $score = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100) : 0;
+        $passed = $score >= $quiz->passing_score;
+
+        $quizResult = QuizResult::create([
+            'user_id' => $user->id,
+            'quiz_id' => $quiz->id,
+            'score' => $score,
+            'total_questions' => $totalQuestions,
+            'correct_answers' => $correctAnswers,
+            'passed' => $passed,
+            'time_taken' => $request->input('time_taken', 0),
+            'answers' => $answers,
+            'detailed_results' => $detailedResults
+        ]);
+
+        DB::commit();
+
+        // Messages personnalisés selon le score
+        if ($passed) {
+            if ($score == 100) {
+                $message = "🎉 Parfait ! Vous avez obtenu 100% ! Excellent travail !";
+            } elseif ($score >= 90) {
+                $message = "🌟 Très bien ! Vous avez obtenu {$score}% ! Presque parfait !";
+            } else {
+                $message = "👍 Félicitations ! Vous avez réussi avec {$score}% !";
+            }
+            $messageType = 'success';
+        } else {
+            if ($score >= 50) {
+                $message = "📚 Score : {$score}%. Vous y êtes presque ! Révisez et réessayez.";
+            } else {
+                $message = "📖 Score : {$score}%. Il faut réviser le module avant de reprendre le quiz.";
+            }
+            $messageType = 'warning';
+        }
+
+        // Stocker les résultats en session pour l'affichage
+        return redirect()->route('modules.show', $module)
+            ->with($messageType, $message)
+            ->with('quiz_result_id', $quizResult->id)
+            ->with('quiz_score', $score)
+            ->with('quiz_correct_answers', $correctAnswers)
+            ->with('quiz_total_questions', $totalQuestions)
+            ->with('detailed_results', $detailedResults);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Erreur lors de la soumission du quiz: ' . $e->getMessage());
+        
+        return redirect()->back()
+            ->withInput()
+            ->with('error', 'Une erreur est survenue lors de la validation. Veuillez réessayer.');
     }
+}
 
     // Admin methods pour Quiz
     public function index()
@@ -327,18 +347,31 @@ public function showResults($resultId)
     $user = auth()->user();
     
     // Récupérer le résultat du quiz
-    $quizResult = QuizResult::where('id', $resultId)
+    $result = QuizResult::where('id', $resultId)
         ->where('user_id', $user->id)
         ->with(['quiz'])
         ->firstOrFail();
 
     // Les résultats détaillés sont déjà dans la colonne detailed_results
-    $detailedResults = $quizResult->detailed_results ?? [];
+    $detailedResults = $result->detailed_results ?? [];
 
     // Récupérer l'examen si c'est un examen spécifique
-    $exam = $quizResult->quiz_id ? Quiz::find($quizResult->quiz_id) : null;
+    $exam = $result->quiz_id ? Quiz::find($result->quiz_id) : null;
 
-    return view('examens.results', compact('quizResult', 'exam', 'detailedResults'));
+    // Récupérer toutes les questions avec leurs réponses pour l'affichage détaillé
+    $questionIds = collect($detailedResults)->pluck('question_id')->toArray();
+    $questions = Question::with('answers')
+        ->whereIn('id', $questionIds)
+        ->get()
+        ->keyBy('id');
+
+    // Préparer les réponses utilisateur pour la vue
+    $userAnswers = [];
+    foreach ($detailedResults as $detail) {
+        $userAnswers[$detail['question_id']] = $detail['user_answer_ids'];
+    }
+
+    return view('examens.results', compact('result', 'exam', 'questions', 'userAnswers'));
 }
 
 /**
@@ -349,7 +382,7 @@ public function submitExam(Request $request, ?Quiz $exam = null)
     try {
         $request->validate([
             'answers' => 'required|array',
-            'answers.*' => 'required|integer',
+            'answers.*' => 'required', // Supprimer 'integer' pour permettre les tableaux
             'time_taken' => 'nullable|integer|min:0'
         ]);
 
@@ -372,7 +405,16 @@ public function submitExam(Request $request, ?Quiz $exam = null)
         $correctAnswers = 0;
         $detailedResults = [];
 
-        if (count($answers) < $totalQuestions) {
+        // Vérifier que toutes les questions ont une réponse
+        $answeredQuestions = 0;
+        foreach ($questions as $question) {
+            $userAnswer = $answers[$question->id] ?? null;
+            if ($userAnswer && (!is_array($userAnswer) || count($userAnswer) > 0)) {
+                $answeredQuestions++;
+            }
+        }
+
+        if ($answeredQuestions < $totalQuestions) {
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Veuillez répondre à toutes les questions.');
@@ -381,11 +423,22 @@ public function submitExam(Request $request, ?Quiz $exam = null)
         DB::beginTransaction();
 
         foreach ($questions as $question) {
-            $userAnswerId = $answers[$question->id] ?? null;
-            $correctAnswer = $question->answers()->where('is_correct', true)->first();
-            $userAnswer = $question->answers()->find($userAnswerId);
+            $userAnswerIds = $answers[$question->id] ?? [];
+            // Si c'est une réponse unique, convertir en tableau
+            if (!is_array($userAnswerIds)) {
+                $userAnswerIds = [$userAnswerIds];
+            }
             
-            $isCorrect = $correctAnswer && $userAnswerId == $correctAnswer->id;
+            $correctAnswerIds = $question->answers()->where('is_correct', true)->pluck('id')->toArray();
+            $userAnswers = $question->answers()->whereIn('id', $userAnswerIds)->get();
+            
+            // Vérifier si toutes les bonnes réponses sont sélectionnées et aucune mauvaise
+            $isCorrect = false;
+            if (count($correctAnswerIds) > 0) {
+                $allCorrectSelected = count(array_intersect($userAnswerIds, $correctAnswerIds)) === count($correctAnswerIds);
+                $noIncorrectSelected = count(array_diff($userAnswerIds, $correctAnswerIds)) === 0;
+                $isCorrect = $allCorrectSelected && $noIncorrectSelected;
+            }
             
             if ($isCorrect) {
                 $correctAnswers++;
@@ -394,11 +447,12 @@ public function submitExam(Request $request, ?Quiz $exam = null)
             $detailedResults[] = [
                 'question_id' => $question->id,
                 'question_text' => $question->question_text,
-                'user_answer_id' => $userAnswerId,
-                'user_answer_text' => $userAnswer ? $userAnswer->answer_text : null,
-                'correct_answer_id' => $correctAnswer ? $correctAnswer->id : null,
-                'correct_answer_text' => $correctAnswer ? $correctAnswer->answer_text : null,
-                'is_correct' => $isCorrect
+                'user_answer_ids' => $userAnswerIds,
+                'user_answers_text' => $userAnswers->pluck('answer_text')->toArray(),
+                'correct_answer_ids' => $correctAnswerIds,
+                'correct_answers_text' => $question->answers()->where('is_correct', true)->pluck('answer_text')->toArray(),
+                'is_correct' => $isCorrect,
+                'is_multiple_choice' => count($correctAnswerIds) > 1
             ];
         }
 
