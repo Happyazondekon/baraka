@@ -355,20 +355,38 @@ public function showResults($resultId)
     // Les résultats détaillés sont déjà dans la colonne detailed_results
     $detailedResults = $result->detailed_results ?? [];
 
+    // Debug temporaire - Décommentez cette ligne pour voir le contenu
+    // dd($detailedResults);
+
     // Récupérer l'examen si c'est un examen spécifique
     $exam = $result->quiz_id ? Quiz::find($result->quiz_id) : null;
 
-    // Récupérer toutes les questions avec leurs réponses pour l'affichage détaillé
-    $questionIds = collect($detailedResults)->pluck('question_id')->toArray();
-    $questions = Question::with('answers')
-        ->whereIn('id', $questionIds)
-        ->get()
-        ->keyBy('id');
-
-    // Préparer les réponses utilisateur pour la vue
+    // Récupérer toutes les questions pour avoir les images et explications
+    $questions = collect();
     $userAnswers = [];
-    foreach ($detailedResults as $detail) {
-        $userAnswers[$detail['question_id']] = $detail['user_answer_ids'];
+    
+    if (!empty($detailedResults)) {
+        $questionIds = collect($detailedResults)->pluck('question_id')->toArray();
+        
+        // Debug - Vérifier les IDs des questions
+        // dd($questionIds);
+        
+        $questions = Question::with('answers')
+            ->whereIn('id', $questionIds)
+            ->get();
+
+        // Debug - Vérifier si les questions sont chargées
+        // dd($questions->count(), $questions);
+
+        // Préparer les réponses utilisateur pour la vue
+        foreach ($detailedResults as $detail) {
+            $userAnswers[$detail['question_id']] = $detail['user_answer_ids'] ?? [];
+        }
+    } else {
+        // Si pas de detailed_results, essayer de récupérer via le quiz
+        if ($exam) {
+            $questions = $exam->questions()->with('answers')->get();
+        }
     }
 
     return view('examens.results', compact('result', 'exam', 'questions', 'userAnswers'));
