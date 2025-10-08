@@ -56,6 +56,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return response()->json(['status' => 'success']);
     })->name('payment.clear_intended');
 
+     Route::get('/examens/results/{result}/download', [QuizController::class, 'downloadSummary'])->name('examens.results.download');
+
     // AFFICHAGE DE LA LISTE DES COURS (FREE-TO-VIEW)
     // Permet de voir la liste des modules sans avoir payé.
     Route::get('/cours', [ModuleController::class, 'index'])->name('modules.index');

@@ -506,5 +506,58 @@ public function submitExam(Request $request, ?Quiz $exam = null)
             ->with('error', 'Une erreur est survenue lors de la validation. Veuillez réessayer.');
     }
 }
+// Dans QuizController.php - Ajoutez cette méthode
+
+/**
+ * Télécharger la fiche récapitulative de l'examen
+ */
+public function downloadSummary($resultId)
+{
+    $user = auth()->user();
+    
+    // Récupérer le résultat du quiz
+    $result = QuizResult::where('id', $resultId)
+        ->where('user_id', $user->id)
+        ->with(['quiz'])
+        ->firstOrFail();
+
+    // Récupérer les données détaillées
+    $detailedResults = $result->detailed_results ?? [];
+    $exam = $result->quiz_id ? Quiz::find($result->quiz_id) : null;
+    
+    // Récupérer toutes les questions
+    $questions = collect();
+    if (!empty($detailedResults)) {
+        $questionIds = collect($detailedResults)->pluck('question_id')->filter()->toArray();
+        if (!empty($questionIds)) {
+            $questions = Question::with('answers')
+                ->whereIn('id', $questionIds)
+                ->get();
+        }
+    }
+
+    // Calculer les statistiques
+    $display_passed = $result->score >= 70;
+    $display_correct_answers = $result->correct_answers;
+    $display_wrong_answers = $result->total_questions - $result->correct_answers;
+
+    // Générer le PDF
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('examens.summary-pdf', [
+        'result' => $result,
+        'exam' => $exam,
+        'questions' => $questions,
+        'detailedResults' => $detailedResults,
+        'display_passed' => $display_passed,
+        'display_correct_answers' => $display_correct_answers,
+        'display_wrong_answers' => $display_wrong_answers,
+        'user' => $user
+    ]);
+
+    // Nom du fichier
+    $filename = 'fiche-recap-examen-' . $result->id . '-' . now()->format('d-m-Y') . '.pdf';
+
+    // Télécharger le PDF
+    return $pdf->download($filename);
+}
 
 }

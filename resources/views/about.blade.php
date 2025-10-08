@@ -20,7 +20,7 @@
         </div>
         <div class="flex justify-center">
             {{-- Replace with an image that represents convenience, online learning, or a digital platform --}}
-            <img src="{{ asset('images/learning-car.png') }}" alt="Apprentissage sans contraintes" class="w-full max-w-md mx-auto">
+            <img src="{{ asset('images/driving.png') }}" alt="Apprentissage sans contraintes" class="w-full max-w-md mx-auto">
         </div>
     </div>
 </section>
@@ -29,7 +29,7 @@
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div class="order-2 md:order-1">
             {{-- Replace with an image representing flexibility, learning from anywhere --}}
-            <img src="{{ asset('images/hero-car.png') }}" alt="Voiture d'auto-école" class="w-full max-w-md">
+            <img src="{{ asset('images/car.png') }}" alt="Voiture d'auto-école" class="w-full max-w-md">
         </div>
         <div class="order-1 md:order-2">
             <h2 class="text-3xl font-bold text-gray-800 mb-6">

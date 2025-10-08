@@ -379,13 +379,68 @@ public function editMockExam(Quiz $quiz)
 
 public function resultDetails($resultId)
 {
-    $result = QuizResult::with(['quiz.module', 'user', 'quiz.questions.answers'])
-        ->findOrFail($resultId);
+    $result = QuizResult::with([
+        'quiz.module', 
+        'user', 
+        'quiz.questions.answers' // Charger les questions et réponses du quiz
+    ])->findOrFail($resultId);
+
+    // Reconstruire les detailed_results si ils sont manquants
+    if (!$result->detailed_results || !is_array($result->detailed_results)) {
+        $result = $this->rebuildDetailedResults($result);
+    }
 
     // Calculer les statistiques des examens pour cet utilisateur
     $examStats = $this->getUserExamStats($result->user_id);
     
     return view('admin.users.result-details', compact('result', 'examStats'));
+}
+
+/**
+ * Reconstruire les detailed_results si ils sont manquants
+ */
+private function rebuildDetailedResults($result)
+{
+    $detailedResults = [];
+    $answers = $result->answers ?? [];
+    
+    foreach ($result->quiz->questions as $index => $question) {
+        $userAnswerIds = $answers[$question->id] ?? [];
+        
+        // Si c'est une réponse unique, convertir en tableau
+        if (!is_array($userAnswerIds)) {
+            $userAnswerIds = [$userAnswerIds];
+        }
+        
+        $correctAnswerIds = $question->answers->where('is_correct', true)->pluck('id')->toArray();
+        $userAnswers = $question->answers->whereIn('id', $userAnswerIds);
+        
+        // Vérifier si la réponse est correcte
+        $isCorrect = false;
+        if (count($correctAnswerIds) > 0) {
+            $allCorrectSelected = count(array_intersect($userAnswerIds, $correctAnswerIds)) === count($correctAnswerIds);
+            $noIncorrectSelected = count(array_diff($userAnswerIds, $correctAnswerIds)) === 0;
+            $isCorrect = $allCorrectSelected && $noIncorrectSelected;
+        }
+        
+        $detailedResults[] = [
+            'question_id' => $question->id,
+            'question_text' => $question->question_text,
+            'image' => $question->image,
+            'user_answer_ids' => $userAnswerIds,
+            'user_answers_text' => $userAnswers->pluck('answer_text')->toArray(),
+            'correct_answer_ids' => $correctAnswerIds,
+            'correct_answers_text' => $question->answers->where('is_correct', true)->pluck('answer_text')->toArray(),
+            'is_correct' => $isCorrect,
+            'is_multiple_choice' => count($correctAnswerIds) > 1,
+            'explanation' => $question->explanation
+        ];
+    }
+    
+    // Mettre à jour le résultat avec les detailed_results reconstruits
+    $result->detailed_results = $detailedResults;
+    
+    return $result;
 }
 
 /**
