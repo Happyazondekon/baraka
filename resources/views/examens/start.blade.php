@@ -3,759 +3,477 @@
 @section('title', 'Examen Blanc - Code de la Route')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8">
-    <div class="container mx-auto px-4 max-w-6xl">
-        <!-- Navigation -->
-        <div class="mb-8">
-            <a href="{{ route('examens.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium transition-colors group">
-                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                </svg>
-                Retour aux examens blancs
-            </a>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-blue-200">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                <div class="flex-1 mb-4 lg:mb-0">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-2">Examen Blanc - Code de la Route</h1>
+                    <p class="text-gray-600">Question <span id="currentQuestionNumber">1</span> sur {{ $questions->count() }}</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="bg-blue-50 rounded-xl px-4 py-2 text-center">
+                        <div class="text-xl font-bold text-blue-700" id="timer">30:00</div>
+                        <div class="text-xs text-blue-600">Temps restant</div>
+                    </div>
+                    <div class="bg-green-50 rounded-xl px-4 py-2 text-center">
+                        <div class="text-xl font-bold text-green-700" id="progressCounter">0/{{ $questions->count() }}</div>
+                        <div class="text-xs text-green-600">Répondues</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Exam Header -->
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-blue-200">
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white bg-opacity-10 rounded-full -translate-y-32 translate-x-32"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white bg-opacity-10 rounded-full translate-y-24 -translate-x-24"></div>
-                
-                <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between">
-                    <div class="flex-1 text-white mb-6 lg:mb-0">
-                        <div class="inline-flex items-center px-4 py-2 rounded-full bg-white bg-opacity-20 text-sm font-medium mb-4">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            Examen Blanc
-                        </div>
-                        <h1 class="text-3xl lg:text-4xl font-bold mb-3">Examen de Code de la Route</h1>
-                        <h2 class="text-xl lg:text-2xl font-semibold opacity-95 mb-4">Simulation d'examen officiel</h2>
-                        <p class="text-blue-100 text-lg leading-relaxed max-w-2xl">
-                            Testez vos connaissances avec cet examen blanc de {{ $questions->count() }} questions. 
-                            Conditions réelles d'examen avec timer et correction détaillée.
-                        </p>
-                    </div>
+        <!-- Question Card -->
+        <form action="{{ $exam ? route('examens.submit.specific', $exam) : route('examens.submit') }}" method="POST" id="examForm">
+            @csrf
+            <input type="hidden" name="time_taken" id="timeTaken" value="0">
+            <input type="hidden" name="all_answers" id="allAnswers" value="{}">
+            
+            <div class="space-y-6" id="questionsContainer">
+                @foreach($questions as $index => $question)
+                @php
+                    $correctAnswersCount = $question->answers->where('is_correct', true)->count();
+                    $isMultipleChoice = $correctAnswersCount > 1;
+                @endphp
+                <div class="question-card bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden transition-all duration-300 {{ $index === 0 ? 'current-question' : 'hidden' }}" 
+                     data-question-id="{{ $question->id }}" 
+                     data-question-index="{{ $index }}">
                     
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
-                        <div class="text-4xl font-bold text-gray-800 mb-2">
-                            {{ $questions->count() }}<span class="text-2xl text-gray-500"> questions</span>
-                        </div>
-                        <div class="text-sm text-gray-600 font-medium">Durée estimée : 30 min</div>
-                        <div class="w-24 h-1 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full mx-auto mt-3"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exam Instructions -->
-        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-6 mb-8">
-            <div class="flex items-start">
-                <div class="bg-yellow-100 text-yellow-600 rounded-xl p-3 mr-4 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2">Instructions importantes</h3>
-                    <ul class="text-gray-700 space-y-1">
-                        <li>• L'examen contient <strong>{{ $questions->count() }} questions</strong> à choix multiples</li>
-                        <li>• Vous avez <strong>{{ $timeLimit ?? 30 }} minutes</strong> pour terminer l'examen</li>
-                        <li>• Le score de réussite est de <strong>{{ $exam->passing_score ?? 70 }}%</strong> ({{ ceil($questions->count() * (($exam->passing_score ?? 70) / 100)) }} bonnes réponses)</li>
-                        <li>• Certaines questions peuvent avoir <strong>plusieurs réponses correctes</strong></li>
-                        <li>• Cochez <strong>toutes les réponses</strong> qui vous semblent correctes</li>
-                        <li>• Vous ne pouvez pas revenir en arrière après validation</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exam Form -->
-        <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
-                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                    <div>
-                        <h3 class="text-2xl font-bold mb-2">Examen en cours</h3>
-                        <p class="text-blue-100">Répondez à toutes les questions avant de valider</p>
-                    </div>
-                    <div class="flex items-center space-x-4 mt-4 lg:mt-0">
-                        <div class="bg-white bg-opacity-20 rounded-xl px-4 py-2 text-center">
-                            <div class="text-xl font-bold" id="remainingQuestions">{{ $questions->count() }}</div>
-                            <div class="text-xs opacity-90">Questions restantes</div>
-                        </div>
-                        <div class="bg-white bg-opacity-20 rounded-xl px-4 py-2 text-center">
-                            <div class="text-xl font-bold" id="timer">30:00</div>
-                            <div class="text-xs opacity-90">Temps restant</div>
+                    <!-- Question Header -->
+                    <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="bg-white bg-opacity-20 rounded-lg px-3 py-1 text-sm font-bold mr-3">
+                                    Question {{ $index + 1 }}
+                                </span>
+                                <span class="text-blue-100 text-sm">
+                                    @if($isMultipleChoice)
+                                        Plusieurs réponses possibles
+                                    @else
+                                        Une seule réponse
+                                    @endif
+                                </span>
+                            </div>
+                            <button type="button" 
+                                    onclick="readCurrentQuestion()"
+                                    class="tts-button p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
+                                    title="Réécouter la question">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <form action="{{ $exam ? route('examens.submit.specific', $exam) : route('examens.submit') }}" method="POST" id="examForm" onsubmit="return handleExamSubmit(event)">
-                @csrf
-                <input type="hidden" name="time_taken" id="timeTaken" value="0">
-                
-                <div class="p-6">
-                    <div class="space-y-8" id="questionsContainer">
-                        @foreach($questions as $index => $question)
-                        @php
-                            $correctAnswersCount = $question->answers->where('is_correct', true)->count();
-                            $isMultipleChoice = $correctAnswersCount > 1;
-                        @endphp
-                        <div class="bg-gradient-to-br from-gray-50 to-white rounded-2xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow question-container" data-question-id="{{ $question->id }}">
-                            <div class="flex flex-col lg:flex-row gap-6 mb-6">
-                                <div class="flex-1">
-                                    <div class="flex items-start mb-4">
-                                        <span class="bg-blue-500 text-white rounded-lg px-3 py-1 text-sm font-bold mr-3 shadow-md flex-shrink-0">
-                                            {{ $index + 1 }}
-                                        </span>
-                                        <div class="flex-1">
-                                            <div class="flex items-start justify-between">
-                                                <p class="text-lg font-semibold text-gray-800 leading-relaxed flex-1">
-                                                    {{ $question->question_text }}
-                                                    @if($isMultipleChoice)
-                                                    <span class="inline-block ml-2 px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
-                                                        Plusieurs réponses
-                                                    </span>
-                                                    @endif
-                                                </p>
-                                                <!-- Bouton de lecture audio -->
-                                                <button type="button" 
-                                                        id="tts-btn-{{ $question->id }}"
-                                                        onclick="readQuestion(
-                                                            '{{ addslashes(strip_tags($question->question_text)) }}', 
-                                                            'tts-btn-{{ $question->id }}',
-                                                            [
-                                                                @foreach($question->answers as $answer)
-                                                                '{{ addslashes(strip_tags($answer->answer_text)) }}'{{ !$loop->last ? ',' : '' }}
-                                                                @endforeach
-                                                            ]
-                                                        )"
-                                                        class="tts-button ml-3 p-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-300 flex-shrink-0"
-                                                        title="Écouter la question et les réponses">
-                                                    <svg class="w-6 h-6 tts-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Question Content -->
+                    <div class="p-6">
+                        <div class="flex flex-col lg:flex-row gap-6 mb-6">
+                            <div class="flex-1">
+                                <p class="text-lg font-semibold text-gray-800 leading-relaxed mb-4 question-text">
+                                    {{ $question->question_text }}
+                                </p>
                                 
-                                @if($question->image)
-                                <div class="flex-shrink-0">
-                                    <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
-                                        <img src="{{ asset('storage/' . $question->image) }}" 
-                                            alt="Image pour la question n°{{ $index + 1 }}" 
-                                            class="w-full h-full object-contain rounded-lg">
-                                    </div>
+                                <!-- Answers -->
+                                <div class="space-y-3 answers-container">
+                                    @php
+                                        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+                                    @endphp
+                                    @foreach($question->answers as $answerIndex => $answer)
+                                    <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-200 answer-label"
+                                           data-answer-id="{{ $answer->id }}">
+                                        <input type="{{ $isMultipleChoice ? 'checkbox' : 'radio' }}" 
+                                               name="current_answer" 
+                                               value="{{ $answer->id }}" 
+                                               class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-input"
+                                               data-is-multiple="{{ $isMultipleChoice ? 'true' : 'false' }}"
+                                               onchange="handleAnswerSelection(this)">
+                                        <div class="ml-4 flex items-start flex-1">
+                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 answer-letter">
+                                                {{ $letters[$answerIndex] }}
+                                            </span>
+                                            <span class="text-gray-700 leading-relaxed font-medium answer-text">
+                                                {{ $answer->answer_text }}
+                                            </span>
+                                        </div>
+                                    </label>
+                                    @endforeach
                                 </div>
+                            </div>
+                            
+                            @if($question->image)
+                            <div class="flex-shrink-0 lg:w-64">
+                                <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-sm">
+                                    <img src="{{ asset('storage/' . $question->image) }}" 
+                                         alt="Image pour la question n°{{ $index + 1 }}" 
+                                         class="w-full h-48 object-contain rounded-lg">
+                                </div>
+                            </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Navigation Footer -->
+                    <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-500">
+                                @if($isMultipleChoice)
+                                Cochez toutes les réponses correctes
+                                @else
+                                Sélectionnez une seule réponse
                                 @endif
                             </div>
-                            
-                            <div class="space-y-3">
-                                @php
-                                    $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-                                @endphp
-                                @foreach($question->answers as $answerIndex => $answer)
-                                <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-300 group shadow-sm answer-label" data-question-id="{{ $question->id }}">
-                                    <input type="{{ $isMultipleChoice ? 'checkbox' : 'radio' }}" 
-                                            name="answers[{{ $question->id }}]{{ $isMultipleChoice ? '[]' : '' }}" 
-                                            value="{{ $answer->id }}" 
-                                            class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-input"
-                                            {{ !$isMultipleChoice ? 'required' : '' }}
-                                            data-question-id="{{ $question->id }}"
-                                            data-is-multiple="{{ $isMultipleChoice ? 'true' : 'false' }}">
-                                    <div class="ml-4 flex items-start flex-1">
-                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 group-hover:bg-blue-500 group-hover:text-white transition-colors shadow-sm">
-                                            {{ $letters[$answerIndex] }}
-                                        </span>
-                                        <span class="text-gray-700 leading-relaxed font-medium group-hover:text-blue-900 transition-colors">
-                                            {{ $answer->answer_text }}
-                                        </span>
-                                    </div>
-                                </label>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    <!-- Submit Section -->
-                    <div class="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 shadow-sm">
-                        <div class="text-center">
-                            <h4 class="text-xl font-bold text-gray-800 mb-4">Prêt à valider votre examen ?</h4>
-                            <p class="text-gray-600 mb-6">Vérifiez que vous avez répondu à toutes les questions avant de soumettre.</p>
-                            
-                            <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                                <button type="button" onclick="resetExam()" class="px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-colors duration-300 shadow-sm hover:shadow-md">
-                                    <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                    </svg>
-                                    Réinitialiser
-                                </button>
-                                
-                                <button type="submit" 
-                                        id="submitBtn"
-                                        class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed">
-                                    <span id="btnText">Valider l'Examen</span>
-                                    <span id="btnSpinner" class="hidden">
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Validation en cours...
-                                    </span>
-                                </button>
-                            </div>
-                            
-                            <div class="mt-6 text-sm text-gray-500 flex items-center justify-center">
-                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                            <button type="button" 
+                                    onclick="nextQuestion()" 
+                                    id="nextButton{{ $index }}"
+                                    class="next-btn px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-xl transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                                    disabled>
+                                {{ $index === $questions->count() - 1 ? 'Terminer l\'examen' : 'Question suivante' }}
+                                <svg class="w-4 h-4 ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                                 </svg>
-                                Temps écoulé : <span id="elapsedTime" class="font-mono font-bold ml-1">00:00</span>
-                            </div>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </form>
-        </div>
+                @endforeach
+            </div>
 
-        <!-- Progress Indicator -->
-        <div class="mt-8 bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-            <div class="flex items-center justify-between mb-4">
-                <span class="text-lg font-semibold text-gray-800">Progression de l'examen</span>
-                <span class="text-lg font-bold text-blue-600" id="progressPercentage">0%</span>
+            <!-- Submit Section (hidden until last question) -->
+            <div id="submitSection" class="hidden mt-8 bg-white rounded-2xl shadow-lg p-6 border border-green-200">
+                <div class="text-center">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Examen terminé !</h3>
+                    <p class="text-gray-600 mb-6">Vous avez répondu à toutes les questions. Cliquez sur le bouton ci-dessous pour valider votre examen.</p>
+                    <button type="submit" 
+                            class="px-8 py-3 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl">
+                        Valider l'examen
+                    </button>
+                </div>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-                <div id="progressBar" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-3 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between text-sm text-gray-500 mt-2">
-                <span>0 question</span>
-                <span id="answeredCount">0</span>
-                <span>{{ $questions->count() }} questions</span>
-            </div>
-        </div>
+        </form>
     </div>
 </div>
 
 <script>
-// Timer et gestion de l'examen
-let examStartTime = Date.now();
-let examSubmitted = false;
-let timerInterval;
-let elapsedTimeInterval;
+// ==============================================================
+// GESTION DE L'EXAMEN EN TEMPS RÉEL - CORRIGÉ
+// ==============================================================
 
-// Initialisation du timer
+let examData = {
+    startTime: Date.now(),
+    currentQuestionIndex: 0,
+    totalQuestions: {{ $questions->count() }},
+    answers: {},
+    timerInterval: null,
+    timeLimit: {{ $timeLimit ?? 30 }} * 60,
+    remainingTime: {{ $timeLimit ?? 30 }} * 60,
+    speechAttempts: 0,
+    examSubmitted: false
+};
+
+// Initialisation de l'examen
+function initExam() {
+    startTimer();
+    startAutoSpeech();
+    updateProgress();
+    updateHiddenAnswers();
+}
+
+// Timer
 function startTimer() {
-    const totalTime = {{ $timeLimit ?? 30 }} * 60;
-    let remainingTime = totalTime;
-    
-    timerInterval = setInterval(() => {
-        remainingTime--;
+    examData.timerInterval = setInterval(() => {
+        examData.remainingTime--;
         
-        if (remainingTime <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById('timer').textContent = '00:00';
+        if (examData.remainingTime <= 0) {
+            clearInterval(examData.timerInterval);
             autoSubmitExam();
             return;
         }
         
-        const minutes = Math.floor(remainingTime / 60);
-        const seconds = remainingTime % 60;
+        const minutes = Math.floor(examData.remainingTime / 60);
+        const seconds = examData.remainingTime % 60;
         document.getElementById('timer').textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             
     }, 1000);
-    
-    elapsedTimeInterval = setInterval(updateElapsedTime, 1000);
 }
 
-function updateElapsedTime() {
-    const elapsed = Math.floor((Date.now() - examStartTime) / 1000);
-    const minutes = Math.floor(elapsed / 60);
-    const seconds = elapsed % 60;
-    document.getElementById('elapsedTime').textContent = 
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    document.getElementById('timeTaken').value = elapsed;
+// Lecture automatique de la question
+function startAutoSpeech() {
+    setTimeout(() => {
+        readCurrentQuestion();
+    }, 1000);
 }
 
-// Gestion de la progression - MISE À JOUR POUR RÉPONSES MULTIPLES
-function updateProgress() {
-    const totalQuestions = {{ $questions->count() }};
-    let answeredQuestions = 0;
-    
-    // Compter les questions répondues (au moins une réponse cochée)
-    document.querySelectorAll('.question-container').forEach(container => {
-        const questionId = container.dataset.questionId;
-        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
-        if (hasAnswer) {
-            answeredQuestions++;
-        }
-    });
-    
-    const progressPercentage = Math.round((answeredQuestions / totalQuestions) * 100);
-    
-    document.getElementById('progressPercentage').textContent = progressPercentage + '%';
-    document.getElementById('progressBar').style.width = progressPercentage + '%';
-    document.getElementById('answeredCount').textContent = answeredQuestions + ' question' + (answeredQuestions > 1 ? 's' : '');
-    document.getElementById('remainingQuestions').textContent = totalQuestions - answeredQuestions;
-    
-    const progressBar = document.getElementById('progressBar');
-    if (progressPercentage < 50) {
-        progressBar.className = 'bg-gradient-to-r from-red-400 to-red-500 h-3 rounded-full transition-all duration-500 ease-out';
-    } else if (progressPercentage < 80) {
-        progressBar.className = 'bg-gradient-to-r from-yellow-400 to-yellow-500 h-3 rounded-full transition-all duration-500 ease-out';
-    } else {
-        progressBar.className = 'bg-gradient-to-r from-green-400 to-green-500 h-3 rounded-full transition-all duration-500 ease-out';
-    }
-}
-
-// Vérification de la complétude des réponses - MISE À JOUR POUR RÉPONSES MULTIPLES
-function checkAllQuestionsAnswered() {
-    const totalQuestions = {{ $questions->count() }};
-    let answeredQuestions = 0;
-    
-    document.querySelectorAll('.question-container').forEach(container => {
-        const questionId = container.dataset.questionId;
-        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
-        if (hasAnswer) {
-            answeredQuestions++;
-        }
-    });
-    
-    return answeredQuestions === totalQuestions;
-}
-
-// Gestion de la soumission avec SweetAlert - MISE À JOUR
-async function handleExamSubmit(event) {
-    if (examSubmitted) {
-        event.preventDefault();
-        return false;
+function readCurrentQuestion() {
+    if (!('speechSynthesis' in window)) {
+        console.log('Synthèse vocale non supportée');
+        return;
     }
 
-    const totalQuestions = {{ $questions->count() }};
-    let answeredQuestions = 0;
+    const currentCard = document.querySelector('.current-question');
+    const questionText = currentCard.querySelector('.question-text').textContent;
+    const answerLabels = currentCard.querySelectorAll('.answer-text');
     
-    document.querySelectorAll('.question-container').forEach(container => {
-        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
-        if (hasAnswer) {
-            answeredQuestions++;
-        }
+    let fullText = questionText + ". Réponses : ";
+    answerLabels.forEach((label, index) => {
+        const letter = String.fromCharCode(65 + index); // A, B, C, etc.
+        fullText += ` ${letter} : ${label.textContent}.`;
     });
     
-    if (answeredQuestions < totalQuestions) {
-        event.preventDefault();
+    speakText(fullText);
+}
+
+function speakText(text) {
+    if (!('speechSynthesis' in window)) return;
+    
+    // Arrêter toute lecture en cours
+    window.speechSynthesis.cancel();
+    
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+    
+    utterance.onend = function() {
+        examData.speechAttempts++;
+        if (examData.speechAttempts < 2) {
+            // Relire une deuxième fois après une courte pause
+            setTimeout(() => {
+                speakText(text);
+            }, 1000);
+        } else {
+            // Après deux lectures, réinitialiser le compteur
+            examData.speechAttempts = 0;
+        }
+    };
+    
+    utterance.onerror = function(event) {
+        console.error('Erreur de synthèse vocale:', event);
+        examData.speechAttempts = 0;
+    };
+    
+    window.speechSynthesis.speak(utterance);
+}
+
+// Navigation entre les questions
+function nextQuestion() {
+    // Arrêter la lecture en cours
+    if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+    }
+    
+    // Sauvegarder les réponses actuelles
+    saveCurrentAnswers();
+    
+    // Masquer la question actuelle
+    const currentCard = document.querySelector('.current-question');
+    currentCard.classList.add('hidden');
+    currentCard.classList.remove('current-question');
+    
+    // Passer à la question suivante
+    examData.currentQuestionIndex++;
+    
+    if (examData.currentQuestionIndex < examData.totalQuestions) {
+        // Afficher la nouvelle question
+        const nextCard = document.querySelector(`[data-question-index="${examData.currentQuestionIndex}"]`);
+        nextCard.classList.remove('hidden');
+        nextCard.classList.add('current-question');
         
-        const result = await Swal.fire({
-            title: 'Validation incomplète',
-            html: `Vous n'avez répondu qu'à <strong>${answeredQuestions}</strong> sur <strong>${totalQuestions}</strong> questions.<br>Voulez-vous vraiment soumettre ?`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Oui, soumettre',
-            cancelButtonText: 'Continuer',
-            customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-xl',
-                cancelButton: 'rounded-xl'
+        // Réinitialiser le compteur de lecture
+        examData.speechAttempts = 0;
+        
+        // Mettre à jour l'interface
+        updateProgress();
+        
+        // Restaurer les réponses précédentes pour cette question
+        restoreAnswersForCurrentQuestion();
+        
+        // Lancer la lecture automatique après un délai
+        setTimeout(() => {
+            readCurrentQuestion();
+        }, 500);
+    } else {
+        // Dernière question passée, afficher le bouton de soumission
+        showSubmitSection();
+    }
+}
+
+function saveCurrentAnswers() {
+    const currentCard = document.querySelector('.current-question');
+    const questionId = currentCard.dataset.questionId;
+    const selectedAnswers = Array.from(currentCard.querySelectorAll('.answer-input:checked'))
+        .map(input => input.value);
+    
+    examData.answers[questionId] = selectedAnswers;
+    updateHiddenAnswers();
+}
+
+function restoreAnswersForCurrentQuestion() {
+    const currentCard = document.querySelector('.current-question');
+    const questionId = currentCard.dataset.questionId;
+    
+    // Réinitialiser tous les inputs
+    const allInputs = currentCard.querySelectorAll('.answer-input');
+    allInputs.forEach(input => {
+        input.checked = false;
+        updateAnswerStyle(input);
+    });
+    
+    // Restaurer les réponses sauvegardées
+    if (examData.answers[questionId]) {
+        examData.answers[questionId].forEach(answerId => {
+            const input = currentCard.querySelector(`.answer-input[value="${answerId}"]`);
+            if (input) {
+                input.checked = true;
+                updateAnswerStyle(input);
             }
         });
-        
-        if (result.isConfirmed) {
-            return submitExam();
-        }
-        return false;
     }
     
-    return submitExam();
+    updateNextButton();
 }
 
-function submitExam() {
-    const timeSpent = Math.floor((Date.now() - examStartTime) / 1000);
-    document.getElementById('timeTaken').value = timeSpent;
-    clearInterval(timerInterval);
-    clearInterval(elapsedTimeInterval);
+function updateHiddenAnswers() {
+    document.getElementById('allAnswers').value = JSON.stringify(examData.answers);
+}
 
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
-    const btnSpinner = document.getElementById('btnSpinner');
+function handleAnswerSelection(input) {
+    const questionId = document.querySelector('.current-question').dataset.questionId;
+    const isMultiple = input.dataset.isMultiple === 'true';
     
-    if (submitBtn && btnText && btnSpinner) {
-        submitBtn.disabled = true;
-        btnText.classList.add('hidden');
-        btnSpinner.classList.remove('hidden');
+    if (!isMultiple) {
+        // Pour les questions à réponse unique, désélectionner les autres
+        const otherInputs = document.querySelectorAll(`.current-question .answer-input:not([value="${input.value}"])`);
+        otherInputs.forEach(otherInput => {
+            otherInput.checked = false;
+            updateAnswerStyle(otherInput);
+        });
     }
     
-    examSubmitted = true;
-    return true;
+    updateAnswerStyle(input);
+    
+    // Sauvegarder immédiatement la réponse
+    saveCurrentAnswers();
+    updateNextButton();
+}
+
+function updateAnswerStyle(input) {
+    const label = input.closest('.answer-label');
+    if (input.checked) {
+        label.classList.add('border-blue-500', 'bg-blue-50');
+        label.classList.remove('border-gray-200', 'hover:border-blue-400');
+    } else {
+        label.classList.remove('border-blue-500', 'bg-blue-50');
+        label.classList.add('border-gray-200', 'hover:border-blue-400');
+    }
+}
+
+function updateNextButton() {
+    const currentCard = document.querySelector('.current-question');
+    const hasAnswer = currentCard.querySelector('.answer-input:checked') !== null;
+    const nextButton = currentCard.querySelector('.next-btn');
+    
+    if (nextButton) {
+        nextButton.disabled = !hasAnswer;
+    }
+}
+
+function updateProgress() {
+    document.getElementById('currentQuestionNumber').textContent = examData.currentQuestionIndex + 1;
+    document.getElementById('progressCounter').textContent = `${Object.keys(examData.answers).length}/${examData.totalQuestions}`;
+}
+
+function showSubmitSection() {
+    document.getElementById('questionsContainer').classList.add('hidden');
+    document.getElementById('submitSection').classList.remove('hidden');
+    
+    // Arrêter le timer
+    clearInterval(examData.timerInterval);
+    
+    // Enregistrer le temps final
+    const timeSpent = Math.floor((Date.now() - examData.startTime) / 1000);
+    document.getElementById('timeTaken').value = timeSpent;
+    
+    // Marquer comme soumis
+    examData.examSubmitted = true;
 }
 
 function autoSubmitExam() {
-    if (!examSubmitted) {
-        Swal.fire({
-            title: 'Temps écoulé !',
-            text: 'Le temps imparti est écoulé. Votre examen va être soumis automatiquement.',
-            icon: 'info',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK',
-            customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-xl'
-            }
-        }).then(() => {
-            document.getElementById('examForm').submit();
-        });
+    if (!examData.examSubmitted) {
+        // Sauvegarder les réponses actuelles
+        saveCurrentAnswers();
+        
+        // Soumettre automatiquement
+        alert('Temps écoulé ! Votre examen va être soumis automatiquement.');
+        document.getElementById('examForm').submit();
     }
 }
 
-// Réinitialisation avec SweetAlert - MISE À JOUR
-async function resetExam() {
-    const result = await Swal.fire({
-        title: 'Réinitialiser les réponses',
-        text: 'Êtes-vous sûr de vouloir réinitialiser toutes vos réponses ?',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Oui, réinitialiser',
-        cancelButtonText: 'Annuler',
-        customClass: {
-            popup: 'rounded-2xl',
-            confirmButton: 'rounded-xl',
-            cancelButton: 'rounded-xl'
-        }
-    });
-    
-    if (result.isConfirmed) {
-        document.querySelectorAll('.answer-input').forEach(input => {
-            input.checked = false;
-        });
-        updateProgress();
-        
-        // Réinitialiser les styles des réponses
-        document.querySelectorAll('.answer-label').forEach(label => {
-            label.classList.remove('border-blue-500', 'bg-blue-50');
-            label.classList.add('border-gray-200', 'hover:border-blue-400');
-        });
-        
-        Swal.fire({
-            title: 'Réinitialisé !',
-            text: 'Toutes vos réponses ont été réinitialisées.',
-            icon: 'success',
-            confirmButtonColor: '#3085d6',
-            confirmButtonText: 'OK',
-            timer: 2000,
-            customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-xl'
-            }
-        });
-    }
-}
+// Empêcher le retour en arrière
+history.pushState(null, null, location.href);
+window.onpopstate = function(event) {
+    history.go(1);
+};
 
-// Gestion des réponses - MISE À JOUR POUR RÉPONSES MULTIPLES
+// Initialisation
 document.addEventListener('DOMContentLoaded', function() {
-    startTimer();
-    updateProgress();
-    
-    // Écouter les changements de réponses
-    document.querySelectorAll('.answer-input').forEach(input => {
-        input.addEventListener('change', function() {
-            const questionId = this.getAttribute('data-question-id');
-            const isMultiple = this.getAttribute('data-is-multiple') === 'true';
-            const questionContainer = document.querySelector(`.question-container[data-question-id="${questionId}"]`);
-            
-            if (!isMultiple) {
-                // Réinitialiser toutes les réponses de cette question (cas radio)
-                questionContainer.querySelectorAll('.answer-label').forEach(label => {
-                    label.classList.remove('border-blue-500', 'bg-blue-50');
-                    label.classList.add('border-gray-200', 'hover:border-blue-400');
-                });
-            }
-            
-            // Mettre en surbrillance la réponse sélectionnée
-            const selectedLabel = this.closest('.answer-label');
-            if (this.checked) {
-                selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
-                selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
-            } else {
-                selectedLabel.classList.remove('border-blue-500', 'bg-blue-50');
-                selectedLabel.classList.add('border-gray-200', 'hover:border-blue-400');
-            }
-            
-            updateProgress();
-        });
-    });
-    
-    // Pré-sélectionner les réponses déjà choisies
-    document.querySelectorAll('.answer-input:checked').forEach(input => {
-        const selectedLabel = input.closest('.answer-label');
-        selectedLabel.classList.remove('border-gray-200', 'hover:border-blue-400');
-        selectedLabel.classList.add('border-blue-500', 'bg-blue-50');
-    });
+    initExam();
 });
 
-// Avertissement avant de quitter la page avec SweetAlert
+// Empêcher la fermeture de la page
 window.addEventListener('beforeunload', function(e) {
-    if (!examSubmitted) {
+    if (!examData.examSubmitted) {
         e.preventDefault();
-        e.returnValue = '';
-        
-        // Optionnel: Afficher une SweetAlert personnalisée
-        Swal.fire({
-            title: 'Quitter la page ?',
-            text: 'Vos réponses seront perdues si vous quittez cette page.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Quitter',
-            cancelButtonText: 'Rester',
-            customClass: {
-                popup: 'rounded-2xl',
-                confirmButton: 'rounded-xl',
-                cancelButton: 'rounded-xl'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.reload();
-            }
-        });
+        e.returnValue = 'Vos réponses seront perdues si vous quittez cette page.';
+        return 'Vos réponses seront perdues si vous quittez cette page.';
     }
 });
 
-</script>
-<script>
-// ==============================================================
-// COMPOSANT TEXT-TO-SPEECH POUR LES QUESTIONS - CORRIGÉ
-// ==============================================================
-
-class QuestionReader {
-    constructor() {
-        this.synthesis = window.speechSynthesis;
-        this.currentUtterance = null;
-        this.isReading = false;
-        this.voices = [];
-        this.currentTexts = [];
-        this.currentIndex = 0;
-        
-        this.loadVoices();
-        
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = () => this.loadVoices();
-        }
+// Gérer la soumission du formulaire
+document.getElementById('examForm').addEventListener('submit', function(e) {
+    if (!examData.examSubmitted) {
+        examData.examSubmitted = true;
+        // La soumission continue normalement
     }
-    
-    loadVoices() {
-        this.voices = this.synthesis.getVoices();
-        this.frenchVoice = this.voices.find(voice => 
-            voice.lang.startsWith('fr') && voice.name.includes('Female')
-        ) || this.voices.find(voice => 
-            voice.lang.startsWith('fr')
-        );
-    }
-    
-    read(questionText, buttonElement, answers = []) {
-        if (this.isReading && this.currentUtterance) {
-            this.stop(buttonElement);
-            return;
-        }
-        
-        this.currentTexts = [questionText];
-        
-        const letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-        answers.forEach((answer, index) => {
-            if (index < letters.length) {
-                this.currentTexts.push(`Réponse ${letters[index]} : ${answer}`);
-            }
-        });
-        
-        this.currentIndex = 0;
-        this.buttonElement = buttonElement;
-        
-        this.readNextText();
-    }
-    
-    readNextText() {
-        if (this.currentIndex >= this.currentTexts.length) {
-            this.isReading = false;
-            this.updateButtonState(this.buttonElement, false);
-            return;
-        }
-        
-        const text = this.currentTexts[this.currentIndex];
-        this.currentUtterance = new SpeechSynthesisUtterance(text);
-        
-        if (this.frenchVoice) {
-            this.currentUtterance.voice = this.frenchVoice;
-        }
-        
-        this.currentUtterance.lang = 'fr-FR';
-        this.currentUtterance.rate = 0.9;
-        this.currentUtterance.pitch = 1.0;
-        this.currentUtterance.volume = 1.0;
-        
-        this.currentUtterance.onstart = () => {
-            this.isReading = true;
-            this.updateButtonState(this.buttonElement, true);
-        };
-        
-        this.currentUtterance.onend = () => {
-            this.currentIndex++;
-            setTimeout(() => this.readNextText(), 500);
-        };
-        
-        this.currentUtterance.onerror = (event) => {
-            console.error('Erreur de lecture:', event);
-            this.isReading = false;
-            this.updateButtonState(this.buttonElement, false);
-        };
-        
-        this.synthesis.speak(this.currentUtterance);
-    }
-    
-    stop(buttonElement) {
-        this.synthesis.cancel();
-        this.isReading = false;
-        this.currentIndex = 0;
-        this.currentTexts = [];
-        this.updateButtonState(buttonElement, false);
-    }
-    
-    updateButtonState(button, isReading) {
-        if (!button) return;
-        
-        const icon = button.querySelector('svg');
-        const spinner = button.querySelector('.spinner');
-        
-        if (isReading) {
-            button.classList.add('reading');
-            button.classList.remove('text-gray-600', 'hover:text-blue-600');
-            button.classList.add('text-blue-600');
-            if (icon) icon.classList.add('animate-pulse');
-            if (spinner) spinner.classList.remove('hidden');
-        } else {
-            button.classList.remove('reading');
-            button.classList.remove('text-blue-600');
-            button.classList.add('text-gray-600', 'hover:text-blue-600');
-            if (icon) icon.classList.remove('animate-pulse');
-            if (spinner) spinner.classList.add('hidden');
-        }
-    }
-}
-
-const questionReader = new QuestionReader();
-
-function readQuestion(questionText, buttonId, answers = []) {
-    const button = document.getElementById(buttonId);
-    questionReader.read(questionText, button, answers);
-}
-
-function checkTTSSupport() {
-    if (!('speechSynthesis' in window)) {
-        console.warn('La synthèse vocale n\'est pas supportée par ce navigateur.');
-        document.querySelectorAll('.tts-button').forEach(btn => {
-            btn.style.display = 'none';
-        });
-        return false;
-    }
-    return true;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    checkTTSSupport();
 });
 </script>
 
 <style>
-.answer-label {
+.question-card {
     transition: all 0.3s ease;
+}
+
+.answer-label {
+    transition: all 0.2s ease;
 }
 
 .answer-label:hover {
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
-.question-container {
-    transition: all 0.3s ease;
+.next-btn:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.question-container:hover {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+.hidden {
+    display: none !important;
 }
 
-.tts-button {
-    transition: all 0.3s ease;
+.current-question {
+    display: block !important;
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .tts-button:hover {
     transform: scale(1.1);
-}
-
-.tts-button.reading {
-    animation: pulse-blue 2s infinite;
-}
-
-@keyframes pulse-blue {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
-}
-
-.tts-icon {
-    transition: transform 0.3s ease;
-}
-
-.tts-button:hover .tts-icon {
-    transform: rotate(10deg);
-}
-</style>
-<style>
-.swal2-popup {
-    border-radius: 1rem !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
-}
-
-.swal2-title {
-    font-size: 1.5rem !important;
-    font-weight: 600 !important;
-    color: #1F2937 !important;
-}
-
-.swal2-html-container {
-    font-size: 1.1rem !important;
-    color: #6B7280 !important;
-}
-
-.swal2-confirm, .swal2-cancel {
-    border-radius: 0.75rem !important;
-    font-weight: 500 !important;
-    padding: 0.75rem 1.5rem !important;
-}
-
-.swal2-confirm {
-    background: linear-gradient(to right, #3B82F6, #6366F1) !important;
-    border: none !important;
-}
-
-.swal2-confirm:hover {
-    background: linear-gradient(to right, #2563EB, #4F46E5) !important;
-    transform: translateY(-1px) !important;
-}
-
-.swal2-cancel {
-    background-color: #6B7280 !important;
-    border: none !important;
-}
-
-.swal2-cancel:hover {
-    background-color: #4B5563 !important;
-    transform: translateY(-1px) !important;
 }
 </style>
 @endsection

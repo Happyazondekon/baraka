@@ -133,7 +133,7 @@
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-8 text-white">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="text-2xl lg:text-3xl font-bold mb-2">Correction Détaillée (Dépliable)</h3>
+                        <h3 class="text-2xl lg:text-3xl font-bold mb-2">Correction Détaillée</h3>
                         <p class="text-blue-100 text-lg">Cliquez sur chaque question pour voir l'analyse complète</p>
                     </div>
                     <div class="hidden lg:block">

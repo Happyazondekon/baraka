@@ -316,6 +316,7 @@ public function examIndex(Request $request)
     ));
 }
 
+// QuizController.php - Modifier la méthode startExam
 public function startExam(?Quiz $exam = null)
 {
     $user = auth()->user();
@@ -326,11 +327,11 @@ public function startExam(?Quiz $exam = null)
             abort(404);
         }
         
-        $questions = $exam->questions()->with('answers')->get();
+        $questions = $exam->questions()->with('answers')->inRandomOrder()->get();
         $timeLimit = $exam->time_limit;
     } else {
         // Examen blanc aléatoire (comportement actuel)
-        $questions = Question::with('answers')->inRandomOrder()->get();
+        $questions = Question::with('answers')->inRandomOrder()->limit(40)->get();
         $timeLimit = 30; // Durée par défaut
     }
 
@@ -396,17 +397,25 @@ public function showResults($resultId)
 /**
  * Traiter la soumission de l'examen et rediriger vers les résultats
  */
+// Dans QuizController.php - Modifiez la méthode submitExam
 public function submitExam(Request $request, ?Quiz $exam = null)
 {
     try {
         $request->validate([
-            'answers' => 'required|array',
-            'answers.*' => 'required', // Supprimer 'integer' pour permettre les tableaux
+            'all_answers' => 'required|string', // On reçoit maintenant un JSON string
             'time_taken' => 'nullable|integer|min:0'
         ]);
 
         $user = auth()->user();
-        $answers = $request->input('answers', []);
+        
+        // Décoder les réponses JSON
+        $answersJson = $request->input('all_answers');
+        $answers = json_decode($answersJson, true);
+        
+        if (!is_array($answers)) {
+            return redirect()->back()
+                ->with('error', 'Format de réponses invalide.');
+        }
 
         if ($exam) {
             // Examen blanc spécifique
@@ -425,17 +434,10 @@ public function submitExam(Request $request, ?Quiz $exam = null)
         $detailedResults = [];
 
         // Vérifier que toutes les questions ont une réponse
-        $answeredQuestions = 0;
-        foreach ($questions as $question) {
-            $userAnswer = $answers[$question->id] ?? null;
-            if ($userAnswer && (!is_array($userAnswer) || count($userAnswer) > 0)) {
-                $answeredQuestions++;
-            }
-        }
-
+        $answeredQuestions = count(array_filter($answers));
+        
         if ($answeredQuestions < $totalQuestions) {
             return redirect()->back()
-                ->withInput()
                 ->with('error', 'Veuillez répondre à toutes les questions.');
         }
 
@@ -443,9 +445,9 @@ public function submitExam(Request $request, ?Quiz $exam = null)
 
         foreach ($questions as $question) {
             $userAnswerIds = $answers[$question->id] ?? [];
-            // Si c'est une réponse unique, convertir en tableau
+            // S'assurer que c'est un tableau
             if (!is_array($userAnswerIds)) {
-                $userAnswerIds = [$userAnswerIds];
+                $userAnswerIds = $userAnswerIds ? [$userAnswerIds] : [];
             }
             
             $correctAnswerIds = $question->answers()->where('is_correct', true)->pluck('id')->toArray();
@@ -457,6 +459,9 @@ public function submitExam(Request $request, ?Quiz $exam = null)
                 $allCorrectSelected = count(array_intersect($userAnswerIds, $correctAnswerIds)) === count($correctAnswerIds);
                 $noIncorrectSelected = count(array_diff($userAnswerIds, $correctAnswerIds)) === 0;
                 $isCorrect = $allCorrectSelected && $noIncorrectSelected;
+            } else {
+                // Si pas de bonnes réponses définies, considérer comme incorrect
+                $isCorrect = false;
             }
             
             if ($isCorrect) {
@@ -493,17 +498,17 @@ public function submitExam(Request $request, ?Quiz $exam = null)
 
         DB::commit();
 
-        // Rediriger vers la page de résultats au lieu de l'index
+        // Rediriger vers la page de résultats
         return redirect()->route('examens.results', $quizResult->id)
             ->with('success', 'Examen terminé avec succès !');
 
     } catch (\Exception $e) {
         DB::rollBack();
         Log::error('Erreur lors de la soumission de l\'examen blanc: ' . $e->getMessage());
+        Log::error('Stack trace: ' . $e->getTraceAsString());
         
         return redirect()->back()
-            ->withInput()
-            ->with('error', 'Une erreur est survenue lors de la validation. Veuillez réessayer.');
+            ->with('error', 'Une erreur est survenue lors de la validation: ' . $e->getMessage());
     }
 }
 // Dans QuizController.php - Ajoutez cette méthode
@@ -511,6 +516,7 @@ public function submitExam(Request $request, ?Quiz $exam = null)
 /**
  * Télécharger la fiche récapitulative de l'examen
  */
+// Dans QuizController.php - Modifiez la méthode downloadSummary
 public function downloadSummary($resultId)
 {
     $user = auth()->user();
@@ -521,18 +527,42 @@ public function downloadSummary($resultId)
         ->with(['quiz'])
         ->firstOrFail();
 
-    // Récupérer les données détaillées
+    // Récupérer les données détaillées depuis la colonne detailed_results
     $detailedResults = $result->detailed_results ?? [];
-    $exam = $result->quiz_id ? Quiz::find($result->quiz_id) : null;
     
-    // Récupérer toutes les questions
+    // Récupérer l'examen si c'est un examen spécifique
+    $exam = $result->quiz_id ? Quiz::find($result->quiz_id) : null;
+
+    // Récupérer toutes les questions avec leurs réponses
     $questions = collect();
+    $userAnswers = [];
+    
     if (!empty($detailedResults)) {
         $questionIds = collect($detailedResults)->pluck('question_id')->filter()->toArray();
+        
         if (!empty($questionIds)) {
             $questions = Question::with('answers')
                 ->whereIn('id', $questionIds)
-                ->get();
+                ->get()
+                ->keyBy('id');
+        }
+
+        // Préparer les réponses utilisateur pour la vue
+        foreach ($detailedResults as $detail) {
+            if (isset($detail['question_id'])) {
+                $userAnswers[$detail['question_id']] = $detail['user_answer_ids'] ?? [];
+            }
+        }
+    }
+
+    // Si toujours pas de questions, essayer de récupérer via le quiz
+    if ($questions->isEmpty() && $exam) {
+        $questions = $exam->questions()->with('answers')->get()->keyBy('id');
+        
+        // Essayer de récupérer les réponses depuis la colonne answers
+        $submittedAnswers = $result->answers ?? [];
+        foreach ($submittedAnswers as $questionId => $answerIds) {
+            $userAnswers[$questionId] = is_array($answerIds) ? $answerIds : [$answerIds];
         }
     }
 
@@ -541,11 +571,12 @@ public function downloadSummary($resultId)
     $display_correct_answers = $result->correct_answers;
     $display_wrong_answers = $result->total_questions - $result->correct_answers;
 
-    // Générer le PDF
+    // Générer le PDF avec TOUTES les données
     $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('examens.summary-pdf', [
         'result' => $result,
         'exam' => $exam,
         'questions' => $questions,
+        'userAnswers' => $userAnswers,
         'detailedResults' => $detailedResults,
         'display_passed' => $display_passed,
         'display_correct_answers' => $display_correct_answers,
