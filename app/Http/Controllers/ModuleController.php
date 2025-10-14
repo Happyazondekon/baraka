@@ -75,7 +75,7 @@ class ModuleController extends Controller
 
         Module::create($validated);
 
-        return redirect()->route('modules.index')->with('success', 'Module créé avec succès!');
+        return redirect()->route('admin.modules.index')->with('success', 'Module créé avec succès!');
     }
 
     public function edit(Module $module)

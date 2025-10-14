@@ -6,7 +6,7 @@
     {{-- Essential for Laravel forms and security --}}
     <meta name="csrf-token" content="{{ csrf_token() }}"> 
 
-    <title>{{ config('app.name', 'AutoPermis') }} - @yield('title', 'Apprentissage du code de la route')</title>
+    <title>{{ config('app.name', 'Auto-Permis') }} - @yield('title', 'Apprentissage du code de la route')</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -23,7 +23,7 @@
         <div class="container mx-auto px-4 py-4 flex justify-between items-center">
             {{-- Logo --}}
             <a href="{{ route('home') }}">
-                <img src="{{ asset('images/AutoPermis.png') }}" alt="AutoPermis Logo" class="h-10 w-auto">
+                <img src="{{ asset('images/Auto-Permis.png') }}" alt="Auto-Permis Logo" class="h-10 w-auto">
             </a>
 
             {{-- Desktop Navigation --}}
@@ -144,9 +144,9 @@
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                {{-- AutoPermis Links --}}
+                {{-- Auto-Permis Links --}}
                 <div>
-                    <h3 class="text-lg font-bold mb-4">AutoPermis</h3>
+                    <h3 class="text-lg font-bold mb-4">Auto-Permis</h3>
                     <ul class="space-y-2 text-gray-300">
                         <li><a href="{{ route('home') }}" class="hover:text-green-400 transition duration-150 ease-in-out">Accueil</a></li>
                         <li><a href="{{ route('about') }}" class="hover:text-green-400 transition duration-150 ease-in-out">À propos</a></li>
@@ -183,7 +183,7 @@
 
             {{-- Copyright and Social Media --}}
             <div class="mt-10 pt-8 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center text-gray-300 text-sm">
-                <p>Copyright © {{ date('Y') }} AutoPermis. Tous droits réservés.</p>
+                <p>Copyright © {{ date('Y') }} Auto-Permis. Tous droits réservés.</p>
                 <div class="flex space-x-5 mt-6 md:mt-0">
                     <a href="#" class="hover:text-green-400 transition duration-150 ease-in-out" aria-label="Instagram">
                         <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">

@@ -16,7 +16,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Ici sont enregistrées les routes web de l'application AutoPermis.
+| Ici sont enregistrées les routes web de l'application Auto-Permis.
 | Elles sont chargées par le RouteServiceProvider et attribuées au groupe "web".
 |
 */

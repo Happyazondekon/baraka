@@ -36,7 +36,7 @@
                     
                     <div class="bg-white rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
                         <div class="text-4xl font-bold text-gray-800 mb-2">
-                            {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}<span class="text-2xl text-gray-500">/{{ $totalModules ?? '08' }}</span>
+                            {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}<span class="text-2xl text-gray-500">/{{ $totalModules ?? '11' }}</span>
                         </div>
                         <div class="text-sm text-gray-600 font-medium">Modules</div>
                         <div class="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mx-auto mt-3"></div>

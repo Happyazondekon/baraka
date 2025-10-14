@@ -1,12 +1,12 @@
 @extends('layouts.guest')
 
-@section('title', 'Réinitialiser le mot de passe - AutoPermis')
+@section('title', 'Réinitialiser le mot de passe - Auto-Permis')
 
 @section('content')
 <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-2xl border border-gray-100">
     <div class="text-center">
         {{-- You can put your logo here --}}
-        {{-- <img class="mx-auto h-20 w-auto" src="{{ asset('path/to/your/logo.svg') }}" alt="AutoPermis Logo"> --}}
+        {{-- <img class="mx-auto h-20 w-auto" src="{{ asset('path/to/your/logo.svg') }}" alt="Auto-Permis Logo"> --}}
         <h2 class="mt-6 text-4xl font-extrabold text-gray-900 leading-tight">
             Réinitialiser votre mot de passe
         </h2>

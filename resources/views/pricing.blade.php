@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tarifs - AutoPermis : Votre Investissement pour le Permis')
+@section('title', 'Tarifs - Auto-Permis : Votre Investissement pour le Permis')
 
 @section('content')
 
@@ -57,7 +57,7 @@
                         </svg>
                         <span class="font-bold text-sm">OFFRE SPÉCIALE</span>
                     </div>
-                    <h2 class="text-xl font-bold">Formation Complète AutoPermis</h2>
+                    <h2 class="text-xl font-bold">Formation Complète Auto-Permis</h2>
                 </div>
 
                 <!-- Content -->
@@ -161,12 +161,12 @@
         public_key: 'pk_live_aKFuT6QVfmRm0H1BXMlQXZAp',
         transaction: {
             amount: 5000,
-            description: 'Formation complète AutoPermis - Accès total'
+            description: 'Formation complète Auto-Permis - Accès total'
         },
         customer: {
             email: '{{ auth()->user()->email ?? "user@example.com" }}',
             firstname: '{{ auth()->user()->name ?? "Etudiant" }}',
-            lastname: 'AutoPermis'
+            lastname: 'Auto-Permis'
         },
         // L'URL vers laquelle FedaPay doit rediriger après un paiement réussi
         callback_url: intendedUrl

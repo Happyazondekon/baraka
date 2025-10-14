@@ -6,7 +6,7 @@
     {{-- Essential for Laravel forms and security --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'AutoPermis') }} - @yield('title', 'Administration')</title>
+    <title>{{ config('app.name', 'Auto-Permis') }} - @yield('title', 'Administration')</title>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -105,7 +105,7 @@ function confirmAction(event, title = 'Confirmer l\'action', text = 'Voulez-vous
     <header class="bg-white shadow-md"> {{-- Using shadow-md for consistency with public site --}}
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0"> {{-- Increased space-y for mobile --}}
             <a href="{{ route('admin.dashboard') }}" class="flex items-center">
-                <img src="{{ asset('images/AutoPermis.png') }}" alt="AutoPermis Admin Logo" class="h-10 w-auto"> {{-- Adjust height (h-10) as needed --}}
+                <img src="{{ asset('images/Auto-Permis.png') }}" alt="Auto-Permis Admin Logo" class="h-10 w-auto"> {{-- Adjust height (h-10) as needed --}}
             </a>
 
             <nav class="flex flex-wrap justify-center md:flex-nowrap space-x-4 md:space-x-6 text-sm font-medium"> {{-- Added flex-wrap for better mobile layout --}}
@@ -186,7 +186,7 @@ function confirmAction(event, title = 'Confirmer l\'action', text = 'Voulez-vous
 
     <footer class="bg-gray-900 text-white py-6"> {{-- Darker gray for consistency --}}
         <div class="container mx-auto text-center text-sm px-4"> {{-- Added px-4 for padding --}}
-            © {{ date('Y') }} AutoPermis - Tous droits réservés.
+            © {{ date('Y') }} Auto-Permis - Tous droits réservés.
         </div>
     </footer>
 </body>

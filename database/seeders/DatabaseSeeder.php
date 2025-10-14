@@ -15,11 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         // Call the specific seeders
         $this->call([
-            ModuleSeeder::class,
-            CourseSeeder::class,
-            QuizSeeder::class,
-            QuestionSeeder::class,
-            AnswerSeeder::class,
+            QuizQuestionSeeder::class,
+            
             // You might have other seeders here, e.g., UserSeeder
             // UserSeeder::class, // Uncomment if you have a UserSeeder
         ]);

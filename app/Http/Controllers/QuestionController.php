@@ -23,10 +23,10 @@ class QuestionController extends Controller
     $validated = $request->validate([
         'quiz_id' => 'required|exists:quizzes,id',
         'question' => 'required|string',
-        'options' => 'required|array|min:1|max:4',
+        'options' => 'required|array|min:1|max:5',
         'options.*.text' => 'required|string',
         'correct_option' => 'required|array|min:1',
-        'correct_option.*' => 'integer|min:0|max:3',
+        'correct_option.*' => 'integer|min:0|max:4',
         'explanation' => 'nullable|string',
         'points' => 'required|integer|min:1',
         'order' => 'required|integer|min:1',
@@ -92,10 +92,10 @@ class QuestionController extends Controller
     {
         $validated = $request->validate([
             'question' => 'required|string',
-            'options' => 'required|array|min:1|max:4',
+            'options' => 'required|array|min:1|max:5',
             'options.*.text' => 'required|string',
             'correct_option' => 'required|array|min:1',
-            'correct_option.*' => 'integer|min:0|max:3',
+            'correct_option.*' => 'integer|min:0|max:4',
             'explanation' => 'nullable|string',
             'points' => 'required|integer|min:1',
             'order' => 'required|integer|min:1',

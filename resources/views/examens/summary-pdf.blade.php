@@ -246,10 +246,10 @@
     <table class="header-table">
         <tr>
             <td class="logo-cell">
-                <img src="{{ public_path('images/AutoPermis.png') }}" style="height: 80px;" alt="AutoPermis">
+                <img src="{{ public_path('images/Auto-Permis.png') }}" style="height: 80px;" alt="Auto-Permis">
             </td>
             <td class="header-info">
-                <h2>AutoPermis - École de Conduite</h2>
+                <h2>Auto-Permis - École de Conduite</h2>
                 <p>Formation au Code de la Route</p>
                 <p>Plateforme d'apprentissage et d'évaluation</p>
             </td>
@@ -457,7 +457,7 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p><strong>Généré le {{ now()->format('d/m/Y à H:i') }} - AutoPermis - Votre partenaire code de la route</strong></p>
+        <p><strong>Généré le {{ now()->format('d/m/Y à H:i') }} - Auto-Permis - Votre partenaire code de la route</strong></p>
         <p>Ce document est une fiche récapitulative de votre examen et n'a pas de valeur officielle.</p>
         <p>Pour toute question, contactez-nous sur notre plateforme.</p>
     </div>
