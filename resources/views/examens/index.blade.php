@@ -42,8 +42,8 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-slate-900">{{ $totalQuestions ?? 40 }}</div>
-                        <div class="text-slate-600 text-sm">Questions disponibles</div>
+                        <div class="text-2xl font-bold text-slate-900">{{ $mockExams->count() }}</div>
+                        <div class="text-slate-600 text-sm">Examens disponibles</div>
                     </div>
                 </div>
             </div>
@@ -236,7 +236,7 @@
                 <p class="text-slate-600 mb-6 max-w-md mx-auto">
                     Commencez votre premier examen blanc pour évaluer vos connaissances et suivre votre progression.
                 </p>
-                <a href="{{ route('examens.start') }}" 
+                <a href="{{ route('examens.start.specific', $exam) }}" 
                    class="inline-flex items-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>

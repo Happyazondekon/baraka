@@ -152,15 +152,15 @@
 
 <script src="https://cdn.fedapay.com/checkout.js?v=1.1.7"></script>
 <script type="text/javascript">
-    // Déterminer l'URL de redirection après paiement.
-    // Si 'intended_url' existe dans la session, on l'utilise. Sinon, on va au tableau de bord.
-    const intendedUrl = "{{ session('intended_url', route('dashboard')) }}";
+    // URL de callback pour FedaPay
+    const callbackUrl = "{{ route('payment.callback') }}";
+    const dashboardUrl = "{{ route('dashboard') }}";
 
-    // Configuration de base de FedaPay
+    // Configuration FedaPay
     const baseConfig = {
-        public_key: 'pk_live_aKFuT6QVfmRm0H1BXMlQXZAp',
+        public_key: 'pk_live_sS08gjuB6IJSytGCizyJE8PK',
         transaction: {
-            amount: 5000,
+            amount: 5000, // 5000 FCFA
             description: 'Formation complète Auto-Permis - Accès total'
         },
         customer: {
@@ -168,24 +168,28 @@
             firstname: '{{ auth()->user()->name ?? "Etudiant" }}',
             lastname: 'Auto-Permis'
         },
-        // L'URL vers laquelle FedaPay doit rediriger après un paiement réussi
-        callback_url: intendedUrl
+        // Utiliser la route de callback dédiée
+        callback_url: callbackUrl
     };
 
-    // Initialiser FedaPay pour le bouton
+    // Initialiser FedaPay
     FedaPay.init('#pay-btn', baseConfig);
     
-    // NETTOYAGE : Envoyer une requête après l'initialisation pour supprimer 'intended_url' 
-    // de la session côté serveur. Ceci empêche l'URL d'être réutilisée si l'utilisateur
-    // revient manuellement sur la page des tarifs.
+    // Optionnel: Redirection automatique si déjà payé
+    @if(auth()->check() && auth()->user()->has_paid)
+    setTimeout(() => {
+        window.location.href = dashboardUrl;
+    }, 2000);
+    @endif
+
+    // Nettoyage de la session
     @if(session()->has('intended_url'))
     fetch('{{ route('payment.clear_intended') }}', {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Content-Type': 'application/json'
-        },
-        // Pas besoin de corps, l'action est simple.
+        }
     });
     @endif
 </script>

@@ -56,14 +56,21 @@
                                     @endif
                                 </span>
                             </div>
-                            <button type="button" 
-                                    onclick="readCurrentQuestion()"
-                                    class="tts-button p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
-                                    title="Réécouter la question">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                                </svg>
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <!-- Indicateur de statut audio -->
+                                <div id="audioStatus{{ $index }}" class="text-blue-100 text-sm hidden">
+                                    <span class="animate-pulse">Lecture en cours...</span>
+                                </div>
+                                <button type="button" 
+                                        onclick="readCurrentQuestion()"
+                                        id="ttsButton{{ $index }}"
+                                        class="tts-button p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
+                                        title="Réécouter la question">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -71,9 +78,22 @@
                     <div class="p-6">
                         <div class="flex flex-col lg:flex-row gap-6 mb-6">
                             <div class="flex-1">
-                                <p class="text-lg font-semibold text-gray-800 leading-relaxed mb-4 question-text">
+                                <!-- Question cachée visuellement mais disponible pour la synthèse vocale -->
+                                <p class="text-lg font-semibold text-gray-800 leading-relaxed mb-4 question-text sr-only">
                                     {{ $question->question_text }}
                                 </p>
+                                
+                                <!-- Message informatif -->
+                                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 text-blue-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <p class="text-blue-700 font-medium">
+                                            Écoutez attentivement la question et les réponses. La lecture automatique se fera deux fois.
+                                        </p>
+                                    </div>
+                                </div>
                                 
                                 <!-- Answers -->
                                 <div class="space-y-3 answers-container">
@@ -169,7 +189,9 @@ let examData = {
     timeLimit: {{ $timeLimit ?? 30 }} * 60,
     remainingTime: {{ $timeLimit ?? 30 }} * 60,
     speechAttempts: 0,
-    examSubmitted: false
+    examSubmitted: false,
+    isReading: false,
+    audioFinished: {} // Suivi des questions dont l'audio est terminé
 };
 
 // Initialisation de l'examen
@@ -207,11 +229,22 @@ function startAutoSpeech() {
 }
 
 function readCurrentQuestion() {
+    const currentIndex = examData.currentQuestionIndex;
+    const questionId = document.querySelector('.current-question').dataset.questionId;
+    
+    // Vérifier si l'audio a déjà été joué deux fois pour cette question
+    if (examData.audioFinished[questionId]) {
+        return; // Ne pas relire si déjà terminé
+    }
+
     if (!('speechSynthesis' in window)) {
         console.log('Synthèse vocale non supportée');
         return;
     }
 
+    // Afficher l'indicateur de lecture
+    showAudioStatus(true);
+    
     const currentCard = document.querySelector('.current-question');
     const questionText = currentCard.querySelector('.question-text').textContent;
     const answerLabels = currentCard.querySelectorAll('.answer-text');
@@ -222,15 +255,27 @@ function readCurrentQuestion() {
         fullText += ` ${letter} : ${label.textContent}.`;
     });
     
-    speakText(fullText);
+    speakText(fullText, questionId);
 }
 
-function speakText(text) {
-    if (!('speechSynthesis' in window)) return;
+function showAudioStatus(show) {
+    const currentIndex = examData.currentQuestionIndex;
+    const statusElement = document.getElementById(`audioStatus${currentIndex}`);
+    if (statusElement) {
+        statusElement.classList.toggle('hidden', !show);
+    }
+}
+
+function speakText(text, questionId) {
+    if (!('speechSynthesis' in window)) {
+        showAudioStatus(false);
+        return;
+    }
     
     // Arrêter toute lecture en cours
     window.speechSynthesis.cancel();
     
+    examData.isReading = true;
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fr-FR';
     utterance.rate = 0.9;
@@ -241,20 +286,52 @@ function speakText(text) {
         if (examData.speechAttempts < 2) {
             // Relire une deuxième fois après une courte pause
             setTimeout(() => {
-                speakText(text);
+                speakText(text, questionId);
             }, 1000);
         } else {
-            // Après deux lectures, réinitialiser le compteur
+            // Après deux lectures, réinitialiser le compteur et désactiver le bouton
             examData.speechAttempts = 0;
+            examData.isReading = false;
+            showAudioStatus(false);
+            
+            // Marquer cette question comme ayant terminé l'audio
+            examData.audioFinished[questionId] = true;
+            
+            // Désactiver le bouton de réécoute pour cette question
+            disableTTSButton();
         }
     };
     
     utterance.onerror = function(event) {
         console.error('Erreur de synthèse vocale:', event);
         examData.speechAttempts = 0;
+        examData.isReading = false;
+        showAudioStatus(false);
     };
     
     window.speechSynthesis.speak(utterance);
+}
+
+function disableTTSButton() {
+    const currentIndex = examData.currentQuestionIndex;
+    const ttsButton = document.getElementById(`ttsButton${currentIndex}`);
+    if (ttsButton) {
+        ttsButton.disabled = true;
+        ttsButton.classList.add('opacity-50', 'cursor-not-allowed');
+        ttsButton.classList.remove('hover:bg-opacity-30');
+        ttsButton.title = "Lecture terminée - Plus de réécoute possible";
+    }
+}
+
+function enableTTSButton() {
+    const currentIndex = examData.currentQuestionIndex;
+    const ttsButton = document.getElementById(`ttsButton${currentIndex}`);
+    if (ttsButton) {
+        ttsButton.disabled = false;
+        ttsButton.classList.remove('opacity-50', 'cursor-not-allowed');
+        ttsButton.classList.add('hover:bg-opacity-30');
+        ttsButton.title = "Réécouter la question";
+    }
 }
 
 // Navigation entre les questions
@@ -262,6 +339,8 @@ function nextQuestion() {
     // Arrêter la lecture en cours
     if (window.speechSynthesis) {
         window.speechSynthesis.cancel();
+        examData.isReading = false;
+        showAudioStatus(false);
     }
     
     // Sauvegarder les réponses actuelles
@@ -290,10 +369,18 @@ function nextQuestion() {
         // Restaurer les réponses précédentes pour cette question
         restoreAnswersForCurrentQuestion();
         
-        // Lancer la lecture automatique après un délai
-        setTimeout(() => {
-            readCurrentQuestion();
-        }, 500);
+        // Vérifier si l'audio a déjà été joué pour cette question
+        const questionId = nextCard.dataset.questionId;
+        if (examData.audioFinished[questionId]) {
+            // Si l'audio a déjà été joué, désactiver le bouton TTS
+            disableTTSButton();
+        } else {
+            // Sinon, activer le bouton TTS et lancer la lecture automatique
+            enableTTSButton();
+            setTimeout(() => {
+                readCurrentQuestion();
+            }, 500);
+        }
     } else {
         // Dernière question passée, afficher le bouton de soumission
         showSubmitSection();
@@ -467,6 +554,19 @@ document.getElementById('examForm').addEventListener('submit', function(e) {
     animation: fadeIn 0.5s ease-in;
 }
 
+/* Classe pour cacher visuellement mais garder accessible pour les lecteurs d'écran */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -474,6 +574,10 @@ document.getElementById('examForm').addEventListener('submit', function(e) {
 
 .tts-button:hover {
     transform: scale(1.1);
+}
+
+.tts-button:disabled:hover {
+    transform: none;
 }
 </style>
 @endsection

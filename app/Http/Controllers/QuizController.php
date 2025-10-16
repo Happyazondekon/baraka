@@ -283,12 +283,18 @@ public function examIndex(Request $request)
 {
     $user = $request->user();
 
-    // Récupérer les examens blancs actifs
+    // Récupérer les examens blancs actifs triés par ordre numérique
     $mockExams = Quiz::mockExams()
         ->where('is_active', true)
         ->withCount('questions')
-        ->get();
-    
+        ->get()
+        ->sortBy(function($quiz) {
+            // Extrait le nombre du titre "Examen Blanc X"
+            preg_match('/\d+/', $quiz->title, $matches);
+            return isset($matches[0]) ? (int)$matches[0] : 999;
+        })
+        ->values(); // Réinitialise les clés du collection
+
     // Statistiques mises à jour
     $totalQuestions = Question::count();
     $completedExams = $user->quizResults()->where('is_mock_exam', true)->count();

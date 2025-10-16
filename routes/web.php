@@ -55,6 +55,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         session()->forget('intended_url');
         return response()->json(['status' => 'success']);
     })->name('payment.clear_intended');
+    // Callback FedaPay après paiement
+Route::post('/payment/callback', [HomeController::class, 'handlePaymentCallback'])->name('payment.callback');
 
      Route::get('/examens/results/{result}/download', [QuizController::class, 'downloadSummary'])->name('examens.results.download');
      Route::get('/examens/results/{resultId}/download', [QuizController::class, 'downloadSummary'])->name('examens.results.download');

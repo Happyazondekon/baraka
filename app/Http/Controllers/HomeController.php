@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Module;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -136,24 +137,90 @@ class HomeController extends Controller
         'progression_pratique'
     ));
 }
-public function payment()
-{
-    return view('payment');
-}
-
-public function processPayment(Request $request)
-{
-    // ... Logique de vérification FedaPay ...
-
-    if ($paiement_est_valide) {
-        // Marquer l'utilisateur comme ayant payé dans la DB
-
-        // Rediriger vers l'URL initialement demandée
-        return redirect()->intended(route('dashboard')) 
-                         ->with('success', 'Félicitations ! Votre paiement a été validé. Accès débloqué !');
+ public function payment()
+    {
+        return view('payment');
     }
 
-    // ... Logique pour paiement échoué ...
+    public function processPayment(Request $request)
+    {
+        try {
+            // Vérifier si l'utilisateur a déjà payé
+            if ($request->user()->has_paid) {
+                return redirect()->route('dashboard')
+                    ->with('success', 'Vous avez déjà un accès complet !');
+            }
+
+            // ICI : Vérification FedaPay
+            // Pour l'instant, on simule un paiement réussi
+            $paiement_est_valide = true; // À remplacer par votre logique FedaPay
+
+            if ($paiement_est_valide) {
+                // Marquer l'utilisateur comme ayant payé
+                $request->user()->update([
+                    'has_paid' => true,
+                    'paid_at' => now(),
+                ]);
+
+                Log::info('Paiement réussi pour l\'utilisateur: ' . $request->user()->email);
+
+                // Rediriger vers l'URL initialement demandée ou le dashboard
+                return redirect()->intended(route('dashboard'))
+                    ->with('success', 'Félicitations ! Votre paiement a été validé. Accès débloqué !');
+            } else {
+                Log::error('Paiement échoué pour l\'utilisateur: ' . $request->user()->email);
+                return redirect()->route('pricing')
+                    ->with('error', 'Le paiement a échoué. Veuillez réessayer.');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du traitement du paiement: ' . $e->getMessage());
+            return redirect()->route('pricing')
+                ->with('error', 'Une erreur est survenue lors du traitement.');
+        }
+    }
+
+    public function handlePaymentCallback(Request $request)
+{
+    try {
+        // Vérifier la signature FedaPay
+        $isValid = $this->verifyFedaPayCallback($request);
+        
+        if ($isValid && $request->status === 'approved') {
+            // Récupérer l'utilisateur concerné
+            $user = User::where('email', $request->customer['email'])->first();
+            
+            if ($user && !$user->has_paid) {
+                // Activer l'accès payant
+                $user->update([
+                    'has_paid' => true,
+                    'paid_at' => now(),
+                ]);
+
+                Log::info('Callback FedaPay réussi pour: ' . $user->email);
+                
+                // Rediriger vers le dashboard avec message de succès
+                return redirect()->route('dashboard')
+                    ->with('success', 'Paiement confirmé ! Votre accès est maintenant activé.');
+            }
+        }
+
+        Log::error('Callback FedaPay échoué: ' . json_encode($request->all()));
+        return redirect()->route('pricing')
+            ->with('error', 'Erreur lors de la confirmation du paiement.');
+
+    } catch (\Exception $e) {
+        Log::error('Erreur callback FedaPay: ' . $e->getMessage());
+        return redirect()->route('pricing')
+            ->with('error', 'Erreur technique lors du traitement.');
+    }
+}
+
+private function verifyFedaPayCallback(Request $request)
+{
+    // Implémentez la vérification de signature FedaPay
+    // Consultez la documentation FedaPay pour les détails
+    return true; // Temporaire - à implémenter
 }
 
 }
