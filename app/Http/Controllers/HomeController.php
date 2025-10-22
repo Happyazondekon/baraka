@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Module;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
@@ -16,7 +17,6 @@ class HomeController extends Controller
                             ->get();
 
         return view('home', compact('featuredModules'));
-        
     }
 
     public function about()
@@ -52,19 +52,14 @@ class HomeController extends Controller
         $user = auth()->user();
         $modules = Module::where('is_active', true)->orderBy('order')->get();
 
-        // 1. CALCULER LA PROGRESSION GLOBALE
-        // Appeler la méthode sur l'utilisateur authentifié
         $progressionGlobale = $user->getProgressPercentage();
 
-        // Modules non encore complétés par l'utilisateur (suggérés)
         $suggestedModules = $modules->filter(function ($module) use ($user) {
             return !$module->isCompletedBy($user);
-        })->take(3); // suggère les 3 premiers non terminés
+        })->take(3);
 
-        // 2. PASSER LA VARIABLE À LA VUE
         return view('dashboard', compact('user', 'modules', 'suggestedModules', 'progressionGlobale'));
     }
-
 
     public function profile()
     {
@@ -86,91 +81,96 @@ class HomeController extends Controller
 
         return back()->with('success', 'Profil mis à jour avec succès !');
     }
+
     public function progression()
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    // Modules actifs séparés par type
-    $modules_theoriques = Module::where('is_active', true)->where('is_practical', false)->get();
-    $modules_pratiques = Module::where('is_active', true)->where('is_practical', true)->get();
+        $modules_theoriques = Module::where('is_active', true)->where('is_practical', false)->get();
+        $modules_pratiques = Module::where('is_active', true)->where('is_practical', true)->get();
 
-    // Fonction pour calculer progression d'une collection de modules
-    $calculerProgression = function($modules) use ($user) {
-        $totalModules = $modules->count();
-        if ($totalModules === 0) return 0;
+        $calculerProgression = function($modules) use ($user) {
+            $totalModules = $modules->count();
+            if ($totalModules === 0) return 0;
 
-        $progressSum = 0;
+            $progressSum = 0;
 
-        foreach ($modules as $module) {
-            // Progression sur les cours
-            $totalCourses = $module->courses()->count();
-            $completedCourses = $module->userProgress()->where('user_id', $user->id)->where('completed', true)->count();
+            foreach ($modules as $module) {
+                $totalCourses = $module->courses()->count();
+                $completedCourses = $module->userProgress()->where('user_id', $user->id)->where('completed', true)->count();
 
-            $courseProgress = $totalCourses ? ($completedCourses / $totalCourses) : 0;
+                $courseProgress = $totalCourses ? ($completedCourses / $totalCourses) : 0;
 
-            // Progression sur quiz (0 ou 1 selon quiz passé et réussi)
-            $quiz = $module->quiz()->first();
-            $quizPassed = false;
-            if ($quiz) {
-                $lastResult = $quiz->userResults()->where('user_id', $user->id)->latest()->first();
-                $quizPassed = $lastResult && $lastResult->passed;
+                $quiz = $module->quiz()->first();
+                $quizPassed = false;
+                if ($quiz) {
+                    $lastResult = $quiz->userResults()->where('user_id', $user->id)->latest()->first();
+                    $quizPassed = $lastResult && $lastResult->passed;
+                }
+
+                $quizProgress = $quiz ? ($quizPassed ? 1 : 0) : 1;
+                $moduleProgress = ($courseProgress + $quizProgress) / 2;
+                $progressSum += $moduleProgress;
             }
 
-            $quizProgress = $quiz ? ($quizPassed ? 1 : 0) : 1; // pas de quiz = considéré comme réussi
+            return round(($progressSum / $totalModules) * 100);
+        };
 
-            // Moyenne cours + quiz
-            $moduleProgress = ($courseProgress + $quizProgress) / 2;
+        $progression_theorique = $calculerProgression($modules_theoriques);
+        $progression_pratique = $calculerProgression($modules_pratiques);
 
-            $progressSum += $moduleProgress;
-        }
+        return view('progression', compact(
+            'modules_theoriques', 
+            'modules_pratiques', 
+            'progression_theorique', 
+            'progression_pratique'
+        ));
+    }
 
-        return round(($progressSum / $totalModules) * 100);
-    };
-
-    $progression_theorique = $calculerProgression($modules_theoriques);
-    $progression_pratique = $calculerProgression($modules_pratiques);
-
-    return view('progression', compact(
-        'modules_theoriques', 
-        'modules_pratiques', 
-        'progression_theorique', 
-        'progression_pratique'
-    ));
-}
- public function payment()
+    public function payment()
     {
         return view('payment');
     }
 
+    /**
+     * NOTE: Cette méthode est généralement utilisée pour initialiser une transaction
+     * avant de rediriger l'utilisateur vers FedaPay (Checkout ou redirection directe).
+     * Dans votre cas, la logique de paiement semble se faire principalement via le 
+     * bouton FedaPay. Laissez-la, mais assurez-vous que la logique de simulation
+     * de mise à jour ci-dessous n'est PAS celle qui est réellement utilisée.
+     */
     public function processPayment(Request $request)
     {
         try {
-            // Vérifier si l'utilisateur a déjà payé
             if ($request->user()->has_paid) {
                 return redirect()->route('dashboard')
                     ->with('success', 'Vous avez déjà un accès complet !');
             }
 
-            // ICI : Vérification FedaPay
-            // Pour l'instant, on simule un paiement réussi
-            $paiement_est_valide = true; // À remplacer par votre logique FedaPay
+            // *************************************************************
+            // REMPLACER CECI par votre LOGIQUE DE CRÉATION DE TRANSACTION FEDAPAY
+            // Le statut de paiement ne DOIT ÊTRE mis à jour que dans le CALLBACK
+            // *************************************************************
+            
+            // Logique de simulation TEMPORAIRE - À RETIRER
+            $paiement_est_valide = false; // Par défaut, on suppose qu'il faut attendre le callback
 
             if ($paiement_est_valide) {
-                // Marquer l'utilisateur comme ayant payé
                 $request->user()->update([
                     'has_paid' => true,
                     'paid_at' => now(),
                 ]);
 
-                Log::info('Paiement réussi pour l\'utilisateur: ' . $request->user()->email);
+                Log::info('Paiement simulé réussi pour l\'utilisateur: ' . $request->user()->email);
 
-                // Rediriger vers l'URL initialement demandée ou le dashboard
                 return redirect()->intended(route('dashboard'))
-                    ->with('success', 'Félicitations ! Votre paiement a été validé. Accès débloqué !');
+                    ->with('success', 'Félicitations ! Votre paiement a été validé (SIMULÉ). Accès débloqué !');
             } else {
-                Log::error('Paiement échoué pour l\'utilisateur: ' . $request->user()->email);
+                // Si la transaction FedaPay est créée avec succès, vous devriez rediriger l'utilisateur ici.
+                // Si ce code est appelé APRES le paiement (ce qui est déconseillé), le message d'erreur est pertinent.
+                Log::error('Processus de paiement non finalisé (pas de redirection FedaPay ?)');
                 return redirect()->route('pricing')
-                    ->with('error', 'Le paiement a échoué. Veuillez réessayer.');
+                    ->with('error', 'Le processus de paiement a été initié mais non confirmé.');
             }
 
         } catch (\Exception $e) {
@@ -180,47 +180,97 @@ class HomeController extends Controller
         }
     }
 
+    /**
+     * Gère le callback de FedaPay après paiement.
+     * C'EST ICI QUE LE STATUT has_paid DOIT ÊTRE MIS À JOUR.
+     */
+   /**
+     * Gère le callback de FedaPay après paiement.
+     * C'EST ICI QUE LE STATUT has_paid DOIT ÊTRE MIS À JOUR.
+     */
     public function handlePaymentCallback(Request $request)
-{
-    try {
-        // Vérifier la signature FedaPay
-        $isValid = $this->verifyFedaPayCallback($request);
-        
-        if ($isValid && $request->status === 'approved') {
-            // Récupérer l'utilisateur concerné
-            $user = User::where('email', $request->customer['email'])->first();
-            
-            if ($user && !$user->has_paid) {
-                // Activer l'accès payant
-                $user->update([
-                    'has_paid' => true,
-                    'paid_at' => now(),
-                ]);
+    {
+        Log::info('=== CALLBACK FEDAPAY REÇU ===');
+        Log::info('Données complètes: ' . json_encode($request->all()));
+        Log::info('URL complète: ' . $request->fullUrl());
 
-                Log::info('Callback FedaPay réussi pour: ' . $user->email);
-                
-                // Rediriger vers le dashboard avec message de succès
-                return redirect()->route('dashboard')
-                    ->with('success', 'Paiement confirmé ! Votre accès est maintenant activé.');
+        try {
+            // Récupérer le statut et l'email depuis l'URL
+            $status = $request->input('status');
+            $transactionId = $request->input('transaction_id');
+            $customerEmail = $request->input('email');
+
+            Log::info('Status: ' . $status);
+            Log::info('Transaction ID: ' . $transactionId);
+            Log::info('Email: ' . $customerEmail);
+
+            // Vérifier que tous les paramètres nécessaires sont présents
+            if (!$status || !$customerEmail) {
+                Log::error('Paramètres manquants dans le callback');
+                return redirect()->route('pricing')
+                    ->with('error', 'Données de paiement incomplètes.');
             }
+
+            // Récupérer l'utilisateur
+            $user = User::where('email', $customerEmail)->first();
+
+            if (!$user) {
+                Log::error('Utilisateur non trouvé pour l\'email: ' . $customerEmail);
+                return redirect()->route('pricing')
+                    ->with('error', 'Utilisateur non trouvé.');
+            }
+
+            // Vérifier le statut du paiement
+            if (in_array(strtolower($status), ['approved', 'complete', 'completed', 'paid'])) {
+                
+                if (!$user->has_paid) {
+                    // Mettre à jour l'utilisateur
+                    $user->has_paid = true;
+                    $user->paid_at = now();
+                    $updateResult = $user->save();
+
+                    if ($updateResult) {
+                        Log::info('✅ SUCCÈS: Utilisateur ' . $user->id . ' mis à jour. has_paid = 1');
+                        
+                        // Vérification immédiate
+                        $user->refresh();
+                        Log::info('Vérification après refresh: has_paid = ' . $user->has_paid);
+                        
+                        return redirect()->route('dashboard')
+                            ->with('success', '🎉 Félicitations ! Votre paiement a été validé. Accès débloqué !');
+                    } else {
+                        Log::error('❌ Échec du save() pour l\'utilisateur ' . $user->id);
+                        return redirect()->route('pricing')
+                            ->with('error', 'Erreur lors de l\'activation de votre accès.');
+                    }
+                } else {
+                    Log::info('Utilisateur ' . $user->id . ' déjà payé');
+                    return redirect()->route('dashboard')
+                        ->with('info', 'Votre accès est déjà activé !');
+                }
+            } else {
+                Log::warning('Statut non approuvé: ' . $status);
+                return redirect()->route('pricing')
+                    ->with('warning', 'Paiement en attente ou échoué (statut: ' . $status . ')');
+            }
+
+        } catch (\Exception $e) {
+            Log::error('❌ EXCEPTION dans handlePaymentCallback: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return redirect()->route('pricing')
+                ->with('error', 'Erreur technique lors du traitement du paiement.');
         }
-
-        Log::error('Callback FedaPay échoué: ' . json_encode($request->all()));
-        return redirect()->route('pricing')
-            ->with('error', 'Erreur lors de la confirmation du paiement.');
-
-    } catch (\Exception $e) {
-        Log::error('Erreur callback FedaPay: ' . $e->getMessage());
-        return redirect()->route('pricing')
-            ->with('error', 'Erreur technique lors du traitement.');
     }
-}
 
-private function verifyFedaPayCallback(Request $request)
-{
-    // Implémentez la vérification de signature FedaPay
-    // Consultez la documentation FedaPay pour les détails
-    return true; // Temporaire - à implémenter
-}
-
+    /**
+     * Gère les callbacks échoués et redirige vers la page tarifaire.
+     */
+    private function handleFailedCallback($reason)
+    {
+        Log::error('Callback FedaPay échoué: ' . $reason);
+        
+        return redirect()->route('pricing')
+            ->with('error', 'Erreur lors de la confirmation du paiement. ' . $reason);
+    }
 }
