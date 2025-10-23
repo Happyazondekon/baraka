@@ -16,34 +16,57 @@
         </div>
 
         <!-- Module Header -->
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-green-100">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-8 relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-64 h-64 bg-white bg-opacity-10 rounded-full -translate-y-32 translate-x-32"></div>
-                <div class="absolute bottom-0 left-0 w-48 h-48 bg-white bg-opacity-10 rounded-full translate-y-24 -translate-x-24"></div>
+<div class="bg-white rounded-3xl shadow-xl overflow-hidden mb-8 border border-gray-200">
+    <div class="relative">
+        <!-- Image du module en arrière-plan avec overlay glassmorphique -->
+        @if($module->image)
+        <div class="absolute inset-0 z-0">
+            <img src="{{ asset('storage/' . $module->image) }}" 
+                 alt="{{ $module->title }}" 
+                 class="w-full h-full object-cover">
+            <!-- Overlay glassmorphique -->
+            <div class="absolute inset-0 bg-white/20 backdrop-blur-xm"></div>
+            <!-- Effet de brillance/miroir -->
+            <div class="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-white/10"></div>
+            <!-- Légère teinte pour améliorer la lisibilité -->
+            <div class="absolute inset-0 bg-gray-900/10"></div>
+        </div>
+        @else
+        <!-- Fallback avec effet glassmorphique si pas d'image -->
+        <div class="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 z-0">
+            <div class="absolute inset-0 bg-white/30 backdrop-blur-sm"></div>
+            <!-- Effets de brillance -->
+            <div class="absolute top-0 right-0 w-64 h-64 bg-white/40 rounded-full -translate-y-32 translate-x-32 blur-xl"></div>
+            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/30 rounded-full translate-y-24 -translate-x-24 blur-lg"></div>
+        </div>
+        @endif
+        
+        <!-- Contenu -->
+        <div class="relative z-10 p-8">
+            <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between">
+                <div class="flex-1 text-gray-800 mb-6 lg:mb-0">
+                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-white/80 backdrop-blur-sm text-gray-700 text-sm font-medium mb-4 border border-white/50 shadow-sm">
+                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                        </svg>
+                        {{ $module->is_practical ? 'Phase pratique' : 'Phase théorique' }}
+                    </div>
+                    <h1 class="text-3xl lg:text-4xl font-bold mb-3 text-gray-900">Code de la route</h1>
+                    <h2 class="text-xl lg:text-2xl font-semibold text-gray-800 mb-4">{{ $module->title }}</h2>
+                    <p class="text-gray-700 text-lg leading-relaxed max-w-2xl">{{ $module->description }}</p>
+                </div>
                 
-                <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between">
-                    <div class="flex-1 text-white mb-6 lg:mb-0">
-                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-white bg-opacity-20 text-sm font-medium mb-4">
-                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                            </svg>
-                            Phase théorique
-                        </div>
-                        <h1 class="text-3xl lg:text-4xl font-bold mb-3">Code de la route</h1>
-                        <h2 class="text-xl lg:text-2xl font-semibold opacity-95 mb-4">{{ $module->title }}</h2>
-                        <p class="text-green-100 text-lg leading-relaxed max-w-2xl">{{ $module->description }}</p>
+                <div class="bg-white/90 backdrop-blur-md rounded-2xl p-6 text-center shadow-lg border border-white/60 transform hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl font-bold text-gray-800 mb-2">
+                        {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}<span class="text-2xl text-gray-500">/{{ $totalModules ?? '11' }}</span>
                     </div>
-                    
-                    <div class="bg-white rounded-2xl p-6 text-center shadow-lg transform hover:scale-105 transition-transform duration-300">
-                        <div class="text-4xl font-bold text-gray-800 mb-2">
-                            {{ str_pad($module->order, 2, '0', STR_PAD_LEFT) }}<span class="text-2xl text-gray-500">/{{ $totalModules ?? '11' }}</span>
-                        </div>
-                        <div class="text-sm text-gray-600 font-medium">Modules</div>
-                        <div class="w-24 h-1 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full mx-auto mt-3"></div>
-                    </div>
+                    <div class="text-sm text-gray-600 font-medium">Modules</div>
+                    <div class="w-24 h-1 bg-gradient-to-r from-gray-400 to-gray-300 rounded-full mx-auto mt-3"></div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
         <!-- Module Title -->
         <div class="text-center mb-12">

@@ -73,30 +73,21 @@
                         <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                             
                             <div class="flex flex-col lg:flex-row">
-                                <!-- Visual Section -->
-                                <div class="lg:w-48 bg-gradient-to-br from-green-500 to-emerald-600 relative overflow-hidden">
-                                    <div class="absolute inset-0 bg-black/10"></div>
-                                    <div class="relative h-32 lg:h-full flex items-center justify-center p-4">
-                                        <!-- Animated Road Elements -->
-                                        <div class="absolute inset-0 overflow-hidden">
-                                            <div class="absolute top-1/2 left-0 right-0 h-1 bg-yellow-400 transform -translate-y-1/2">
-                                                <div class="absolute inset-0 bg-yellow-400 animate-pulse" style="animation-duration: 2s;"></div>
-                                            </div>
-                                            <div class="absolute top-1/2 left-0 w-3 h-6 bg-white border-2 border-gray-800 transform -translate-y-1/2 animate-moveCar" style="animation-duration: 3s;"></div>
-                                        </div>
-                                        
-                                        <!-- Traffic Elements -->
-                                        <div class="relative z-10 flex items-center justify-center space-x-2">
-                                            <div class="bg-gray-800 rounded p-1 shadow">
-                                                <div class="w-3 h-3 bg-red-500 rounded-full mb-0.5 animate-pulse"></div>
-                                                <div class="w-3 h-3 bg-yellow-400 rounded-full mb-0.5"></div>
-                                                <div class="w-3 h-3 bg-green-400 rounded-full"></div>
-                                            </div>
-                                            <div class="bg-red-600 w-8 h-8 rounded-full flex items-center justify-center shadow">
-                                                <span class="text-white text-xs font-bold">STOP</span>
+                                <!-- Visual Section avec image du module -->
+                                <div class="lg:w-48 relative overflow-hidden bg-gray-100">
+                                    @if($module->image)
+                                        <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 lg:h-full object-cover">
+                                    @else
+                                        <!-- Fallback si pas d'image -->
+                                        <div class="w-full h-48 lg:h-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                                            <div class="text-white text-center p-4">
+                                                <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                                </svg>
+                                                <span class="text-sm font-medium">Module {{ $module->order }}</span>
                                             </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
 
                                 <!-- Content Section -->
@@ -183,28 +174,21 @@
                         <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                             
                             <div class="flex flex-col lg:flex-row">
-                                <!-- Visual Section -->
-                                <div class="lg:w-48 bg-gradient-to-br from-blue-500 to-blue-600 relative overflow-hidden">
-                                    <div class="absolute inset-0 bg-black/10"></div>
-                                    <div class="relative h-32 lg:h-full flex items-center justify-center p-4">
-                                        <!-- Highway Elements -->
-                                        <div class="absolute inset-0 overflow-hidden">
-                                            <div class="absolute top-1/2 left-0 right-0 h-2 bg-gray-300 transform -translate-y-1/2"></div>
-                                            <div class="absolute top-1/2 left-0 right-0 h-1 bg-white border-dashed border-y border-gray-400 transform -translate-y-1/2"></div>
-                                        </div>
-                                        
-                                        <!-- Driving Elements -->
-                                        <div class="relative z-10 flex items-center justify-center space-x-3">
-                                            <div class="bg-gray-800 w-8 h-8 rounded-full flex items-center justify-center shadow">
-                                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
+                                <!-- Visual Section avec image du module -->
+                                <div class="lg:w-48 relative overflow-hidden bg-gray-100">
+                                    @if($module->image)
+                                        <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 lg:h-full object-cover">
+                                    @else
+                                        <!-- Fallback si pas d'image -->
+                                        <div class="w-full h-48 lg:h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                                            <div class="text-white text-center p-4">
+                                                <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
                                                 </svg>
-                                            </div>
-                                            <div class="bg-white w-12 h-6 rounded-sm flex items-center justify-center shadow border border-gray-800">
-                                                <div class="w-8 h-3 bg-gray-700 rounded-sm"></div>
+                                                <span class="text-sm font-medium">Module {{ $module->order }}</span>
                                             </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
 
                                 <!-- Content Section -->
@@ -276,15 +260,6 @@
 </div>
 
 <style>
-@keyframes moveCar {
-    0% { transform: translateX(-100%) translateY(-50%); }
-    100% { transform: translateX(400%) translateY(-50%); }
-}
-
-.animate-moveCar {
-    animation: moveCar 3s linear infinite;
-}
-
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

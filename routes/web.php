@@ -8,6 +8,7 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request; 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 
@@ -122,6 +123,9 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('status', 'verification-link-sent');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+ Route::get('/payment/status', [HomeController::class, 'checkPaymentStatus'])->name('payment.status');
+    Route::post('/payment/simulate', [HomeController::class, 'simulatePaymentWebhook'])->name('payment.simulate');
+    Route::get('/debug/payment', [HomeController::class, 'debugPayment'])->name('debug.payment');
 
 
 // =======================================================================
@@ -184,6 +188,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Gestion des Paiements
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
     Route::post('/cours/{course}/complete', [CourseController::class, 'complete'])->name('courses.complete');
+
+    // Routes de contact
+Route::get('/contact', [ContactController::class, 'show'])->name('contact');
+Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
+Route::post('/contact/practical-lesson', [ContactController::class, 'requestPracticalLesson'])->name('contact.practical-lesson')->middleware('auth');
 
 
 // Auth routes Laravel Breeze ou Jetstream

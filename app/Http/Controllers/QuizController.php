@@ -338,7 +338,7 @@ public function startExam(?Quiz $exam = null)
     } else {
         // Examen blanc aléatoire (comportement actuel)
         $questions = Question::with('answers')->inRandomOrder()->limit(40)->get();
-        $timeLimit = 30; // Durée par défaut
+        $timeLimit = 20; // Durée par défaut
     }
 
     if ($questions->isEmpty()) {

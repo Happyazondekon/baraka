@@ -117,12 +117,13 @@
 <script type="text/javascript">
     const callbackUrl = "{{ route('payment.callback') }}";
     const dashboardUrl = "{{ route('dashboard') }}";
+    const statusUrl = "{{ route('payment.status') }}";
     
     @auth
         const baseConfig = {
-            public_key: 'pk_live_aKFuT6QVfmRm0H1BXMlQXZAp', 
+            public_key: 'pk_live_sS08gjuB6IJSytGCizyJE8PK',
             transaction: {
-                amount: 100,
+                amount: 100, // CORRIGÉ: 5000 XOF
                 description: 'Formation complète Auto-Permis - Accès total'
             },
             customer: {
@@ -130,32 +131,194 @@
                 firstname: '{{ auth()->user()->name ?? "Etudiant" }}',
                 lastname: 'Auto-Permis'
             },
+            // AJOUT DU CALLBACK - REMPLACEZ par votre domaine réel
+            callback: 'https://auto-permis.com/payment/callback',
+            
             onComplete: function(transaction) {
-    console.log('Transaction terminée:', transaction);
-
-    // Redirigez vers le callback du serveur dès que vous avez l'ID de transaction (transaction.id)
-    // C'est le rôle de votre backend (handlePaymentCallback) de vérifier l'état final.
-    if (transaction && transaction.id) {
-        // Nous incluons le statut même s'il est 'undefined' pour que le backend le log
-        const status = transaction.status ? transaction.status : 'unknown'; 
-        
-        window.location.href = callbackUrl + '?status=' + status + '&transaction_id=' + transaction.id + '&email={{ auth()->user()->email }}';
-    } else {
-        // Message d'erreur client si aucune transaction n'est retournée
-        alert('Une erreur est survenue et la transaction n\'a pas pu être initiée. Veuillez réessayer.'); 
-    }
-}
+                console.log('Transaction FedaPay terminée:', transaction);
+                
+                // Démarrer la vérification immédiatement
+                startPaymentVerification();
+                
+                // Redirection de fallback
+                if (transaction && transaction.id) {
+                    const status = transaction.status ? transaction.status : 'pending';
+                    console.log('Transaction ID:', transaction.id, 'Statut:', status);
+                    
+                    // Optionnel: redirection manuelle en plus du callback automatique
+                    setTimeout(() => {
+                        window.location.href = callbackUrl + '?status=' + status + '&transaction_id=' + transaction.id + '&email={{ auth()->user()->email }}';
+                    }, 2000);
+                }
+            },
+            onClose: function() {
+                console.log('Widget FedaPay fermé');
+            }
         };
 
+        // Initialiser FedaPay
         if (document.getElementById('pay-btn') && !({{ auth()->user()->has_paid ? 'true' : 'false' }})) {
             FedaPay.init('#pay-btn', baseConfig);
         }
-        
+
+        // Fonction pour mettre à jour l'UI
+        function updateUIOnPaymentSuccess() {
+            const payButton = document.querySelector('#pay-btn');
+            if (payButton) {
+                payButton.innerHTML = `
+                    <div class="bg-green-100 text-green-700 font-semibold py-3 rounded-lg border border-green-200 shadow-sm animate-pulse">
+                        <div class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            ✅ Paiement validé ! Vérification en cours...
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Fonction de vérification améliorée
+        let paymentCheckInterval;
+        let paymentVerified = false;
+        let checkCount = 0;
+        const maxChecks = 20;
+
+        function startPaymentVerification() {
+            if (paymentVerified) return;
+            
+            console.log('🚀 Démarrage vérification paiement...');
+            updateUIOnPaymentSuccess();
+            checkCount = 0;
+            
+            paymentCheckInterval = setInterval(() => {
+                checkCount++;
+                console.log(`Vérification #${checkCount}`);
+                
+                fetch(statusUrl, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                        'Cache-Control': 'no-cache'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Statut paiement:', data);
+                    
+                    if (data.success && data.has_paid) {
+                        paymentVerified = true;
+                        clearInterval(paymentCheckInterval);
+                        
+                        console.log('✅ Paiement confirmé ! Redirection...');
+                        
+                        // UI finale
+                        const payButton = document.querySelector('#pay-btn');
+                        if (payButton) {
+                            payButton.innerHTML = `
+                                <div class="bg-green-100 text-green-700 font-semibold py-3 rounded-lg border border-green-200">
+                                    ✅ Accès débloqué ! Redirection...
+                                </div>
+                            `;
+                        }
+                        
+                        // Redirection
+                        setTimeout(() => {
+                            window.location.href = dashboardUrl + '?payment=success&t=' + Date.now();
+                        }, 1500);
+                    } else if (checkCount >= maxChecks) {
+                        clearInterval(paymentCheckInterval);
+                        console.log('🛑 Maximum de vérifications atteint');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erreur vérification:', error);
+                });
+            }, 3000);
+        }
+
+        // Démarrer automatiquement si retour de paiement
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('payment') || urlParams.has('transaction_id') || urlParams.has('status')) {
+            console.log('Paramètres détectés, démarrage vérification...');
+            startPaymentVerification();
+        }
+
         @if(auth()->user()->has_paid)
         setTimeout(() => {
             window.location.href = dashboardUrl;
         }, 2000);
         @endif
     @endauth
+</script>
+<script>
+// Vérification automatique du statut de paiement (comme dans checkout.tsx)
+document.addEventListener('DOMContentLoaded', function() {
+    let paymentCheckInterval;
+    let paymentVerified = false;
+
+    // Démarrer la vérification si l'utilisateur vient de payer
+    function startPaymentVerification() {
+        if (paymentVerified) return;
+        
+        console.log('🚀 Démarrage vérification paiement...');
+        
+        paymentCheckInterval = setInterval(() => {
+            fetch('{{ route("payment.status") }}', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Statut paiement:', data);
+                
+                if (data.success && data.has_paid) {
+                    paymentVerified = true;
+                    clearInterval(paymentCheckInterval);
+                    
+                    // Mettre à jour l'UI
+                    updateUIOnPaymentSuccess();
+                    
+                    // Rediriger vers le dashboard
+                    setTimeout(() => {
+                        window.location.href = '{{ route("dashboard") }}?payment=verified&t=' + Date.now();
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                console.error('Erreur vérification paiement:', error);
+            });
+        }, 2000); // Vérifier toutes les 2 secondes
+        
+        // Arrêter après 30 secondes
+        setTimeout(() => {
+            if (paymentCheckInterval) {
+                clearInterval(paymentCheckInterval);
+                console.log('Arrêt vérification paiement (timeout)');
+            }
+        }, 30000);
+    }
+
+    // Démarrer la vérification si des paramètres de paiement sont détectés
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('payment') || urlParams.has('transaction_id')) {
+        startPaymentVerification();
+    }
+
+    // Écouter les événements de navigation (SPA-like)
+    window.addEventListener('popstate', function() {
+        const currentParams = new URLSearchParams(window.location.search);
+        if (currentParams.has('payment')) {
+            startPaymentVerification();
+        }
+    });
+});
 </script>
 @endsection

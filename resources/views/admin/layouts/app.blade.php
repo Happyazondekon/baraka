@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +5,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ config('app.name', 'Auto-Permis') }} - @yield('title', 'Administration')</title>
+
+    {{-- Favicon --}}
+    <link rel="icon" href="{{ asset('images/AP.png') }}" type="image/png">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -16,9 +17,8 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Font Awesome CDN - This line was removed and needs to be re-added for icons to show --}}
+    {{-- Font Awesome CDN --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-
 </head>
 <body class="font-sans antialiased bg-gray-100 text-gray-800 min-h-screen flex flex-col">
 
@@ -185,8 +185,14 @@ function confirmAction(event, title = 'Confirmer l\'action', text = 'Voulez-vous
     </main>
 
     <footer class="bg-gray-900 text-white py-6"> {{-- Darker gray for consistency --}}
-        <div class="container mx-auto text-center text-sm px-4"> {{-- Added px-4 for padding --}}
-            © {{ date('Y') }} Auto-Permis - Tous droits réservés.
+        {{-- Copyright --}}
+        <div class="mt-10 pt-8 border-t border-gray-700 text-center text-gray-300 text-sm">
+            <p>Copyright © {{ date('Y') }} Auto-Permis. Tous droits réservés.</p>
+            <a href="https://www.facebook.com/HeyyHappy" target="_blank" rel="noopener noreferrer"
+                class="inline-block ml-2 underline text-gray-400 text-sm px-2 py-1 rounded opacity-90
+                         hover:text-gray-300 transition transform duration-200 ease-in-out hover:-translate-y-1 hover:scale-105 motion-safe:animate-pulse">
+                 Développé par HeyHappy
+            </a>
         </div>
     </footer>
 </body>

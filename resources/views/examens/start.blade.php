@@ -14,7 +14,7 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <div class="bg-blue-50 rounded-xl px-4 py-2 text-center">
-                        <div class="text-xl font-bold text-blue-700" id="timer">30:00</div>
+                        <div class="text-xl font-bold text-blue-700" id="timer">20:00</div>
                         <div class="text-xs text-blue-600">Temps restant</div>
                     </div>
                     <div class="bg-green-50 rounded-xl px-4 py-2 text-center">
@@ -83,43 +83,49 @@
                                     {{ $question->question_text }}
                                 </p>
                                 
-                                <!-- Message informatif -->
-                                <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                                    <div class="flex items-center">
-                                        <svg class="w-5 h-5 text-blue-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                        </svg>
-                                        <p class="text-blue-700 font-medium">
-                                            Écoutez attentivement la question et les réponses. La lecture automatique se fera deux fois.
-                                        </p>
-                                    </div>
-                                </div>
+                               <!-- Message informatif -->
+<div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
+    <div class="flex items-center">
+        <svg class="w-5 h-5 text-blue-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+        <p class="text-blue-700 font-medium">
+            Écoutez attentivement la question et les réponses. La lecture automatique se fera deux fois.
+        </p>
+    </div>
+</div>
                                 
                                 <!-- Answers -->
-                                <div class="space-y-3 answers-container">
-                                    @php
-                                        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
-                                    @endphp
-                                    @foreach($question->answers as $answerIndex => $answer)
-                                    <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-200 answer-label"
-                                           data-answer-id="{{ $answer->id }}">
-                                        <input type="{{ $isMultipleChoice ? 'checkbox' : 'radio' }}" 
-                                               name="current_answer" 
-                                               value="{{ $answer->id }}" 
-                                               class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-input"
-                                               data-is-multiple="{{ $isMultipleChoice ? 'true' : 'false' }}"
-                                               onchange="handleAnswerSelection(this)">
-                                        <div class="ml-4 flex items-start flex-1">
-                                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 answer-letter">
-                                                {{ $letters[$answerIndex] }}
-                                            </span>
-                                            <span class="text-gray-700 leading-relaxed font-medium answer-text">
-                                                {{ $answer->answer_text }}
-                                            </span>
-                                        </div>
-                                    </label>
-                                    @endforeach
-                                </div>
+                                
+<div class="space-y-3 answers-container">
+    @php
+        $letters = ['A', 'B', 'C', 'D', 'E', 'F'];
+    @endphp
+    @foreach($question->answers as $answerIndex => $answer)
+    <label class="flex items-start p-4 rounded-xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-all duration-200 answer-label"
+           data-answer-id="{{ $answer->id }}">
+        <input type="{{ $isMultipleChoice ? 'checkbox' : 'radio' }}" 
+               name="current_answer" 
+               value="{{ $answer->id }}" 
+               class="mt-1 text-blue-500 focus:ring-blue-500 transform scale-125 answer-input"
+               data-is-multiple="{{ $isMultipleChoice ? 'true' : 'false' }}"
+               onchange="handleAnswerSelection(this)">
+        <div class="ml-4 flex items-start flex-1">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 font-bold text-sm mr-4 flex-shrink-0 answer-letter">
+                {{ $letters[$answerIndex] }}
+            </span>
+            <!-- Texte de réponse caché visuellement mais disponible pour la synthèse vocale -->
+            <span class="text-gray-700 leading-relaxed font-medium answer-text sr-only">
+                {{ $answer->answer_text }}
+            </span>
+            <!-- Indicateur visuel que seule la lettre est affichée -->
+            <span class="text-gray-500 italic text-sm">
+                Réponse {{ $letters[$answerIndex] }} 
+            </span>
+        </div>
+    </label>
+    @endforeach
+</div>
                             </div>
                             
                             @if($question->image)
@@ -186,8 +192,8 @@ let examData = {
     totalQuestions: {{ $questions->count() }},
     answers: {},
     timerInterval: null,
-    timeLimit: {{ $timeLimit ?? 30 }} * 60,
-    remainingTime: {{ $timeLimit ?? 30 }} * 60,
+    timeLimit: {{ $timeLimit ?? 20 }} * 60,
+    remainingTime: {{ $timeLimit ?? 20 }} * 60,
     speechAttempts: 0,
     examSubmitted: false,
     isReading: false,
@@ -553,7 +559,11 @@ document.getElementById('examForm').addEventListener('submit', function(e) {
     display: block !important;
     animation: fadeIn 0.5s ease-in;
 }
-
+/* Ajouter dans la section <style> */
+.answer-label .text-gray-500 {
+    font-style: italic;
+    opacity: 0.7;
+}
 /* Classe pour cacher visuellement mais garder accessible pour les lecteurs d'écran */
 .sr-only {
     position: absolute;
