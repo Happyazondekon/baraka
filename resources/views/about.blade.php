@@ -4,7 +4,8 @@
 
 @section('content')
 
-<section class="py-16 bg-white">
+{{-- Ajout de la classe animate-on-scroll --}}
+<section class="py-16 bg-white animate-on-scroll"> 
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div>
             <h1 class="text-4xl font-bold text-gray-800 mb-4">
@@ -25,7 +26,8 @@
     </div>
 </section>
 
-<section class="py-16 bg-gray-100">
+{{-- Ajout de la classe animate-on-scroll --}}
+<section class="py-16 bg-gray-100 animate-on-scroll">
     <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div class="order-2 md:order-1">
             {{-- Replace with an image representing flexibility, learning from anywhere --}}
@@ -45,7 +47,8 @@
     </div>
 </section>
 
-<section class="py-16 bg-white">
+{{-- Ajout de la classe animate-on-scroll à la section parente --}}
+<section class="py-16 bg-white animate-on-scroll">
     <div class="container mx-auto px-4">
         <h2 class="text-3xl font-bold text-center text-gray-800 mb-4">
             Ce que Auto-Permis vous offre pour une réussite garantie
@@ -55,7 +58,8 @@
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 border border-gray-200">
+            {{-- Ajout de la classe module-item pour l'effet cascade --}}
+            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 border border-gray-200 module-item">
                 <div class="flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.205 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.795 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.795 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.205 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
                 </div>
@@ -65,7 +69,8 @@
                 </p>
             </div>
 
-            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 border border-gray-200">
+            {{-- Ajout de la classe module-item pour l'effet cascade --}}
+            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 border border-gray-200 module-item">
                 <div class="flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                 </div>
@@ -75,7 +80,8 @@
                 </p>
             </div>
 
-            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 border border-gray-200">
+            {{-- Ajout de la classe module-item pour l'effet cascade --}}
+            <div class="bg-gray-50 rounded-lg overflow-hidden shadow-md p-6 border border-gray-200 module-item">
                 <div class="flex items-center justify-center w-12 h-12 bg-green-100 text-green-600 rounded-full mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3"></path></svg>
                 </div>
@@ -88,7 +94,8 @@
     </div>
 </section>
 
-<section class="py-16 bg-gray-100">
+{{-- Ajout de la classe animate-on-scroll --}}
+<section class="py-16 bg-gray-100 animate-on-scroll">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">
             Pour les promoteurs d'auto-écoles
@@ -101,7 +108,8 @@
     </div>
 </section>
 
-<section class="py-20 bg-green-700 text-white text-center">
+{{-- Ajout de la classe animate-on-scroll --}}
+<section class="py-20 bg-green-700 text-white text-center animate-on-scroll">
     <div class="container mx-auto px-4">
         <h2 class="text-4xl font-bold mb-6">
             Prêt(e) à prendre la route du succès ?
@@ -116,4 +124,63 @@
     </div>
 </section>
 
+
+{{-- CODE STYLE ET JAVASCRIPT COPIÉ DE home.blade.php --}}
+<style>
+    /* Styles pour l'animation d'apparition au scroll (Fade-in and Slide-up) */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+    
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Animation pour les cartes modules/features */
+    .module-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+
+    /* Délai d'apparition pour les modules (effet décalé) */
+    .animate-on-scroll.is-visible .module-item:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(2) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(3) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+
+    /* Note: L'animation carFloat est dans home.blade.php et n'est pas nécessaire ici. */
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obtenir toutes les sections que vous voulez animer
+        const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+        
+        // Configuration de l'Intersection Observer
+        const observerOptions = {
+            root: null, // Le viewport comme zone d'observation
+            rootMargin: '0px',
+            threshold: 0.1 // Déclenche l'animation quand 10% de la section est visible
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // Si la section est visible
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // On arrête d'observer la section une fois qu'elle est apparue
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer chaque section
+        sectionsToAnimate.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
 @endsection

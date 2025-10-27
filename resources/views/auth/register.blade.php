@@ -8,7 +8,7 @@
         {{-- You can put your logo here --}}
         {{-- <img class="mx-auto h-20 w-auto" src="{{ asset('path/to/your/logo.svg') }}" alt="Auto-Permis Logo"> --}}
         <h2 class="mt-6 text-4xl font-extrabold text-gray-900 leading-tight">
-            Créez votre compte Auto-Permis
+            Créez votre compte <span class="text-green-600">A</span>uto-Permis
         </h2>
         <p class="mt-2 text-md text-gray-600">
             Commencez votre parcours pour obtenir le code de la route.

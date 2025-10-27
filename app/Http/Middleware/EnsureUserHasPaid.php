@@ -14,28 +14,28 @@ class EnsureUserHasPaid
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    {
-        $user = $request->user();
+{
+    $user = $request->user();
 
-        // Vérifier si l'utilisateur est admin
-        if ($user && ($user->is_admin || $user->role === 'admin')) {
-            return $next($request);
-        }
-
-        // Vérifier si l'utilisateur a un paiement validé
-        $hasValidPayment = $user->payments()
-            ->where('status', 'completed')
-            ->exists();
-
-        if (!$hasValidPayment) {
-            // Stocker l'URL demandée pour rediriger après paiement
-            session(['intended_url' => $request->url()]);
-            
-            return redirect()
-                ->route('pricing')
-                ->with('warning', 'Veuillez effectuer le paiement pour accéder à ce contenu.');
-        }
-
+    // Vérifier si l'utilisateur est admin
+    if ($user && ($user->is_admin || $user->role === 'admin')) {
         return $next($request);
     }
+
+    // Vérifier si l'utilisateur a payé (soit via has_paid, soit via payments)
+    $hasValidPayment = $user->has_paid || $user->payments()
+        ->where('status', 'completed')
+        ->exists();
+
+    if (!$hasValidPayment) {
+        // Stocker l'URL demandée pour rediriger après paiement
+        session(['intended_url' => $request->url()]);
+        
+        return redirect()
+            ->route('pricing')
+            ->with('warning', 'Veuillez effectuer le paiement pour accéder à ce contenu.');
+    }
+
+    return $next($request);
+}
 }

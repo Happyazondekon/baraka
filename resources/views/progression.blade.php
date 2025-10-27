@@ -5,8 +5,7 @@
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50 py-8">
     <div class="container mx-auto px-4 max-w-4xl">
-        <!-- Header Section -->
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 animate-on-scroll">
             <div class="bg-white rounded-3xl shadow-lg border border-green-100 p-8 mb-8">
                 <h1 class="text-4xl font-bold text-gray-800 mb-4">
                     Votre Progression d'Apprentissage
@@ -17,10 +16,8 @@
             </div>
         </div>
 
-        <!-- Global Progress Overview -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
-            <!-- Theoretical Phase Card -->
-            <div class="bg-white rounded-2xl shadow-lg border border-green-200 p-6 text-center">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12 animate-on-scroll">
+            <div class="bg-white rounded-2xl shadow-lg border border-green-200 p-6 text-center module-item">
                 <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
@@ -34,8 +31,7 @@
                 </div>
             </div>
 
-            <!-- Practical Phase Card -->
-            <div class="bg-white rounded-2xl shadow-lg border border-blue-200 p-6 text-center">
+            <div class="bg-white rounded-2xl shadow-lg border border-blue-200 p-6 text-center module-item">
                 <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.293l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd"/>
@@ -49,8 +45,7 @@
                 </div>
             </div>
 
-            <!-- Global Progress Card -->
-            <div class="bg-white rounded-2xl shadow-lg border border-purple-200 p-6 text-center">
+            <div class="bg-white rounded-2xl shadow-lg border border-purple-200 p-6 text-center module-item">
                 <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -68,8 +63,7 @@
             </div>
         </div>
 
-        <!-- Theoretical Phase Section -->
-        <div class="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden mb-12">
+        <div class="bg-white rounded-3xl shadow-xl border border-green-100 overflow-hidden mb-12 animate-on-scroll">
             <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 text-white">
                 <div class="flex items-center justify-between">
                     <div>
@@ -84,7 +78,6 @@
             </div>
 
             <div class="p-6">
-                <!-- Progress Bar -->
                 <div class="mb-8">
                     <div class="flex justify-between text-sm text-gray-600 mb-2">
                         <span>Progression globale de la phase</span>
@@ -96,7 +89,6 @@
                     </div>
                 </div>
 
-                <!-- Modules List -->
                 <div class="space-y-4">
                     @foreach($modules_theoriques as $index => $module)
                         @php
@@ -133,10 +125,10 @@
                                         ($moduleInProgress ? 'text-yellow-600' : 'text-gray-500');
                         @endphp
                         
-                        <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+                        {{-- Ajout de module-item pour l'animation en cascade --}}
+                        <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 module-item">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-start space-x-4 flex-1">
-                                    <!-- Module Number -->
                                     <div class="flex flex-col items-center">
                                         <div class="w-12 h-12 {{ $statusColor }} text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md">
                                             {{ $index + 1 }}
@@ -152,17 +144,14 @@
                                         @endif
                                     </div>
 
-                                    <!-- Module Content -->
                                     <div class="flex-1">
                                         <h3 class="text-xl font-bold text-gray-800 mb-2 {{ $moduleCompleted ? 'line-through' : '' }}">
                                             {{ $module->title }}
                                         </h3>
                                         <p class="text-gray-600 mb-4">{{ $module->description }}</p>
                                         
-                                        <!-- Detailed Progress -->
                                         @if($moduleInProgress && !$moduleCompleted)
                                         <div class="space-y-3">
-                                            <!-- Courses Progress -->
                                             <div>
                                                 <div class="flex justify-between text-sm text-gray-600 mb-1">
                                                     <span class="font-medium">Leçons</span>
@@ -174,7 +163,6 @@
                                                 </div>
                                             </div>
                                             
-                                            <!-- Quiz Status -->
                                             @if($quiz)
                                             <div>
                                                 <div class="flex justify-between text-sm text-gray-600 mb-1">
@@ -190,7 +178,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Button -->
                                 <div class="ml-4">
                                     <a href="{{ route('modules.show', $module->id) }}" 
                                        class="inline-flex items-center bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-4 py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
@@ -211,8 +198,7 @@
             </div>
         </div>
 
-        <!-- Practical Phase Section -->
-        <div class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden mb-12">
+        <div class="bg-white rounded-3xl shadow-xl border border-blue-100 overflow-hidden mb-12 animate-on-scroll">
             <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6 text-white">
                 <div class="flex items-center justify-between">
                     <div>
@@ -227,7 +213,6 @@
             </div>
 
             <div class="p-6">
-                <!-- Progress Bar -->
                 <div class="mb-8">
                     <div class="flex justify-between text-sm text-gray-600 mb-2">
                         <span>Progression globale de la phase</span>
@@ -239,7 +224,6 @@
                     </div>
                 </div>
 
-                <!-- Modules List -->
                 <div class="space-y-4">
                     @foreach($modules_pratiques as $index => $module)
                         @php
@@ -276,10 +260,10 @@
                                         ($moduleInProgress ? 'text-yellow-600' : 'text-gray-500');
                         @endphp
                         
-                        <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300">
+                        {{-- Ajout de module-item pour l'animation en cascade --}}
+                        <div class="bg-gradient-to-r from-gray-50 to-white rounded-2xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 module-item">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-start space-x-4 flex-1">
-                                    <!-- Module Number -->
                                     <div class="flex flex-col items-center">
                                         <div class="w-12 h-12 {{ $statusColor }} text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md">
                                             {{ $index + 1 }}
@@ -295,17 +279,14 @@
                                         @endif
                                     </div>
 
-                                    <!-- Module Content -->
                                     <div class="flex-1">
                                         <h3 class="text-xl font-bold text-gray-800 mb-2 {{ $moduleCompleted ? 'line-through' : '' }}">
                                             {{ $module->title }}
                                         </h3>
                                         <p class="text-gray-600 mb-4">{{ $module->description }}</p>
                                         
-                                        <!-- Detailed Progress -->
                                         @if($moduleInProgress && !$moduleCompleted)
                                         <div class="space-y-3">
-                                            <!-- Courses Progress -->
                                             <div>
                                                 <div class="flex justify-between text-sm text-gray-600 mb-1">
                                                     <span class="font-medium">Leçons</span>
@@ -317,7 +298,6 @@
                                                 </div>
                                             </div>
                                             
-                                            <!-- Quiz Status -->
                                             @if($quiz)
                                             <div>
                                                 <div class="flex justify-between text-sm text-gray-600 mb-1">
@@ -333,7 +313,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Action Button -->
                                 <div class="ml-4">
                                     <a href="{{ route('modules.show', $module->id) }}" 
                                        class="inline-flex items-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-4 py-2 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
@@ -354,8 +333,7 @@
             </div>
         </div>
 
-        <!-- Motivation Section -->
-        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl p-8 text-center text-white shadow-xl">
+        <div class="bg-gradient-to-r from-purple-500 to-purple-600 rounded-3xl p-8 text-center text-white shadow-xl animate-on-scroll">
             <h3 class="text-2xl font-bold mb-4">Continuez votre apprentissage !</h3>
             <p class="text-purple-100 text-lg mb-6">
                 Vous avez complété {{ $progressionGlobale }}% de votre formation. 
@@ -377,4 +355,68 @@
         </div>
     </div>
 </div>
+
+{{-- CODE STYLE ET JAVASCRIPT COPIÉ DE home/about/contact/dashboard.blade.php pour les animations --}}
+<style>
+    /* Styles pour l'animation d'apparition au scroll (Fade-in and Slide-up) */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+    
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Animation pour les cartes modules/features (module-item) */
+    .module-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+
+    /* Délai d'apparition pour les modules (effet décalé) */
+    .animate-on-scroll.is-visible .module-item:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(2) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(3) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(4) { transition-delay: 0.7s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(5) { transition-delay: 0.9s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(6) { transition-delay: 1.1s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(7) { transition-delay: 1.3s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(8) { transition-delay: 1.5s; opacity: 1; transform: translateY(0); }
+    
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obtenir toutes les sections que vous voulez animer
+        const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+        
+        // Configuration de l'Intersection Observer
+        const observerOptions = {
+            root: null, // Le viewport comme zone d'observation
+            rootMargin: '0px',
+            threshold: 0.1 // Déclenche l'animation quand 10% de la section est visible
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // Si la section est visible
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // On arrête d'observer la section une fois qu'elle est apparue
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer chaque section
+        sectionsToAnimate.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
+
 @endsection

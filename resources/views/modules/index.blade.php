@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
-    <!-- Header Section -->
     <div class="bg-white shadow-sm border-b border-gray-200">
         <div class="container mx-auto px-4 py-6">
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
@@ -13,8 +12,7 @@
                     <p class="text-gray-600 text-lg">Maîtrisez le code de la route avec nos modules interactifs</p>
                 </div>
                 
-                <!-- Progress Indicator -->
-                <div class="bg-white rounded-2xl p-4 shadow-md border border-gray-200">
+                <div class="bg-white rounded-2xl p-4 shadow-md border border-gray-200 animate-on-scroll"> {{-- Ajout de l'animation --}}
                     <div class="flex items-center space-x-4">
                         <div class="text-center">
                             <div class="text-2xl font-bold text-green-600">{{ auth()->user()->completedCourses()->count() }}</div>
@@ -31,10 +29,8 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="container mx-auto px-4 py-8" x-data="{ selectedPhase: 'all' }">
-        <!-- Tabs / Filter -->
-        <div class="flex flex-wrap space-x-2 mb-6 border-b border-gray-300">
+        <div class="flex flex-wrap space-x-2 mb-6 border-b border-gray-300 animate-on-scroll"> {{-- Ajout de l'animation --}}
             <button @click="selectedPhase = 'all'" 
                     :class="{'bg-green-600 text-white': selectedPhase === 'all', 'bg-white text-gray-700 hover:bg-green-50': selectedPhase !== 'all'}" 
                     class="px-4 py-2 text-sm font-medium rounded-t-lg transition-colors duration-200 shadow-sm border border-b-0 border-gray-300">
@@ -52,10 +48,8 @@
             </button>
         </div>
 
-        <!-- Modules Section -->
         <div class="space-y-8">
-            <!-- Modules Théoriques -->
-            <div x-show="selectedPhase === 'all' || selectedPhase === 'theorique'" class="pt-4">
+            <div x-show="selectedPhase === 'all' || selectedPhase === 'theorique'" class="pt-4 animate-on-scroll"> {{-- Ajout de l'animation --}}
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-1">Modules Théoriques</h2>
@@ -70,15 +64,13 @@
 
                 <div class="grid gap-4 lg:grid-cols-1">
                     @forelse($modules->where('is_practical', false) as $module)
-                        <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+                        <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 module-item"> {{-- Ajout de la classe module-item --}}
                             
                             <div class="flex flex-col lg:flex-row">
-                                <!-- Visual Section avec image du module -->
                                 <div class="lg:w-48 relative overflow-hidden bg-gray-100">
                                     @if($module->image)
                                         <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 lg:h-full object-cover">
                                     @else
-                                        <!-- Fallback si pas d'image -->
                                         <div class="w-full h-48 lg:h-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
                                             <div class="text-white text-center p-4">
                                                 <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
@@ -90,7 +82,6 @@
                                     @endif
                                 </div>
 
-                                <!-- Content Section -->
                                 <div class="flex-1 p-6">
                                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between h-full">
                                         <div class="flex-1 mb-4 lg:mb-0">
@@ -112,7 +103,6 @@
                                             <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $module->title }}</h3>
                                             <p class="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2">{{ $module->description }}</p>
                                             
-                                            <!-- Progress & Stats -->
                                             <div class="flex items-center space-x-4 text-xs text-gray-500">
                                                 <div class="flex items-center">
                                                     <svg class="w-3 h-3 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -123,7 +113,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Action Button -->
                                         <div class="lg:text-right">
                                             @if(auth()->check() && auth()->user()->has_paid)
                                             <a href="{{ route('modules.show', $module->id) }}" 
@@ -155,8 +144,7 @@
                 </div>
             </div>
 
-            <!-- Modules Pratiques -->
-            <div x-show="selectedPhase === 'all' || selectedPhase === 'pratique'" class="pt-4">
+            <div x-show="selectedPhase === 'all' || selectedPhase === 'pratique'" class="pt-4 animate-on-scroll"> {{-- Ajout de l'animation --}}
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h2 class="text-2xl font-bold text-gray-900 mb-1">Modules Pratiques</h2>
@@ -171,15 +159,13 @@
 
                 <div class="grid gap-4 lg:grid-cols-1">
                     @forelse($modules->where('is_practical', true) as $module)
-                        <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+                        <div class="bg-white rounded-2xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5 module-item"> {{-- Ajout de la classe module-item --}}
                             
                             <div class="flex flex-col lg:flex-row">
-                                <!-- Visual Section avec image du module -->
                                 <div class="lg:w-48 relative overflow-hidden bg-gray-100">
                                     @if($module->image)
                                         <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 lg:h-full object-cover">
                                     @else
-                                        <!-- Fallback si pas d'image -->
                                         <div class="w-full h-48 lg:h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                                             <div class="text-white text-center p-4">
                                                 <svg class="w-12 h-12 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
@@ -191,7 +177,6 @@
                                     @endif
                                 </div>
 
-                                <!-- Content Section -->
                                 <div class="flex-1 p-6">
                                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between h-full">
                                         <div class="flex-1 mb-4 lg:mb-0">
@@ -213,7 +198,6 @@
                                             <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $module->title }}</h3>
                                             <p class="text-gray-600 text-sm leading-relaxed mb-3 line-clamp-2">{{ $module->description }}</p>
                                             
-                                            <!-- Progress & Stats -->
                                             <div class="flex items-center space-x-4 text-xs text-gray-500">
                                                 <div class="flex items-center">
                                                     <svg class="w-3 h-3 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
@@ -224,7 +208,6 @@
                                             </div>
                                         </div>
 
-                                        <!-- Action Button -->
                                         <div class="lg:text-right">
                                             @if(auth()->check() && auth()->user()->has_paid)
                                             <a href="{{ route('modules.show', $module->id) }}" 
@@ -260,11 +243,73 @@
 </div>
 
 <style>
+/* Conserve le style existant pour line-clamp-2 */
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* Styles pour l'animation d'apparition au scroll (Fade-in and Slide-up) */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 1s ease-out, transform 0.8s ease-out;
+}
+
+.animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animation pour les cartes modules (module-item) */
+.module-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease-out, transform 0.8s ease-out;
+}
+
+/* Délai d'apparition pour les modules (effet décalé/staggered effect) */
+/* L'effet ne s'applique que si le parent a la classe is-visible */
+.animate-on-scroll.is-visible .module-item:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(2) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(3) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(4) { transition-delay: 0.7s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(5) { transition-delay: 0.9s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(6) { transition-delay: 1.1s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(7) { transition-delay: 1.3s; opacity: 1; transform: translateY(0); }
+.animate-on-scroll.is-visible .module-item:nth-child(8) { transition-delay: 1.5s; opacity: 1; transform: translateY(0); }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obtenir toutes les sections que vous voulez animer
+        const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+        
+        // Configuration de l'Intersection Observer
+        const observerOptions = {
+            root: null, // Le viewport comme zone d'observation
+            rootMargin: '0px',
+            threshold: 0.1 // Déclenche l'animation quand 10% de la section est visible
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // Si la section est visible
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // On arrête d'observer la section une fois qu'elle est apparue
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer chaque section
+        sectionsToAnimate.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
+
 @endsection

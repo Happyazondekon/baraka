@@ -4,11 +4,10 @@
 
 @section('content')
 
-<!-- Hero Section -->
-<section class="py-16 bg-gradient-to-br from-green-50 to-green-100">
+<section class="py-16 bg-gradient-to-br from-green-50 to-green-100 animate-on-scroll">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">
-            Contactez <span class="text-green-600">Auto-Permis</span>
+            Contactez <span class="text-green-600">A</span>uto-Permis
         </h1>
         <p class="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Nous sommes là pour répondre à toutes vos questions, vous accompagner dans votre parcours ou recueillir vos suggestions.
@@ -16,13 +15,11 @@
     </div>
 </section>
 
-<!-- Main Content -->
-<section class="py-16 bg-gray-50">
+<section class="py-16 bg-gray-50 animate-on-scroll">
     <div class="container mx-auto px-4 max-w-7xl">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            <!-- Carte des auto-écoles -->
-            <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden h-full flex flex-col">
+            <div class="bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden h-full flex flex-col module-item">
                 <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white">
                     <div class="flex items-center mb-2">
                         <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center mr-3">
@@ -77,10 +74,8 @@
                 </div>
             </div>
 
-            <!-- Options de contact -->
-            <div class="space-y-6">
+            <div class="space-y-6 module-item">
                 
-                <!-- Plaintes et Suggestions -->
                 <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
                     <div class="flex items-center mb-6">
                         <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mr-4">
@@ -105,7 +100,6 @@
                     </a>
                 </div>
 
-                <!-- Demande de cours pratique -->
                 <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-200 hover:shadow-2xl transition-shadow duration-300">
                     <div class="flex items-center mb-6">
                         <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mr-4">
@@ -123,7 +117,6 @@
                     </p>
                     
                     @auth
-                    <!-- Formulaire pour utilisateurs connectés -->
                     <form method="POST" action="{{ route('contact.practical-lesson') }}" class="space-y-4">
                         @csrf
                         
@@ -179,7 +172,6 @@
                         </button>
                     </form>
                     @else
-                    <!-- Formulaire pour visiteurs non connectés -->
                     <form class="space-y-4">
                         <div>
                             <label for="lesson_date_guest" class="block text-sm font-semibold text-gray-700 mb-2">Date souhaitée</label>
@@ -235,7 +227,6 @@
     </div>
 </section>
 
-<!-- Script pour la recherche sur la carte -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchSchools');
@@ -299,6 +290,66 @@ document.addEventListener('DOMContentLoaded', function() {
         mapFrame.src = newSrc;
     }
 });
+</script>
+
+
+{{-- CODE STYLE ET JAVASCRIPT COPIÉ DE home/about.blade.php pour les animations --}}
+<style>
+    /* Styles pour l'animation d'apparition au scroll (Fade-in and Slide-up) */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+    
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Animation pour les cartes modules/features */
+    /* Appliqué aux deux colonnes de la grille pour l'effet décalé */
+    .module-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+
+    /* Délai d'apparition pour les modules (effet décalé) */
+    .animate-on-scroll.is-visible .module-item:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(2) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(3) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obtenir toutes les sections que vous voulez animer
+        const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+        
+        // Configuration de l'Intersection Observer
+        const observerOptions = {
+            root: null, // Le viewport comme zone d'observation
+            rootMargin: '0px',
+            threshold: 0.1 // Déclenche l'animation quand 10% de la section est visible
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // Si la section est visible
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // On arrête d'observer la section une fois qu'elle est apparue
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer chaque section
+        sectionsToAnimate.forEach(section => {
+            observer.observe(section);
+        });
+    });
 </script>
 
 @endsection

@@ -6,12 +6,11 @@
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="container mx-auto px-4 max-w-7xl">
         
-        <!-- Hero Welcome Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {{-- Ajout de l'animation --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 animate-on-scroll">
             
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 border border-gray-200 h-full flex flex-col justify-center relative overflow-hidden">
-                    <!-- Background decorative element -->
                     <div class="absolute top-0 right-0 w-64 h-64 bg-green-50 rounded-full -translate-y-32 translate-x-32"></div>
                     <div class="relative z-10">
                         <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-2">
@@ -40,7 +39,6 @@
                 </div>
             </div>
 
-            <!-- Progression Card -->
             <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl shadow-xl p-6 text-white h-full flex flex-col justify-between relative overflow-hidden">
                 <div class="absolute bottom-0 center-0 opacity-90">
                     <img src="{{ asset('images/driving.png') }}" alt="Car" class="w-32 h-32 object-contain">
@@ -67,11 +65,10 @@
             </div>
         </div>
 
-        <!-- Quick Actions Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {{-- Ajout de l'animation --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-on-scroll">
             
-            <!-- Cours Pratique -->
-            <a href="{{ route('contact') }}" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+            <a href="{{ route('contact') }}" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group module-item">
                 <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -81,8 +78,7 @@
                 <p class="text-sm text-gray-600">Réservez une séance avec un moniteur</p>
             </a>
 
-            <!-- Ma Progression -->
-            <a href="{{ route('progression') }}" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+            <a href="{{ route('progression') }}" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group module-item">
                 <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -92,8 +88,7 @@
                 <p class="text-sm text-gray-600">Suivez votre avancement détaillé</p>
             </a>
 
-            <!-- Auto-écoles -->
-            <a href="{{ route('contact') }}#map" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+            <a href="{{ route('contact') }}#map" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group module-item">
                 <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -104,8 +99,7 @@
                 <p class="text-sm text-gray-600">Trouvez une auto-école près de vous</p>
             </a>
 
-            <!-- Support -->
-            <a href="{{ route('contact') }}" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group">
+            <a href="{{ route('contact') }}" class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group module-item">
                 <div class="w-14 h-14 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
@@ -117,15 +111,15 @@
 
         </div>
 
-        <!-- Performance Cards & Last Activity -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {{-- Ajout de l'animation --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 animate-on-scroll">
             
-            <!-- Performance Stats -->
             <div class="lg:col-span-2">
                 <div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200 h-full">
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Vos Performances</h3>
 
                     <div class="grid grid-cols-2 gap-6 text-center">
+                        {{-- On pourrait animer ces 4 sous-cartes aussi, mais on se contente de la classe parente pour l'instant --}}
                         <div class="bg-green-50 rounded-xl p-4 border-2 border-green-100 hover:border-green-300 transition duration-200">
                             <div class="flex justify-center mb-2">
                                 <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -174,8 +168,7 @@
                 </div>
             </div>
             
-           <!-- Last Activity Card -->
-<div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200 relative overflow-hidden">
+           <div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200 relative overflow-hidden">
     <div class="absolute bottom-0 right-0 opacity-90">
         <img src="{{ asset('images/learning-car.png') }}" alt="Learning Car" class="w-48 h-48 object-contain">
     </div>
@@ -217,9 +210,9 @@
 </div>
         </div>
 
-        <!-- Recent Exams Section -->
         @if (isset($recentExams) && $recentExams->isNotEmpty())
-        <div class="mb-8">
+        {{-- Ajout de l'animation --}}
+        <div class="mb-8 animate-on-scroll">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-900">Vos Derniers Examens Blancs</h2>
                 <div class="flex items-center text-gray-500">
@@ -232,6 +225,7 @@
             <div class="bg-white rounded-3xl shadow-lg p-6 border border-gray-200">
                 <ul class="divide-y divide-gray-100">
                     @foreach ($recentExams as $exam)
+                    {{-- Je n'ajoute pas module-item ici pour ne pas surcharger l'animation sur la liste --}}
                     <li class="py-4 flex justify-between items-center hover:bg-gray-50 rounded-lg px-3 transition duration-150">
                         <div class="flex items-center space-x-4">
                             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -278,9 +272,9 @@
         </div>
         @endif
 
-        <!-- Suggested Modules Section -->
         @if(isset($suggestedModules) && $suggestedModules->isNotEmpty())
-        <div class="mb-8">
+        {{-- Ajout de l'animation --}}
+        <div class="mb-8 animate-on-scroll">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-900">Modules Suggérés</h2>
                 <a href="{{ route('modules.index') }}" class="text-green-600 hover:text-green-700 font-medium text-sm flex items-center">
@@ -292,7 +286,8 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach($suggestedModules as $module)
-                <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200">
+                {{-- Ajout de module-item --}}
+                <div class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 module-item">
                     @if($module->image)
                     <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 object-cover">
                     @else
@@ -318,4 +313,68 @@
         @endif
     </div>
 </div>
+
+{{-- CODE STYLE ET JAVASCRIPT POUR L'ANIMATION DE SCROLL (COPIÉ DE home/about.blade.php) --}}
+<style>
+    /* Styles pour l'animation d'apparition au scroll (Fade-in and Slide-up) */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+    
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Animation pour les cartes modules/features (module-item) */
+    /* Appliqué aux cartes d'Actions Rapides et Modules Suggérés */
+    .module-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+
+    /* Délai d'apparition pour les modules (effet décalé) */
+    /* Utilise les enfants directs dans le conteneur animate-on-scroll */
+    .animate-on-scroll.is-visible .module-item:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(2) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(3) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(4) { transition-delay: 0.7s; opacity: 1; transform: translateY(0); }
+    /* Continuer au-delà de 4 si nécessaire (par exemple, pour les modules suggérés si plus de 4) */
+    .animate-on-scroll.is-visible .module-item:nth-child(5) { transition-delay: 0.9s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(6) { transition-delay: 1.1s; opacity: 1; transform: translateY(0); }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obtenir toutes les sections que vous voulez animer
+        const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+        
+        // Configuration de l'Intersection Observer
+        const observerOptions = {
+            root: null, // Le viewport comme zone d'observation
+            rootMargin: '0px',
+            threshold: 0.1 // Déclenche l'animation quand 10% de la section est visible
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // Si la section est visible
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // On arrête d'observer la section une fois qu'elle est apparue
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer chaque section
+        sectionsToAnimate.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
+
 @endsection

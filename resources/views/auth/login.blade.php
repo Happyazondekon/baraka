@@ -9,7 +9,7 @@
             {{-- You can put your logo here --}}
             {{-- <img class="mx-auto h-20 w-auto" src="{{ asset('path/to/your/logo.svg') }}" alt="Auto-Permis Logo"> --}}
             <h2 class="mt-6 text-4xl font-extrabold text-gray-900 leading-tight">
-                Connectez-vous à Auto-Permis
+                Connectez-vous à <span class="text-green-600">A</span>uto-Permis
             </h2>
             <p class="mt-2 text-md text-gray-600">
                 Accédez à votre apprentissage du code de la route.

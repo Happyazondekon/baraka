@@ -3,7 +3,6 @@
 @section('title', 'Apprentissage du code de la route')
 
 @section('content')
-    <!-- Hero Section -->
     <section class="py-16 bg-gradient-to-br from-green-50 to-green-100">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
@@ -28,7 +27,6 @@
                     @endguest
                 </div>
                 
-                <!-- Stats -->
                 <div class="mt-8 grid grid-cols-3 gap-4">
                     <div class="text-center">
                         <div class="text-3xl font-bold text-green-600">500+</div>
@@ -45,13 +43,12 @@
                 </div>
             </div>
             <div class="flex justify-center">
-                <img src="{{ asset('images/hero-car.png') }}" alt="Voiture d'auto-école" class="w-full max-w-md drop-shadow-2xl">
+                <img src="{{ asset('images/hero-car.png') }}" alt="Voiture d'auto-école" class="w-full max-w-md drop-shadow-2xl animate-car-float">
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="py-16 bg-white">
+    <section class="py-16 bg-white animate-on-scroll">
         <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div class="order-2 md:order-1">
                 <img src="{{ asset('images/learning-car.png') }}" alt="Apprentissage sans contraintes" class="w-full max-w-md mx-auto drop-shadow-xl">
@@ -64,7 +61,6 @@
                     Notre plateforme révolutionne l'apprentissage du code de la route en proposant une formation digitale complète, accessible partout et à tout moment! Les candidats peuvent apprendre sans contrainte de déplacement, s'adapter ainsi à leur emploi du temps tout en bénéficiant d'un accompagnement structuré.
                 </p>
                 
-                <!-- Avantages -->
                 <div class="space-y-3 mb-6">
                     <div class="flex items-center text-gray-700">
                         <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -101,8 +97,7 @@
         </div>
     </section>
 
-    <!-- Modules Section (Aperçu) -->
-    <section class="py-16 bg-gray-50">
+    <section class="py-16 bg-gray-50 animate-on-scroll">
         <div class="container mx-auto px-4">
             <div class="text-center mb-12">
                 <h2 class="text-4xl font-bold text-gray-800 mb-4">Une formation structurée en modules</h2>
@@ -113,7 +108,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 @foreach($featuredModules as $module)
-                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow module-item">
                     @if($module->image)
                     <img src="{{ asset('storage/' . $module->image) }}" alt="{{ $module->title }}" class="w-full h-48 object-cover">
                     @else
@@ -166,7 +161,6 @@
         </div>
     </section>
 
-    <!-- CTA Section -->
     <section class="py-20 bg-gradient-to-r from-green-600 to-green-700 text-white">
         <div class="container mx-auto px-4 text-center">
             <h2 class="text-4xl md:text-5xl font-bold mb-6">Votre permis, votre rythme !</h2>
@@ -184,4 +178,74 @@
             @endguest
         </div>
     </section>
+
+<style>
+    /* Animation pour la voiture dans la section Hero */
+    @keyframes carFloat {
+        0%, 100% {
+            transform: translateY(0) scale(1);
+        }
+        50% {
+            transform: translateY(-10px) scale(1.01); /* Légère lévitation */
+        }
+    }
+    
+    .animate-car-float {
+        animation: carFloat 4s ease-in-out infinite;
+    }
+
+    /* Styles pour l'animation d'apparition au scroll (Fade-in and Slide-up) */
+    .animate-on-scroll {
+        opacity: 0;
+        transform: translateY(50px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+    
+    .animate-on-scroll.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Animation pour les cartes modules */
+    .module-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 1s ease-out, transform 0.8s ease-out;
+    }
+
+    /* Délai d'apparition pour les modules (effet décalé) */
+    .animate-on-scroll.is-visible .module-item:nth-child(1) { transition-delay: 0.1s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(2) { transition-delay: 0.3s; opacity: 1; transform: translateY(0); }
+    .animate-on-scroll.is-visible .module-item:nth-child(3) { transition-delay: 0.5s; opacity: 1; transform: translateY(0); }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Obtenir toutes les sections que vous voulez animer
+        const sectionsToAnimate = document.querySelectorAll('.animate-on-scroll');
+        
+        // Configuration de l'Intersection Observer
+        const observerOptions = {
+            root: null, // Le viewport comme zone d'observation
+            rootMargin: '0px',
+            threshold: 0.1 // Déclenche l'animation quand 10% de la section est visible
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                // Si la section est visible
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    // On arrête d'observer la section une fois qu'elle est apparue
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observer chaque section
+        sectionsToAnimate.forEach(section => {
+            observer.observe(section);
+        });
+    });
+</script>
 @endsection
