@@ -51,7 +51,7 @@
             
             <div class="p-8 text-center">
                 <p class="text-5xl font-extrabold text-gray-900 mb-6">
-                    <span class="align-top text-2xl font-medium">XOF</span> 5 000
+                    <span class="align-top text-2xl font-medium">XOF</span> 100
                 </p>
 
                 @auth
@@ -67,7 +67,7 @@
                         <div id="pay-btn" class="w-full text-center">
                             <!-- FedaPay va injecter son bouton ici -->
                             <button id="fedapay-button" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-lg transform hover:-translate-y-0.5">
-                                Payer 5 000 XOF et Débloquer
+                                Payer 100 XOF et Débloquer
                             </button>
                         </div>
                         <p class="text-xs text-gray-500 mt-3">Paiement sécurisé par FedaPay (Mobile Money et cartes)</p>

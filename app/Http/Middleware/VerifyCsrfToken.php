@@ -13,5 +13,6 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
+        'fedapay/webhook', // Exclure l'endpoint webhook de FedaPay de la vérification CSRF
     ];
 }

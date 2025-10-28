@@ -35,6 +35,10 @@ Route::get('/tarifs', [HomeController::class, 'pricing'])->name('pricing');
 Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 Route::post('/contact', [HomeController::class, 'sendContact'])->name('contact.send');
 
+// Cette URL sera l'endpoint à configurer dans FedaPay
+Route::post('/fedapay/webhook', [App\Http\Controllers\FedapayWebhookController::class, 'handle'])
+    ->name('fedapay.webhook');
+
 // =======================================================================
 // GROUPE 1 : Authentifié et Email Vérifié (FREE-TO-VIEW / ACCÈS GRATUIT)
 // Contient les routes qui ne nécessitent pas de paiement.
