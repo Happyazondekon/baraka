@@ -4,6 +4,23 @@
 
 @section('content')
 
+{{-- 🚀 BLOC AJOUTÉ POUR AFFICHER LE MESSAGE DE SUCCÈS (FLASH MESSAGE) --}}
+@if (session('success'))
+<div class="container mx-auto px-4 max-w-7xl pt-4">
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg shadow-md" role="alert">
+        <div class="flex items-center">
+            {{-- Icone de succès --}}
+            <svg class="w-6 h-6 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="font-bold">Succès !</p>
+        </div>
+        <p class="mt-1 text-sm">{{ session('success') }}</p>
+    </div>
+</div>
+@endif
+{{-- FIN DU BLOC AJOUTÉ --}}
+
 <section class="py-16 bg-gradient-to-br from-green-50 to-green-100 animate-on-scroll">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 mb-4">
@@ -91,7 +108,7 @@
                     <p class="text-gray-600 mb-6 leading-relaxed">
                         Vous avez une suggestion ou une plainte ? Écrivez-nous directement et nous vous répondrons dans les plus brefs délais.
                     </p>
-                    <a href="mailto:autopermis25@gmail.com?subject=Plaintes%20et%20Suggestions&body=Bonjour Auto-Permis,%0D%0A%0D%0AJe souhaite vous faire part de :"
+                    <a href="mailto:autopermis@auto-permis.com?subject=Plaintes%20et%20Suggestions&body=Bonjour Auto-Permis,%0D%0A%0D%0AJe souhaite vous faire part de :"
                        class="inline-flex items-center justify-center bg-blue-600 text-white px-8 py-3 rounded-xl hover:bg-blue-700 transition-all duration-300 shadow-md hover:shadow-lg font-semibold w-full sm:w-auto">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>

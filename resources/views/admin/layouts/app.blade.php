@@ -188,7 +188,7 @@ function confirmAction(event, title = 'Confirmer l\'action', text = 'Voulez-vous
         {{-- Copyright --}}
         <div class="mt-10 pt-8 border-t border-gray-700 text-center text-gray-300 text-sm">
             <p>Copyright © {{ date('Y') }} Auto-Permis. Tous droits réservés.</p>
-            <a href="https://www.facebook.com/HeyyHappy" target="_blank" rel="noopener noreferrer"
+            <a href="https://happyazondekon.github.io/" target="_blank" rel="noopener noreferrer"
                 class="inline-block ml-2 underline text-gray-400 text-sm px-2 py-1 rounded opacity-90
                          hover:text-gray-300 transition transform duration-200 ease-in-out hover:-translate-y-1 hover:scale-105 motion-safe:animate-pulse">
                  Développé par HeyHappy

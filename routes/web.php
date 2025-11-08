@@ -198,6 +198,8 @@ Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact/send', [ContactController::class, 'send'])->name('contact.send');
 Route::post('/contact/practical-lesson', [ContactController::class, 'requestPracticalLesson'])->name('contact.practical-lesson')->middleware('auth');
 
-
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
 // Auth routes Laravel Breeze ou Jetstream
 require __DIR__.'/auth.php';

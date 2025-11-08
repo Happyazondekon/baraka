@@ -23,7 +23,7 @@ class ContactController extends Controller
         ]);
 
         // Envoyer l'email
-        Mail::to('autopermis25@gmail.com')->send(new ContactMessage($request->all()));
+        Mail::to('autopermis@auto-permis.com')->send(new ContactMessage($request->all()));
 
         return redirect()->route('contact')->with('success', 'Votre message a été envoyé avec succès !');
     }
@@ -43,7 +43,7 @@ class ContactController extends Controller
         $data['user_email'] = auth()->user()->email;
 
         // Envoyer l'email de demande de cours pratique
-        Mail::to('autopermis25@gmail.com')->send(new PracticalLessonRequest($data));
+        Mail::to('autopermis@auto-permis.com')->send(new PracticalLessonRequest($data));
 
         return redirect()->route('contact')->with('success', 'Votre demande de cours pratique a été envoyée ! Nous vous contacterons pour confirmation.');
     }

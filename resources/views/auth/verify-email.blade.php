@@ -11,8 +11,10 @@
             Vérifiez votre adresse e-mail
         </h2>
         <p class="mt-4 text-md text-gray-700">
-            Merci de vous être inscrit(e) ! Avant de commencer, pourriez-vous vérifier votre adresse e-mail en cliquant sur le lien que nous venons de vous envoyer ? Si vous n'avez pas reçu l'e-mail, nous serons ravis de vous en envoyer un autre.
-        </p>
+    Merci de vous être inscrit(e) ! Avant de commencer, pourriez-vous vérifier votre adresse e-mail en cliquant sur le lien que nous venons de vous envoyer ?
+    **Pensez à vérifier votre dossier de spams si vous ne le trouvez pas.**
+    Si vous n'avez toujours pas reçu l'e-mail, nous serons ravis de vous en envoyer un autre.
+</p>
     </div>
 
     @if (session('status') == 'verification-link-sent')

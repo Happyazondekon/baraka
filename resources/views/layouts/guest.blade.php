@@ -16,5 +16,21 @@
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         @yield('content')
     </div>
+    <script>
+        // Le 419 est généralement causé par l'expiration de session (défaut : 2h). 
+        // Ce script rafraîchit le jeton dans les formulaires toutes les 10 minutes (600 000 ms).
+        setInterval(function() {
+            fetch('/csrf-token')
+                .then(response => response.json())
+                .then(data => {
+                    // Met à jour le jeton dans tous les champs cachés (_token) des formulaires
+                    document.querySelectorAll('input[name="_token"]').forEach(input => {
+                        input.value = data.csrf_token;
+                    });
+                    console.log('Jeton CSRF rafraîchi.');
+                })
+                .catch(error => console.error('Erreur lors du rafraîchissement du jeton CSRF:', error));
+        }, 600000); // 10 minutes (vous pouvez ajuster cette valeur)
+    </script>
 </body>
 </html>

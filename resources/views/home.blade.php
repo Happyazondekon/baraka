@@ -29,15 +29,21 @@
                 
                 <div class="mt-8 grid grid-cols-3 gap-4">
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-green-600">500+</div>
+                        <div class="text-3xl font-bold text-green-600">
+                            <span class="counter" data-target="500">0</span><span>+</span>
+                        </div>
                         <div class="text-sm text-gray-600">Étudiants</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-green-600">95%</div>
+                        <div class="text-3xl font-bold text-green-600">
+                            <span class="counter" data-target="95">0</span><span>%</span>
+                        </div>
                         <div class="text-sm text-gray-600">Réussite</div>
                     </div>
                     <div class="text-center">
-                        <div class="text-3xl font-bold text-green-600">24/7</div>
+                        <div class="text-3xl font-bold text-green-600">
+                            <span class="counter" data-target="24">0</span><span>/7</span>
+                        </div>
                         <div class="text-sm text-gray-600">Disponible</div>
                     </div>
                 </div>
@@ -246,6 +252,41 @@
         sectionsToAnimate.forEach(section => {
             observer.observe(section);
         });
+    });
+</script>
+<script>
+    // Animation compteur
+    document.addEventListener('DOMContentLoaded', () => {
+        const counters = document.querySelectorAll('.counter');
+        counters.forEach(counter => {
+            const updateCount = () => {
+                const target = +counter.getAttribute('data-target');
+                const count = +counter.innerText;
+                const increment = target / 200; // Vitesse de l'animation
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(updateCount, 10);
+                } else {
+                    counter.innerText = target;
+                }
+            };
+            updateCount();
+        });
+    });
+
+    // Animation au scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target); // Animation une seule fois
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(section => {
+        observer.observe(section);
     });
 </script>
 @endsection

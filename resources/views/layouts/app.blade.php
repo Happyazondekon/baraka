@@ -478,7 +478,7 @@
                         <svg class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                         </svg>
-                        <span class="group-hover:text-white transition-colors duration-300">autopermis25@gmail.com</span>
+                        <span class="group-hover:text-white transition-colors duration-300">autopermis@auto-permis.com</span>
                     </div>
                     <div class="flex items-start space-x-3 group">
                         <svg class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -514,7 +514,7 @@
                 <p class="text-gray-400 text-sm">
                     Copyright © {{ date('Y') }} Auto-Permis. Tous droits réservés.
                 </p>
-                <a href="https://www.facebook.com/HeyyHappy" target="_blank" rel="noopener noreferrer"
+                <a href="https://happyazondekon.github.io/" target="_blank" rel="noopener noreferrer"
                     class="group inline-flex items-center space-x-2 text-gray-400 hover:text-green-400 transition-all duration-300 transform hover:scale-105">
                     <span class="text-sm">Développé par</span>
                     <span class="font-semibold text-green-400 group-hover:text-green-300">HeyHappy</span>
