@@ -348,6 +348,30 @@ public function startExam(?Quiz $exam = null)
     return view('examens.start', compact('questions', 'exam', 'timeLimit'));
 }
 
+public function startRandomExam()
+{
+    $user = auth()->user();
+
+    // Sélectionner un examen blanc aléatoire parmi tous les examens actifs
+    $exam = Quiz::where('is_mock_exam', true)
+        ->where('is_active', true)
+        ->inRandomOrder()
+        ->first();
+
+    if (!$exam) {
+        return redirect()->route('examens.index')->with('error', 'Aucun examen blanc disponible.');
+    }
+
+    $questions = $exam->questions()->with('answers')->inRandomOrder()->get();
+    $timeLimit = $exam->time_limit;
+
+    if ($questions->isEmpty()) {
+        return redirect()->route('examens.index')->with('error', 'Aucune question disponible pour l\'examen blanc.');
+    }
+
+    return view('examens.start', compact('questions', 'exam', 'timeLimit'));
+}
+
 
 public function showResults($resultId)
 {

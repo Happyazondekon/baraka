@@ -96,6 +96,7 @@ Route::post('/examens/submit/{exam}', [QuizController::class, 'submitExam'])->na
     });
 
     Route::get('/examens/start', [QuizController::class, 'startExam'])->name('examens.start');
+    Route::get('/examens/start/random', [QuizController::class, 'startRandomExam'])->name('examens.start.random');
     Route::get('/examens/start/{exam}', [QuizController::class, 'startExam'])->name('examens.start.specific');
     Route::get('/examens/results/{result}', [QuizController::class, 'showResults'])->name('examens.results');
 

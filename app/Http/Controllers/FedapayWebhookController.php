@@ -47,9 +47,17 @@ class FedapayWebhookController extends Controller
             if ($user && !$user->has_paid) {
                 $user->has_paid = true;
                 $user->paid_at = now();
+                
+                // Ajouter 2 mois d'accès à partir de maintenant
+                $subscriptionMonths = 2;
+                $user->payment_expires_at = now()->addMonths($subscriptionMonths);
+                $user->subscription_months = $subscriptionMonths;
+                $user->has_active_subscription = true;
+                
                 $user->save();
 
                 Log::info("✅ Webhook : Utilisateur {$user->email} activé. Transaction: {$transactionId}");
+                Log::info("📅 Accès valide jusqu'au : {$user->payment_expires_at->format('d/m/Y H:i:s')}");
             } elseif ($user && $user->has_paid) {
                 Log::info("🔔 Webhook : Utilisateur {$user->email} déjà payé. Transaction: {$transactionId}");
             } else {

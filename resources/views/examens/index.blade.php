@@ -79,6 +79,21 @@
             </div>
         </div>
 
+        <!-- Examen Aléatoire Bouton -->
+        @if($mockExams && $mockExams->count() > 0)
+        <div class="mb-12">
+            <div class="flex justify-center mb-8">
+                <a href="{{ route('examens.start.random') }}" 
+                   class="group inline-flex items-center gap-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1">
+                    <svg class="w-6 h-6 group-hover:animate-spin" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M7.5 2a5.5 5.5 0 015.28 7.889c.202.758.688 1.762 1.173 2.777C15.956 15.722 17.857 18 20 18a1 1 0 100-2c-1.654 0-3.08-1.95-4.313-4.612-.306-.675-.575-1.414-.834-2.110a5.5 5.5 0 11-7.353-7.278z"/>
+                    </svg>
+                    Lancer un examen aléatoire
+                </a>
+            </div>
+        </div>
+        @endif
+
         <!-- Examens Personnalisés -->
         @if($mockExams && $mockExams->count() > 0)
         <div class="mb-12">

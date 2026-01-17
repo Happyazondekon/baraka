@@ -278,9 +278,17 @@ public function simulatePaymentWebhook(Request $request)
         // Simuler un paiement réussi
         $user->has_paid = true;
         $user->paid_at = now();
+        
+        // Ajouter 2 mois d'accès
+        $subscriptionMonths = 2;
+        $user->payment_expires_at = now()->addMonths($subscriptionMonths);
+        $user->subscription_months = $subscriptionMonths;
+        $user->has_active_subscription = true;
+        
         $user->save();
 
         Log::info('✅ Paiement simulé pour: ' . $user->email);
+        Log::info("📅 Accès valide jusqu'au : {$user->payment_expires_at->format('d/m/Y H:i:s')}");
 
         // Émettre un événement de paiement réussi
         event(new \App\Events\PaymentCompleted($user));
@@ -312,13 +320,21 @@ public function handlePaymentCallback(Request $request)
             if ($user && !$user->has_paid) {
                 $user->has_paid = true;
                 $user->paid_at = now();
+                
+                // Ajouter 2 mois d'accès à partir de maintenant
+                $subscriptionMonths = 2;
+                $user->payment_expires_at = now()->addMonths($subscriptionMonths);
+                $user->subscription_months = $subscriptionMonths;
+                $user->has_active_subscription = true;
+                
                 $user->save();
                 
                 Log::info("✅ Utilisateur {$user->email} activé via callback");
+                Log::info("📅 Accès valide jusqu'au : {$user->payment_expires_at->format('d/m/Y H:i:s')}");
                 
                 // REDIRECTION vers le dashboard (pas de vue)
                 return redirect()->route('dashboard')
-                    ->with('success', '🎉 Paiement validé ! Accès débloqué.');
+                    ->with('success', '🎉 Paiement validé ! Accès débloqué pour 2 mois.');
             }
         }
         

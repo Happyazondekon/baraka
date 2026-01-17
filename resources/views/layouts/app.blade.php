@@ -214,9 +214,15 @@
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 {{-- Logo --}}
+                @auth
+                <a href="{{ route('dashboard') }}" class="logo-container">
+                    <img src="{{ asset('images/Auto-Permis.png') }}" alt="Auto-Permis Logo" class="h-10 w-auto">
+                </a>
+                @else
                 <a href="{{ route('home') }}" class="logo-container">
                     <img src="{{ asset('images/Auto-Permis.png') }}" alt="Auto-Permis Logo" class="h-10 w-auto">
                 </a>
+                @endauth
 
                 {{-- Desktop Navigation --}}
                 <nav class="hidden md:flex space-x-8">
@@ -425,6 +431,28 @@
             <div class="space-y-4">
                 <h3 class="text-xl font-bold mb-6 gradient-text">Auto-Permis</h3>
                 <ul class="space-y-3 text-gray-300">
+                    @auth
+                    <li>
+                        <a href="{{ route('dashboard') }}" class="footer-link inline-block hover:text-green-400 transition-all duration-300">
+                            Accueil
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('modules.index') }}" class="footer-link inline-block hover:text-green-400 transition-all duration-300">
+                            Cours
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('progression') }}" class="footer-link inline-block hover:text-green-400 transition-all duration-300">
+                            Ma Progression
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('contact') }}" class="footer-link inline-block hover:text-green-400 transition-all duration-300">
+                            Contact
+                        </a>
+                    </li>
+                    @else
                     <li>
                         <a href="{{ route('home') }}" class="footer-link inline-block hover:text-green-400 transition-all duration-300">
                             Accueil
@@ -445,6 +473,7 @@
                             Contact
                         </a>
                     </li>
+                    @endauth
                 </ul>
             </div>
 
@@ -531,4 +560,46 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
     // Fonctions globales SweetAlert
-    function showConfirm(title, text, confirmButtonText = 'Con
+    function showConfirm(title, text, confirmButtonText = 'Confirmer', cancelButtonText = 'Annuler') {
+        return Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#22c55e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: confirmButtonText,
+            cancelButtonText: cancelButtonText
+        });
+    }
+    function showAlert(title, text, icon = 'success', timer = 3000) {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            timer: timer,
+            showConfirmButton: false
+        });
+    }
+    </script>
+
+    {{-- Firebase Analytics --}}
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        
+        const firebaseConfig = {
+            apiKey: "{{ env('FIREBASE_API_KEY', 'AIzaSyBACDPPzaf2joBCHIlCFtqlGZzv7obFYQg') }}",
+            authDomain: "{{ env('FIREBASE_AUTH_DOMAIN', 'auto-permis.firebaseapp.com') }}",
+            projectId: "{{ env('FIREBASE_PROJECT_ID', 'auto-permis') }}",
+            storageBucket: "{{ env('FIREBASE_STORAGE_BUCKET', 'auto-permis.firebasestorage.app') }}",
+            messagingSenderId: "{{ env('FIREBASE_MESSAGING_SENDER_ID', '293094744206') }}",
+            appId: "{{ env('FIREBASE_APP_ID', '1:293094744206:web:9f441fcfa930c2be79a9df') }}",
+            measurementId: "{{ env('FIREBASE_MEASUREMENT_ID', 'G-60X31HKYCN') }}"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+</body>
+</html>

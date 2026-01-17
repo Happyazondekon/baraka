@@ -195,5 +195,23 @@ function confirmAction(event, title = 'Confirmer l\'action', text = 'Voulez-vous
             </a>
         </div>
     </footer>
+    {{-- Firebase Analytics --}}
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-analytics.js";
+        
+        const firebaseConfig = {
+            apiKey: "{{ env('FIREBASE_API_KEY', 'AIzaSyBACDPPzaf2joBCHIlCFtqlGZzv7obFYQg') }}",
+            authDomain: "{{ env('FIREBASE_AUTH_DOMAIN', 'auto-permis.firebaseapp.com') }}",
+            projectId: "{{ env('FIREBASE_PROJECT_ID', 'auto-permis') }}",
+            storageBucket: "{{ env('FIREBASE_STORAGE_BUCKET', 'auto-permis.firebasestorage.app') }}",
+            messagingSenderId: "{{ env('FIREBASE_MESSAGING_SENDER_ID', '293094744206') }}",
+            appId: "{{ env('FIREBASE_APP_ID', '1:293094744206:web:9f441fcfa930c2be79a9df') }}",
+            measurementId: "{{ env('FIREBASE_MEASUREMENT_ID', 'G-60X31HKYCN') }}"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>
