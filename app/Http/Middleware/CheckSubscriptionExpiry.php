@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Models\User; // Add this import
 
 class CheckSubscriptionExpiry
 {
@@ -16,6 +17,7 @@ class CheckSubscriptionExpiry
     {
         // Vérifier si l'utilisateur est authentifié
         if (Auth::check()) {
+            /** @var User $user */ // Add this PHPDoc comment
             $user = Auth::user();
 
             // Vérifier si l'abonnement a expiré
@@ -32,7 +34,7 @@ class CheckSubscriptionExpiry
                     return redirect()->route('pricing')
                         ->with('warning', '⏰ Votre abonnement a expiré. Veuillez renouveler votre accès pour continuer.');
                 }
-            } elseif ($user->has_paid && $user->isExpiringsoon()) {
+            } elseif ($user->has_paid && $user->isExpiringSoon()) {
                 // L'abonnement expire bientôt
                 $daysLeft = $user->getDaysUntilExpiry();
                 Log::info("⚠️ Abonnement expire bientôt pour {$user->email} - {$daysLeft} jour(s) restant(s)");
