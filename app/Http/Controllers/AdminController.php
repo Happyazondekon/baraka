@@ -55,7 +55,21 @@ class AdminController extends Controller
         }
 
         $payments = $query->orderBy('created_at', 'desc')->paginate(20);
-        return view('admin.payments.index', compact('payments'));
+        
+        // Calculer les statistiques
+        $allPayments = Payment::with('user')->get();
+        $totalPayments = $allPayments->count();
+        $totalAmount = $allPayments->sum('amount');
+        $completedPayments = $allPayments->where('status', 'completed')->count();
+        $pendingPayments = $allPayments->where('status', 'pending')->count();
+        
+        return view('admin.payments.index', compact(
+            'payments',
+            'totalPayments',
+            'totalAmount',
+            'completedPayments',
+            'pendingPayments'
+        ));
     }
 
     /**

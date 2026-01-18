@@ -192,6 +192,4 @@ public function isExpiringsoon()
     $daysLeft = $this->getDaysUntilExpiry();
     return $daysLeft !== null && $daysLeft > 0 && $daysLeft <= 7;
 }
-        ->avg('score') ?? 0);
-}
 }
