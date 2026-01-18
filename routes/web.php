@@ -51,6 +51,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/profil', [HomeController::class, 'updateProfile'])->name('profile.update');
     Route::get('/progression', [HomeController::class, 'progression'])->name('progression');
     
+    // Statut de verrouillage des modules
+    Route::get('/modules/statut', [\App\Http\Controllers\ModuleLockingController::class, 'status'])->name('modules.locking.status');
+    Route::get('/api/modules/statut', [\App\Http\Controllers\ModuleLockingController::class, 'allModulesStatus'])->name('api.modules.status');
+    Route::get('/api/modules/{module}/statut', [\App\Http\Controllers\ModuleLockingController::class, 'checkModuleStatus'])->name('api.module.status');
+    
     // Page et Processus de Paiement (L'utilisateur doit pouvoir y accéder pour payer)
     Route::get('/paiement', [HomeController::class, 'payment'])->name('payment');
     Route::post('/paiement/process', [HomeController::class, 'processPayment'])->name('payment.process');
@@ -81,8 +86,10 @@ Route::post('/examens/submit/{exam}', [QuizController::class, 'submitExam'])->na
     // =======================================================================
     Route::middleware('payment.required')->group(function () {
         
-        // DÉTAIL D'UN MODULE
-        Route::get('/cours/{module}', [ModuleController::class, 'show'])->name('modules.show');
+        // DÉTAIL D'UN MODULE - Protégé par le verrouillage de progression
+        Route::get('/cours/{module}', [ModuleController::class, 'show'])
+            ->middleware(\App\Http\Middleware\CheckModuleAccess::class)
+            ->name('modules.show');
         
         // DÉTAIL D'UNE LEÇON/COURS
         Route::get('/cours/{module}/{course}', [CourseController::class, 'show'])->name('courses.show');

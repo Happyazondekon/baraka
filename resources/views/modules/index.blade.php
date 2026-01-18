@@ -115,21 +115,36 @@
 
                                         <div class="lg:text-right">
                                             @if(auth()->check() && auth()->user()->has_paid)
-                                            <a href="{{ route('modules.show', $module->id) }}" 
-                                               class="inline-flex items-center bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
-                                                <span>Commencer</span>
-                                                <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                                </svg>
-                                            </a>
+                                                @if($module->isLockedFor(auth()->user()))
+                                                    <div class="flex flex-col items-start lg:items-end gap-2">
+                                                        <button disabled
+                                                           class="inline-flex items-center bg-gray-400 text-gray-600 text-white font-bold px-6 py-3 rounded-lg cursor-not-allowed opacity-70 text-sm">
+                                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                            <span>Verrouillé</span>
+                                                        </button>
+                                                        <div class="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200 max-w-xs">
+                                                            {{ $module->getLockReason(auth()->user()) }}
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <a href="{{ route('modules.show', $module->id) }}" 
+                                                       class="inline-flex items-center bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
+                                                        <span>Commencer</span>
+                                                        <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                        </svg>
+                                                    </a>
+                                                @endif
                                             @else
-                                            <a href="{{ route('pricing') }}" 
-                                               class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
-                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                                </svg>
-                                                <span>Débloquer</span>
-                                            </a>
+                                                <a href="{{ route('pricing') }}" 
+                                                   class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
+                                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    <span>Débloquer</span>
+                                                </a>
                                             @endif
                                         </div>
                                     </div>
@@ -210,19 +225,34 @@
 
                                         <div class="lg:text-right">
                                             @if(auth()->check() && auth()->user()->has_paid)
-                                            <a href="{{ route('modules.show', $module->id) }}" 
-                                               class="inline-flex items-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
-                                                <span>Commencer</span>
-                                                <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                                </svg>
-                                            </a>
+                                                @if($module->isLockedFor(auth()->user()))
+                                                    <div class="flex flex-col items-start lg:items-end gap-2">
+                                                        <button disabled
+                                                           class="inline-flex items-center bg-gray-400 text-gray-600 text-white font-bold px-6 py-3 rounded-lg cursor-not-allowed opacity-70 text-sm">
+                                                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                            <span>Verrouillé</span>
+                                                        </button>
+                                                        <div class="text-xs text-red-600 bg-red-50 p-2 rounded border border-red-200 max-w-xs">
+                                                            {{ $module->getLockReason(auth()->user()) }}
+                                                        </div>
+                                                    </div>
+                                                @else
+                                                    <a href="{{ route('modules.show', $module->id) }}" 
+                                                       class="inline-flex items-center bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
+                                                        <span>Commencer</span>
+                                                        <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                        </svg>
+                                                    </a>
+                                                @endif
                                             @else
-                                            <a href="{{ route('pricing') }}" 
-                                               class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
-                                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                                </svg>
+                                                <a href="{{ route('pricing') }}" 
+                                                   class="inline-flex items-center bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-white font-bold px-6 py-3 rounded-lg transition-all duration-300 shadow hover:shadow-md transform hover:-translate-y-0.5 text-sm">
+                                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                                    </svg>
                                                 <span>Débloquer</span>
                                             </a>
                                             @endif
