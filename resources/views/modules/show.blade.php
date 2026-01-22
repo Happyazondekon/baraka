@@ -105,6 +105,43 @@
                 </div>
             </div>
 
+            <!-- Introduction - Comment terminer le module -->
+            <div class="bg-blue-50 border-l-4 border-blue-500 rounded-xl p-6 mb-8 shadow-sm">
+                <div class="flex items-start">
+                    <div class="bg-blue-500 text-white rounded-full p-3 mr-4 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zm-11-1a1 1 0 11-2 0 1 1 0 012 0zM8 9a1 1 0 000 2h6a1 1 0 000-2H8zm0 4a1 1 0 100 2h3a1 1 0 100-2H8z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h5 class="text-lg font-bold text-blue-900 mb-2">Comment utiliser ce module</h5>
+                        <div class="text-blue-800 space-y-2">
+                            <p class="font-semibold">Suivez ces étapes pour progresser :</p>
+                            <ul class="list-disc list-inside space-y-1 text-sm">
+                                <li>
+                                    <span class="font-medium">Consultez chaque leçon</span> : Cliquez sur une leçon pour la développer et accédez au contenu (vidéo, audio, texte)
+                                </li>
+                                <li>
+                                    <span class="font-medium">Terminez chaque leçon</span> : Après avoir consulté le contenu, cliquez sur le bouton <span class="bg-white px-2 py-0.5 rounded font-semibold text-green-600">"Marquer comme terminé"</span>
+                                </li>
+                                <li>
+                                    <span class="font-medium">Atteignez 80% de progression</span> : Vous devez marquer au moins 80% des leçons comme terminées pour déverrouiller le module suivant
+                                </li>
+                                <li>
+                                    <span class="font-medium">Passez le test de validation</span> : Après avoir terminé les leçons, répondez au QCM pour valider votre compréhension
+                                </li>
+                            </ul>
+                            <div class="bg-blue-100 border border-blue-300 rounded-lg p-3 mt-3 flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-sm"><span class="font-semibold">Conseil :</span> Prenez votre temps pour apprendre. Chaque leçon terminée vous rapproche de la réussite !</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="space-y-4">
                 @foreach($module->courses as $index => $course)
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
