@@ -184,6 +184,106 @@ class QuizController extends Controller
     }
 }
 
+    /**
+     * Soumissionner un lot de 20 questions et retourner les résultats en JSON
+     */
+    public function submitBatch(Request $request, Module $module)
+    {
+        try {
+            $request->validate([
+                'batch_index' => 'required|integer|min:0',
+                'answers' => 'required|array',
+                'answers.*' => 'required',
+            ]);
+
+            $quiz = $module->quiz()->with(['questions.answers'])->first();
+            
+            if (!$quiz) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Quiz introuvable.'
+                ], 404);
+            }
+
+            $batchIndex = $request->input('batch_index');
+            $answers = $request->input('answers', []);
+            
+            // Récupérer les questions groupées par 20
+            $questions = $quiz->questions;
+            $questionGroups = $questions->chunk(20);
+            
+            if (!isset($questionGroups[$batchIndex])) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'Lot de questions invalide.'
+                ], 400);
+            }
+
+            $batchQuestions = $questionGroups[$batchIndex];
+            $batchCorrectAnswers = 0;
+            $batchDetailedResults = [];
+
+            // Valider et calculer les résultats pour ce lot
+            foreach ($batchQuestions as $question) {
+                $userAnswerIds = $answers[$question->id] ?? [];
+                
+                if (!is_array($userAnswerIds)) {
+                    $userAnswerIds = [$userAnswerIds];
+                }
+                
+                $correctAnswerIds = $question->answers()->where('is_correct', true)->pluck('id')->toArray();
+                $userAnswers = $question->answers()->whereIn('id', $userAnswerIds)->get();
+                
+                // Vérifier si toutes les bonnes réponses sont sélectionnées et aucune mauvaise
+                $isCorrect = false;
+                if (count($correctAnswerIds) > 0) {
+                    $allCorrectSelected = count(array_intersect($userAnswerIds, $correctAnswerIds)) === count($correctAnswerIds);
+                    $noIncorrectSelected = count(array_diff($userAnswerIds, $correctAnswerIds)) === 0;
+                    $isCorrect = $allCorrectSelected && $noIncorrectSelected;
+                }
+                
+                if ($isCorrect) {
+                    $batchCorrectAnswers++;
+                }
+
+                $batchDetailedResults[] = [
+                    'question_id' => $question->id,
+                    'question_text' => $question->question_text,
+                    'image' => $question->image,
+                    'user_answer_ids' => $userAnswerIds,
+                    'user_answers_text' => $userAnswers->pluck('answer_text')->toArray(),
+                    'correct_answer_ids' => $correctAnswerIds,
+                    'correct_answers_text' => $question->answers()->where('is_correct', true)->pluck('answer_text')->toArray(),
+                    'explanation' => $question->explanation,
+                    'is_correct' => $isCorrect,
+                    'is_multiple_choice' => count($correctAnswerIds) > 1
+                ];
+            }
+
+            $batchScore = $batchQuestions->count() > 0 
+                ? round(($batchCorrectAnswers / $batchQuestions->count()) * 100) 
+                : 0;
+
+            return response()->json([
+                'success' => true,
+                'batch_index' => $batchIndex,
+                'batch_correct_answers' => $batchCorrectAnswers,
+                'batch_total_questions' => $batchQuestions->count(),
+                'batch_score' => $batchScore,
+                'detailed_results' => $batchDetailedResults,
+                'is_last_batch' => $batchIndex === $questionGroups->count() - 1
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la soumission du lot du quiz: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'error' => 'Une erreur est survenue lors de la validation du lot.'
+            ], 500);
+        }
+    }
+
     // Admin methods pour Quiz
     public function index()
     {

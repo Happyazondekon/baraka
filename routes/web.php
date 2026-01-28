@@ -97,6 +97,7 @@ Route::post('/examens/submit/{exam}', [QuizController::class, 'submitExam'])->na
         // QUIZ LIÉ À UN MODULE
         Route::get('/cours/{module}/quiz', [QuizController::class, 'show'])->name('modules.quiz.show');
         Route::post('/cours/{module}/quiz/submit', [QuizController::class, 'submit'])->name('modules.quiz.submit');
+        Route::post('/cours/{module}/quiz/batch-submit', [QuizController::class, 'submitBatch'])->name('modules.quiz.batch-submit');
 
         // QUIZ DIRECT (Si c'est du contenu payant)
         Route::get('/quiz/{quiz}', [QuizController::class, 'showByQuiz'])->name('quizzes.show');

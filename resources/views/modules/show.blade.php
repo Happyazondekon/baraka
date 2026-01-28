@@ -382,9 +382,10 @@
         @endif
 
         <div id="quizForm" class="{{ session('quiz_result_id') && !session('error') ? 'hidden' : '' }}">
-            <form action="{{ route('modules.quiz.submit', $module) }}" method="POST" onsubmit="return handleQuizSubmit(event)">
+            <form id="quizFormElement" method="POST" onsubmit="return false;">
                 @csrf
                 <input type="hidden" name="time_taken" id="timeTaken" value="0">
+                <input type="hidden" name="batch_index" id="batchIndex" value="0">
                 
                 @php
                     $questions = $module->quiz->questions;
@@ -516,7 +517,7 @@
                     <div class="mt-8 flex justify-between items-center">
                         @if($groupIndex > 0)
                         <button type="button" 
-                                onclick="showQuestionGroup({{ $groupIndex - 1 }})" 
+                                onclick="goToPreviousGroup({{ $groupIndex - 1 }})" 
                                 class="flex items-center px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-all duration-300 shadow-sm hover:shadow-md">
                             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -528,59 +529,61 @@
                         @endif
 
                         @if($groupIndex < $groupCount - 1)
-                        <button type="button" 
-                                onclick="showQuestionGroup({{ $groupIndex + 1 }})" 
-                                class="flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                            Partie suivante
-                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </button>
+                        <div class="flex gap-4">
+                            <button type="button" 
+                                    onclick="validateAndSubmitBatch({{ $groupIndex }})"
+                                    class="flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Valider ce lot
+                            </button>
+                            <button type="button" 
+                                    onclick="goToNextGroup({{ $groupIndex + 1 }})" 
+                                    class="flex items-center px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                Partie suivante
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
                         @else
-                        <div></div>
+                        <button type="button" 
+                                onclick="validateAndSubmitBatch({{ $groupIndex }})"
+                                class="flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Valider le dernier lot
+                        </button>
                         @endif
+                    </div>
+                    @else
+                    <!-- Pour les quiz avec une seule partie, afficher le bouton de validation -->
+                    <div class="mt-8 flex justify-center">
+                        <button type="button" 
+                                onclick="validateAndSubmitBatch({{ $groupIndex }})"
+                                class="flex items-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Valider le quiz
+                        </button>
                     </div>
                     @endif
                 </div>
                 @endforeach
 
-                <!-- Section de soumission du formulaire -->
-                <div class="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-8 border border-blue-200 shadow-sm">
-                    <div class="text-center">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4">Prêt à valider vos connaissances ?</h4>
-                        <p class="text-gray-600 mb-6">Vérifiez vos réponses avant de soumettre le quiz.</p>
-                        
-                        <div class="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                            <button type="button" onclick="resetQuiz()" class="px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium rounded-xl transition-colors duration-300 shadow-sm hover:shadow-md">
-                                <svg class="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                </svg>
-                                Réinitialiser
-                            </button>
-                            
-                            <button type="submit" 
-                                    id="submitBtn"
-                                    class="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center disabled:bg-gray-400 disabled:cursor-not-allowed">
-                                <span id="btnText">Valider le Quiz</span>
-                                <span id="btnSpinner" class="hidden">
-                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Validation en cours...
-                                </span>
-                            </button>
-                        </div>
-                        
-                        <div class="mt-6 text-sm text-gray-500 flex items-center justify-center">
-                            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                            </svg>
-                            Temps écoulé : <span id="timer" class="font-mono font-bold ml-1">00:00</span>
-                        </div>
-                    </div>
+                <!-- SECTION CORRECTIONS PROGRESSIVES PAR LOT -->
+                <div id="batchCorrectionsSection" class="mt-8 space-y-8">
+                    <!-- Les corrections seront ajoutées dynamiquement ici -->
                 </div>
             </form>
+
+            <!-- SECTION CORRECTIONS PROGRESSIVES PAR LOT -->
+            <div id="batchCorrectionsSection" class="hidden mt-8 space-y-8">
+                <!-- Les corrections seront ajoutées dynamiquement ici -->
+            </div>
         </div>
 
         @if(session('quiz_result_id'))
@@ -676,10 +679,12 @@
                         
                         {{-- Image de la question --}}
                         @if($resultItem['image'])
-                        <div class="mb-4">
-                            <img src="{{ asset('storage/' . $resultItem['image']) }}" 
-                                 alt="Image de la question" 
-                                 class="max-h-64 w-auto rounded-lg shadow-md object-contain border border-gray-300">
+                        <div class="mb-6">
+                            <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 mx-auto hover:border-blue-400 transition-colors">
+                                <img src="{{ asset('storage/' . $resultItem['image']) }}" 
+                                     alt="Image de la question" 
+                                     class="w-full h-full object-contain rounded-lg">
+                            </div>
                         </div>
                         @endif
                         
@@ -881,21 +886,403 @@ function showQuestionGroup(groupIndex) {
     targetGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Fonction pour vérifier si le groupe actuel est complet avant de passer au suivant
-function validateCurrentGroup(groupIndex) {
-    const currentGroup = document.getElementById(`question-group-${groupIndex}`);
+// Stockage pour suivre les lots validés
+let validatedBatches = {};
+let totalBatches = {{ $module->quiz->questions->count() > 0 ? json_encode($questionGroups->count()) : 0 }};
+let batchSubmitting = false;
+
+// Navigation vers groupe précédent (avec validation)
+function goToPreviousGroup(groupIndex) {
+    showQuestionGroup(groupIndex);
+}
+
+// Navigation vers groupe suivant (avec validation du groupe actuel d'abord)
+async function goToNextGroup(nextGroupIndex) {
+    const currentGroupIndex = nextGroupIndex - 1;
+    const currentGroup = document.getElementById(`question-group-${currentGroupIndex}`);
     const questions = currentGroup.querySelectorAll('.question-container');
     let answeredCount = 0;
-    
+
+    // Vérifier que toutes les questions du groupe actuel sont répondues
     questions.forEach(question => {
         const questionId = question.dataset.questionId;
-        const hasAnswer = question.querySelector('.answer-input:checked') !== null;
-        if (hasAnswer) {
+        const checkedInputs = question.querySelectorAll('.answer-input:checked');
+        if (checkedInputs.length > 0) {
             answeredCount++;
         }
     });
+
+    if (answeredCount < questions.length) {
+        await Swal.fire({
+            title: 'Réponses manquantes',
+            html: `Vous avez répondu à <strong>${answeredCount}</strong> sur <strong>${questions.length}</strong> questions dans cette partie.<br>Veuillez répondre à toutes les questions avant de continuer.`,
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Compris',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
+        return;
+    }
+
+    // Si toutes les questions sont répondues, naviguer
+    showQuestionGroup(nextGroupIndex);
+}
+
+// Fonction pour valider et soumettre un lot
+async function validateAndSubmitBatch(batchIndex) {
+    if (batchSubmitting) return;
     
-    return answeredCount === questions.length;
+    const currentGroup = document.getElementById(`question-group-${batchIndex}`);
+    const questions = currentGroup.querySelectorAll('.question-container');
+    let answeredCount = 0;
+    const answers = {};
+
+    // Vérifier que toutes les questions du lot sont répondues et collecter les réponses
+    questions.forEach(question => {
+        const questionId = question.dataset.questionId;
+        const checkedInputs = question.querySelectorAll('.answer-input:checked');
+        
+        if (checkedInputs.length > 0) {
+            answeredCount++;
+            answers[questionId] = Array.from(checkedInputs).map(input => input.value);
+        }
+    });
+
+    // Vérifier la complétude du lot
+    if (answeredCount < questions.length) {
+        await Swal.fire({
+            title: 'Réponses manquantes',
+            html: `Vous avez répondu à <strong>${answeredCount}</strong> sur <strong>${questions.length}</strong> questions dans ce lot.<br>Veuillez répondre à toutes les questions avant de valider.`,
+            icon: 'warning',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Compris',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
+        return;
+    }
+
+    batchSubmitting = true;
+
+    try {
+        // Soumettre ce lot au serveur
+        const response = await fetch('{{ route("modules.quiz.batch-submit", $module) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+            },
+            body: JSON.stringify({
+                batch_index: batchIndex,
+                answers: answers
+            })
+        });
+
+        const data = await response.json();
+
+        if (!data.success) {
+            await Swal.fire({
+                title: 'Erreur',
+                text: data.error || 'Une erreur est survenue lors de la validation du lot.',
+                icon: 'error',
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'OK'
+            });
+            batchSubmitting = false;
+            return;
+        }
+
+        // Marquer ce lot comme validé
+        validatedBatches[batchIndex] = data;
+
+        // Afficher les corrections pour ce lot
+        displayBatchCorrections(batchIndex, data.detailed_results);
+
+        // Afficher un message de succès
+        await Swal.fire({
+            title: 'Lot validé !',
+            html: `Vous avez obtenu <strong>${data.batch_correct_answers}/${data.batch_total_questions}</strong> bonnes réponses pour cette partie.<br>Score : <strong>${data.batch_score}%</strong>`,
+            icon: 'success',
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-xl'
+            }
+        });
+
+        // Si c'est le dernier lot, rediriger après la validation
+        if (data.is_last_batch) {
+            // Soumettre le quiz final et rediriger
+            await submitFinalQuiz(batchIndex);
+        } else {
+            // Aller automatiquement au lot suivant
+            if (batchIndex < totalBatches - 1) {
+                showQuestionGroup(batchIndex + 1);
+            }
+        }
+
+    } catch (error) {
+        console.error('Erreur lors de la soumission du lot:', error);
+        await Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur est survenue. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+        });
+    } finally {
+        batchSubmitting = false;
+    }
+}
+
+// Fonction pour afficher les corrections d'un lot
+function displayBatchCorrections(batchIndex, detailedResults) {
+    const correctionsSection = document.getElementById('batchCorrectionsSection');
+    correctionsSection.classList.remove('hidden');
+
+    // Créer un conteneur pour ce lot de corrections
+    const batchContainer = document.createElement('div');
+    batchContainer.id = `batch-corrections-${batchIndex}`;
+    batchContainer.className = 'bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden';
+
+    // En-tête du lot
+    const batchBefore = Math.min(batchIndex * 20, {{ $module->quiz->questions->count() }});
+    const batchAfter = Math.min(batchBefore + detailedResults.length, {{ $module->quiz->questions->count() }});
+    
+    let headerColor = 'from-green-500 to-emerald-600';
+    let correctCount = detailedResults.filter(r => r.is_correct).length;
+    let score = Math.round((correctCount / detailedResults.length) * 100);
+    
+    if (score < 100) {
+        headerColor = 'from-yellow-500 to-amber-600';
+    }
+
+    let headerHTML = `
+        <div class="bg-gradient-to-r ${headerColor} p-8 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-2xl lg:text-3xl font-bold mb-2">Corrections - Partie ${batchIndex + 1}</h3>
+                    <p class="text-white text-opacity-90">Questions ${batchBefore + 1} à ${batchAfter}</p>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <div class="hidden lg:block bg-white bg-opacity-20 rounded-xl p-4 text-center">
+                        <div class="text-2xl font-bold">${correctCount}/${detailedResults.length}</div>
+                        <div class="text-sm opacity-90">Bonnes réponses</div>
+                    </div>
+                    <button type="button" 
+                            onclick="toggleBatchCorrections(${batchIndex})"
+                            class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-lg p-3 transition-all duration-300">
+                        <svg class="w-6 h-6 toggle-icon-batch-${batchIndex}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Contenu des corrections
+    let contentHTML = `<div id="batch-content-${batchIndex}" class="p-8"><div class="space-y-6">`;
+
+    detailedResults.forEach((result, resultIndex) => {
+        const globalIndex = (batchIndex * 20) + resultIndex;
+        const isCorrect = result.is_correct;
+
+        contentHTML += `
+            <div class="bg-gradient-to-br ${isCorrect ? 'from-green-50 to-emerald-50 border-green-200' : 'from-red-50 to-orange-50 border-red-200'} rounded-2xl p-0 border-2 shadow-sm hover:shadow-md transition-all duration-300 question-toggle-container">
+                <button type="button" 
+                        class="w-full text-left p-6 flex items-center justify-between focus:outline-none transition-all duration-300 hover:bg-gray-100/50"
+                        onclick="toggleQuestionCorrection('batch-${batchIndex}-${resultIndex}')">
+                    <div class="flex items-start flex-1 pr-4">
+                        <div class="flex-shrink-0 mr-4">
+                            ${isCorrect ? 
+                                '<div class="bg-green-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">✓</div>' :
+                                '<div class="bg-red-500 text-white rounded-xl w-10 h-10 flex items-center justify-center text-lg font-bold shadow-md">✗</div>'
+                            }
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold ${isCorrect ? 'text-green-800' : 'text-red-800'} mb-2">
+                                Question ${globalIndex + 1} ${isCorrect ? '(Correcte)' : '(Incorrecte)'}
+                            </p>
+                            <p class="text-gray-800 font-semibold break-words">${result.question_text}</p>
+                        </div>
+                    </div>
+                    <svg class="chevron-icon-batch-${batchIndex}-${resultIndex} w-6 h-6 text-gray-400 flex-shrink-0 ml-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                    </svg>
+                </button>
+
+                <div id="correction-details-batch-${batchIndex}-${resultIndex}" class="hidden border-t-2 ${isCorrect ? 'border-green-200' : 'border-red-200'} p-6 bg-opacity-50">
+                    <div class="flex flex-col lg:flex-row gap-6">
+                        <!-- Contenu des réponses -->
+                        <div class="flex-1 space-y-6">
+                        <!-- Réponse utilisateur -->
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-3">Votre réponse :</h4>
+                            <div class="space-y-2">
+                                ${result.user_answers_text.length > 0 ?
+                                    result.user_answers_text.map(answer => `
+                                        <div class="flex items-start p-3 rounded-lg ${isCorrect ? 'bg-green-100 border border-green-300' : 'bg-red-100 border border-red-300'}">
+                                            <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5 ${isCorrect ? 'text-green-600' : 'text-red-600'}" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="text-gray-800">${answer}</span>
+                                        </div>
+                                    `).join('')
+                                    : '<p class="text-gray-600 italic">Pas de réponse</p>'
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Bonne réponse -->
+                        ${!isCorrect ? `
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-3">Bonne réponse :</h4>
+                                <div class="space-y-2">
+                                    ${result.correct_answers_text.map(answer => `
+                                        <div class="flex items-start p-3 rounded-lg bg-green-100 border border-green-300">
+                                            <svg class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="text-gray-800">${answer}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <!-- Explication -->
+                        ${result.explanation ? `
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-bold text-blue-900 mb-2">Explication :</h4>
+                                <p class="text-blue-800 prose">${result.explanation}</p>
+                            </div>
+                        ` : ''}
+                        </div>
+
+                        <!-- Image de la question si elle existe - À droite -->
+                        ${result.image ? `
+                            <div class="flex-shrink-0">
+                                <div class="border-2 border-gray-300 rounded-xl overflow-hidden p-2 bg-white shadow-md w-full lg:w-56 max-h-56 hover:border-blue-400 transition-colors">
+                                    <img src="{{ asset('storage') }}/${result.image}" 
+                                        alt="Image pour la question n°${globalIndex + 1}" 
+                                        class="w-full h-full object-contain rounded-lg">
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    contentHTML += '</div></div>';
+
+    batchContainer.innerHTML = headerHTML + contentHTML;
+    correctionsSection.appendChild(batchContainer);
+
+    // Faire défiler vers les corrections
+    setTimeout(() => {
+        correctionsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 500);
+}
+
+// Fonction pour toggle l'affichage d'un lot de corrections
+function toggleBatchCorrections(batchIndex) {
+    const content = document.getElementById(`batch-content-${batchIndex}`);
+    const icon = document.querySelector(`.toggle-icon-batch-${batchIndex}`);
+    
+    if (content) {
+        content.classList.toggle('hidden');
+        if (icon) {
+            icon.classList.toggle('rotate-180');
+        }
+    }
+}
+
+// Fonction pour toggle une question individuelle de correction
+function toggleQuestionCorrection(id) {
+    const details = document.getElementById(`correction-details-${id}`);
+    const chevron = document.querySelector(`.chevron-icon-${id}`);
+    
+    if (details) {
+        details.classList.toggle('hidden');
+        if (chevron) {
+            chevron.classList.toggle('rotate-180');
+        }
+    }
+}
+
+// Fonction pour soumettre le quiz final (après le dernier lot)
+async function submitFinalQuiz(lastBatchIndex) {
+    try {
+        // Collecter tous les réponses depuis le formulaire
+        const answers = {};
+
+        document.querySelectorAll('.answer-input:checked').forEach(input => {
+            const questionId = input.dataset.questionId;
+            
+            if (!answers[questionId]) {
+                answers[questionId] = [];
+            }
+            answers[questionId].push(input.value);
+        });
+
+        // Soumettre au serveur avec la route de soumission classique
+        const csrf = document.querySelector('input[name="_token"]').value;
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+        const submitForm = document.createElement('form');
+        submitForm.method = 'POST';
+        submitForm.action = '{{ route("modules.quiz.submit", $module) }}';
+
+        submitForm.innerHTML = `
+            <input type="hidden" name="_token" value="${csrf}">
+            <input type="hidden" name="time_taken" value="${timeSpent}">
+        `;
+
+        // Ajouter les réponses au formulaire
+        Object.keys(answers).forEach(questionId => {
+            const answerIds = answers[questionId];
+            
+            // Si réponse multiple, créer plusieurs inputs avec []
+            if (answerIds.length > 1) {
+                answerIds.forEach(answerId => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = `answers[${questionId}][]`;
+                    input.value = answerId;
+                    submitForm.appendChild(input);
+                });
+            } else if (answerIds.length === 1) {
+                // Si réponse unique
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `answers[${questionId}]`;
+                input.value = answerIds[0];
+                submitForm.appendChild(input);
+            }
+        });
+
+        document.body.appendChild(submitForm);
+        submitForm.submit();
+
+    } catch (error) {
+        console.error('Erreur lors de la soumission finale:', error);
+        await Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur est survenue. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'OK'
+        });
+    }
 }
 
 // Modifier la fonction handleQuizSubmit pour valider tous les groupes
@@ -910,16 +1297,15 @@ async function handleQuizSubmit(event) {
     clearInterval(timerInterval);
 
     const questions = {{ $module->quiz->questions->count() ?? 0 }};
-    let answeredQuestions = 0;
     
-    // Compter les questions répondues dans tous les groupes
-    document.querySelectorAll('.question-container').forEach(container => {
-        const questionId = container.dataset.questionId;
-        const hasAnswer = container.querySelector('.answer-input:checked') !== null;
-        if (hasAnswer) {
-            answeredQuestions++;
-        }
+    // Compter les questions répondues en vérifiant les inputs cochés
+    // On utilise un Set pour éviter de compter deux fois la même question
+    const answeredQuestionIds = new Set();
+    document.querySelectorAll('.answer-input:checked').forEach(input => {
+        answeredQuestionIds.add(input.dataset.questionId);
     });
+    
+    const answeredQuestions = answeredQuestionIds.size;
     
     if (answeredQuestions < questions) {
         event.preventDefault();
@@ -1002,8 +1388,20 @@ function updateTimer() {
     let elapsed = Math.floor((Date.now() - startTime) / 1000);
     let minutes = Math.floor(elapsed / 60);
     let seconds = elapsed % 60;
-    document.getElementById('timer').textContent = 
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const timerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Mettre à jour le timer (s'il existe)
+    const timerElement = document.getElementById('timer');
+    if (timerElement) {
+        timerElement.textContent = timerText;
+    }
+    
+    // Mettre à jour le timer final (s'il existe)
+    const timerFinalElement = document.getElementById('timerFinal');
+    if (timerFinalElement) {
+        timerFinalElement.textContent = timerText;
+    }
+    
     document.getElementById('timeTaken').value = elapsed;
 }
 
